@@ -1,6 +1,5 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 import { fileTypeFromFile } from "file-type";
 
 // Allowed extensions
@@ -81,7 +80,7 @@ const validateFileType = async (req, res, next) => {
       // Check if file is not matched with claimed extension or file-type is not whitelisted in allowed extenions
       if (
         !realFileType ||
-        !allowedExtensions.includes(`.${realFileType.ext}`)
+        !allowedExtensions.includes(`.${realFileType.ext.toLowerCase()}`)
       ) {
         // throw error if invalid file will detect
         throw new Error("File type mismatch. Possible tampering detected.");
@@ -90,12 +89,6 @@ const validateFileType = async (req, res, next) => {
     next(); // Proceed if all files pass
   } catch (error) {
     return res.status(400).json({ error: error.message });
-  } finally {
-    if (Array.isArray(files)) {
-      for (const file of files) {
-        fs.unlinkSync(file.path); // Delete file from local server
-      }
-    }
   }
 };
 
