@@ -1,6 +1,8 @@
 import multer from "multer";
 import path from "path";
 import { fileTypeFromFile } from "file-type";
+import { MAX_FILE_SIZE } from "../constants.js";
+import ApiError from "../utils/API_error.utils.js";
 
 // Allowed extensions
 const allowedExtensions = [
@@ -12,8 +14,6 @@ const allowedExtensions = [
   ".avi",
   ".mkv",
 ];
-// max file size for a file
-const fileSize = 100 * 1024 * 1024; // 100MB
 
 // Multer Storage
 const storage = multer.diskStorage({
@@ -36,7 +36,7 @@ const fileFilter = (req, file, cb) => {
   if (!allowedExtensions.includes(ext)) {
     return cb(
       new Error(
-        `Invalid file type: ${ext}. Allowed: ${allowedExtensions.join(", ")}`
+        `Invalid file type: "${ext}" of file ${file.originalname}. Allowed: ${allowedExtensions.join(", ")}`
       ),
       false
     );
@@ -48,7 +48,8 @@ const fileFilter = (req, file, cb) => {
 // Multer Middleware
 const upload = multer({
   storage,
-  limits: { fileSize },
+  // CONSTANT VARIABLE FROM CONSTANTS.JS
+  limits: { fileSize: MAX_FILE_SIZE },
   fileFilter,
 });
 
@@ -83,7 +84,10 @@ const validateFileType = async (req, res, next) => {
         !allowedExtensions.includes(`.${realFileType.ext.toLowerCase()}`)
       ) {
         // throw error if invalid file will detect
-        throw new Error("File type mismatch. Possible tampering detected.");
+        throw new ApiError(
+          400,
+          "File type mismatch. Possible tampering detected."
+        );
       }
     }
     next(); // Proceed if all files pass
