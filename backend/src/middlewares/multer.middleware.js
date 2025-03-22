@@ -3,6 +3,7 @@ import path from "path";
 import { fileTypeFromFile } from "file-type";
 import { MAX_FILE_SIZE } from "../constants.js";
 import ApiError from "../utils/API_error.utils.js";
+import asyncHandler from "../utils/asyncHandler.utils.js";
 
 // Allowed extensions
 const allowedExtensions = [
@@ -54,12 +55,12 @@ const upload = multer({
 });
 
 // Middleware to Validate Real File Type
-const validateFileType = async (req, res, next) => {
+const validateFileType = asyncHandler(async (req, res, next) => {
   // initialize empty array for storing files
   let files = [];
   if (!req.file && !req.files) {
     //have throwed error if no file will be uploaded
-    return res.status(400).json({ error: "No file uploaded" });
+    throw new ApiError(400, "No file uploaded");
   } else if (req.file) {
     // have pushed files into files array when files will come from upload.single() method
     files.push(req.file);
@@ -73,27 +74,23 @@ const validateFileType = async (req, res, next) => {
     }
   }
 
-  try {
-    // looped on files array for detecting the real file type of files to be uploaded
-    for (const file of files) {
-      // extract real file-type
-      const realFileType = await fileTypeFromFile(file.path);
-      // Check if file is not matched with claimed extension or file-type is not whitelisted in allowed extenions
-      if (
-        !realFileType ||
-        !allowedExtensions.includes(`.${realFileType.ext.toLowerCase()}`)
-      ) {
-        // throw error if invalid file will detect
-        throw new ApiError(
-          400,
-          "File type mismatch. Possible tampering detected."
-        );
-      }
+  // looped on files array for detecting the real file type of files to be uploaded
+  for (const file of files) {
+    // extract real file-type
+    const realFileType = await fileTypeFromFile(file.path);
+    // Check if file is not matched with claimed extension or file-type is not whitelisted in allowed extenions
+    if (
+      !realFileType ||
+      !allowedExtensions.includes(`.${realFileType.ext.toLowerCase()}`)
+    ) {
+      // throw error if invalid file will detect
+      throw new ApiError(
+        400,
+        "File type mismatch. Possible tampering detected."
+      );
     }
-    next(); // Proceed if all files pass
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
   }
-};
+  next(); // Proceed if all files pass
+});
 
 export { upload, validateFileType };

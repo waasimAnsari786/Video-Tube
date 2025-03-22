@@ -11,16 +11,16 @@ app.use(json({ limit: "16kb" }));
 app.use(urlencoded({ limit: "16kb", extended: true }));
 // define static folder for storing temporary data
 app.use(static_("./public/assets"));
+// configure cookie-parser for performing CRUD on user's cookies
+app.use(cookieParser());
 // configure user routes
 app.use("/api/v1/users", userRouter);
 // Multer Error Handling Middleware
-app.use((err, req, res, next) => {
+app.use((err, _, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({ error: err.message });
   }
   next();
 });
-// configure cookie-parser for performing CRUD on user's cookies
-app.use(cookieParser());
 
 export default app;
