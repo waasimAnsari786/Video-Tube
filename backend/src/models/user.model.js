@@ -12,10 +12,12 @@ const userSchema = new Schema(
       index: true,
       validate: {
         validator: function (value) {
-          return /^[a-zA-Z0-9_]{3,20}$/.test(value); // Example: Allow alphanumeric + underscore, 3-20 chars
+          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/.test(
+            value
+          ); // Example: Allow alphanumeric + underscore, 3-20 chars
         },
         message:
-          "User name must be 3-20 characters long and contain only letters, numbers, or underscores",
+          "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
       },
     },
     email: {
@@ -26,7 +28,9 @@ const userSchema = new Schema(
       index: true,
       validate: {
         validator: function (value) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); // Email regex validation
+          return /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/.test(
+            value
+          ); // Email regex validation
         },
         message: "Please enter a valid email address",
       },
@@ -39,7 +43,15 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"], // Custom error message
-      minlength: [6, "Password must be at least 6 characters long"], // Minimum length validation
+      validate: {
+        validator: function (value) {
+          return /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/.test(
+            value
+          ); // Password validation regex
+        },
+        message:
+          "Password must be at least 8 characters long, contain at least 1 uppercase, 1 lowercase, 1 digit, 1 special character (@$!%*?&), and must not have consecutive repeating characters.",
+      },
     },
     refreshToken: {
       type: String,

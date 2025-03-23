@@ -1,7 +1,7 @@
 import express, { json, urlencoded, static as static_ } from "express";
 import { userRouter } from "./routes/user.route.js";
-import multer from "multer";
 import cookieParser from "cookie-parser";
+import errorHandler from "./middlewares/error-handling.middleware.js";
 
 // create app from express
 const app = express();
@@ -15,12 +15,7 @@ app.use(static_("./public/assets"));
 app.use(cookieParser());
 // configure user routes
 app.use("/api/v1/users", userRouter);
-// Multer Error Handling Middleware
-app.use((err, _, res, next) => {
-  if (err instanceof multer.MulterError) {
-    return res.status(400).json({ error: err.message });
-  }
-  next();
-});
+// Error Handling Middleware
+app.use(errorHandler);
 
 export default app;

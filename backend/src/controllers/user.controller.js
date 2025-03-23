@@ -25,56 +25,34 @@ const registerUser = asyncHandler(async (req, res, _) => {
     throw new ApiError(401, "User exists with email or user-name");
   }
 
-  const createdUser = await User.create({
-    userName,
-    fullName,
-    email,
-    password,
-    avatar: "",
-    coverImage: "",
-    refreshToken: "",
-  });
+  try {
+    const createdUser = await User.create({
+      userName,
+      fullName,
+      email,
+      password,
+      avatar: "",
+      coverImage: "",
+      refreshToken: "",
+    });
 
-  const user = await User.findById(createdUser._id).select(
-    "-password -refreshToken"
-  );
+    const user = await User.findById(createdUser._id).select(
+      "-password -refreshToken"
+    );
 
-  if (!user) {
-    throw new ApiError(400, "Error while registering user");
+    if (!user) {
+      throw new ApiError(400, "Error while registering user");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User registered successfully"));
+  } catch (error) {
+    const errors = error.errors
+      ? Object.values(error.errors).map(err => err.message)
+      : [error.message];
+    throw new ApiError(400, "User registration error", errors);
   }
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "User registered successfully"));
-
-  // try {
-  //   const createdUser = await User.create({
-  //     userName,
-  //     fullName,
-  //     email,
-  //     password,
-  //     avatar: "",
-  //     coverImage: "",
-  //     refreshToken: "",
-  //   });
-
-  //   const user = await User.findById(createdUser._id).select(
-  //     "-password -refreshToken"
-  //   );
-
-  //   if (!user) {
-  //     throw new ApiError(400, "Error while registering user");
-  //   }
-
-  //   return res
-  //     .status(200)
-  //     .json(new ApiResponse(200, user, "User registered successfully"));
-  // } catch (error) {
-  //   const errors = error.errors
-  //     ? Object.values(error.errors).map(err => err.message)
-  //     : [error.message];
-  //   throw new ApiError(400, "Error while registering user", errors);
-  // }
 });
 
 // const generateAccessAndRefreshTokens = async user => {
