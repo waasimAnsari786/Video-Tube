@@ -51,7 +51,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
     const errors = error.errors
       ? Object.values(error.errors).map(err => err.message)
       : [error.message];
-    throw new ApiError(400, "User registration Failed:", errors);
+    throw new ApiError(400, "User registration Failed", errors);
   }
 });
 
@@ -130,4 +130,19 @@ const loginUser = asyncHandler(async (req, res, _) => {
     .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
 });
 
-export { registerUser, loginUser };
+const logoutUser = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: { refreshToken: undefined },
+    },
+    { new: true }
+  );
+  return res
+    .status(200)
+    .clearCookie("accessToken", COOKIE_OPTIONS)
+    .clearCookie("refreshToken", COOKIE_OPTIONS)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
+
+export { registerUser, loginUser, logoutUser };
