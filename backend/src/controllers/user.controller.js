@@ -51,74 +51,83 @@ const registerUser = asyncHandler(async (req, res, _) => {
     const errors = error.errors
       ? Object.values(error.errors).map(err => err.message)
       : [error.message];
-    throw new ApiError(400, "User registration error", errors);
+    throw new ApiError(400, "User registration Failed:", errors);
   }
 });
 
-// const generateAccessAndRefreshTokens = async user => {
-//   // generate access and refresh tokens
-//   // save refresh token on user.refreshToken
-//   // save user in DB
-//   // return user
+const generateAccessAndRefreshTokens = async user => {
+  // generate access and refresh tokens
+  // save refresh token on user.refreshToken
+  // save user in DB
+  // return user with access and refresh tokens
 
-//   try {
-//     const accessToken = user.generateAccessToken();
-//     const refreshToken = user.generateRefreshToken();
-//     const updatedUser = await User.findByIdAndUpdate(
-//       user._id,
-//       {
-//         $set: { refreshToken: refreshToken },
-//       },
-//       { new: true }
-//     ).select("-password -refreshToken");
+  try {
+    const accessToken = user.generateAccessToken();
+    if (!accessToken) {
+      throw new ApiError(500, "Error while generating access-token");
+    }
 
-//     // if (!updatedUser) {
-//     //   throw new ApiError(500, "Error while saving refresh token in DB");
-//     // }
+    const refreshToken = user.generateRefreshToken();
+    if (!refreshToken) {
+      throw new ApiError(500, "Error while generating refresh-token");
+    }
 
-//     return { updatedUser, accessToken, refreshToken };
-//   } catch (error) {
-//     throw new ApiError(error.message);
-//   }
-// };
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        $set: { refreshToken },
+      },
+      { new: true }
+    )
+      .select("-password")
+      .lean();
+    if (!updatedUser) {
+      throw new ApiError(
+        500,
+        "Error while updating user after creating tokens"
+      );
+    }
 
-// const loginUser = asyncHandler(async (req, res, next) => {
-//   // get data from req.body
-//   // check that all fields are empty or not. If any of them is throw error
-//   // check does user exist in DB? if he doens't throw error
-//   // check is user's provided password correct
-//   // generate access and refresh tokens
-//   // set tokens in user's browser's cookies
-//   // return response
+    updatedUser.accessToken = accessToken;
+    return { updatedUser, accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(error.message);
+  }
+};
 
-//   const { email, password } = req.body;
-//   if (!email || !password) {
-//     throw new ApiError(400, "Email and passsword are required");
-//   }
+const loginUser = asyncHandler(async (req, res, _) => {
+  // get data from req.body
+  // check that all fields are empty or not. If any of them is throw error
+  // check does user exist in DB? if he doens't throw error
+  // check is user's provided password correct
+  // generate access and refresh tokens
+  // set tokens in user's browser's cookies
+  // return response
 
-//   const existedUser = await User.findOne({ email });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new ApiError(400, "Email and passsword are required");
+  }
 
-//   if (!existedUser) {
-//     throw new ApiError(401, "User doesn't exist");
-//   }
+  const existedUser = await User.findOne({ email });
 
-//   const isPasswordCorrect = await existedUser.isPasswordCorrect(password);
-//   if (!isPasswordCorrect) {
-//     throw new ApiError(401, "Provided password isn't correct");
-//   }
+  if (!existedUser) {
+    throw new ApiError(401, "User doesn't exist");
+  }
 
-//   const { updatedUser, accessToken, refreshToken } =
-//     await generateAccessAndRefreshTokens(existedUser);
+  const isPasswordCorrect = await existedUser.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new ApiError(401, "Provided password isn't correct");
+  }
 
-//   if (!accessToken || !refreshToken || !updatedUser) {
-//     throw new ApiError(500, "Error while generating refresh and access tokens");
-//   }
+  const { updatedUser, accessToken, refreshToken } =
+    await generateAccessAndRefreshTokens(existedUser);
 
-//   return res
-//     .status(200)
-//     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-//     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
-//     .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
-// });
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
+});
 
-export { registerUser };
+export { registerUser, loginUser };

@@ -108,9 +108,9 @@ userSchema.methods.generateRefreshToken = function () {
 
   return refreshToken;
 };
-// method for checking password
-userSchema.methods.isPasswordCorrect = async function (passsword) {
-  return jwt.verify(this.passsword, passsword);
+// method for cpmparing password
+userSchema.methods.comparePassword = async function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
 const User = model("User", userSchema);
