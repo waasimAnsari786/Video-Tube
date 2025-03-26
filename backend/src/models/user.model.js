@@ -110,7 +110,7 @@ userSchema.methods.generateRefreshToken = function () {
 };
 // method for cpmparing password
 userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 const User = model("User", userSchema);

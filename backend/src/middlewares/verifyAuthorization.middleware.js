@@ -3,7 +3,7 @@ import ApiError from "../utils/API_error.utils.js";
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import jwt from "jsonwebtoken";
 
-const verifyAuthorizaion = asyncHandler(async (req, res, next) => {
+const verifyAuthorization = asyncHandler(async (req, res, next) => {
   // get token if it exists in header or request. Throw error if it doesn't
   // decode token
   // get user by id.
@@ -33,4 +33,4 @@ const verifyAuthorizaion = asyncHandler(async (req, res, next) => {
     );
   }
 });
-export default verifyAuthorizaion;
+export default verifyAuthorization;

@@ -22,7 +22,7 @@ const uploadOnCloudinary = async localFilePath => {
     return { url: uploadedFile.secure_url, public_id: uploadedFile.public_id }; // ✅ Return the upload result to the caller
   } catch (error) {
     throw new ApiError(
-      500,
+      error.statusCode || 500,
       `Cloudinary file upload error: ${error.message}` ||
         "Error while uploading file on cloudinary"
     );
