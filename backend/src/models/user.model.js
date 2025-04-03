@@ -57,10 +57,14 @@ const userSchema = new Schema(
       type: String,
     },
     avatar: {
-      type: String,
+      secureURL: String,
+      resourceType: String,
+      publicId: String,
     },
     coverImage: {
-      type: String,
+      secureURL: String,
+      resourceType: String,
+      publicId: String,
     },
     watchHistory: {
       type: Schema.Types.ObjectId,

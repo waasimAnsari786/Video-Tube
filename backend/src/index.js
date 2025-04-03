@@ -1,9 +1,9 @@
-// import needy packages
 import dotenv from "dotenv";
+// configure dotenv for passing env vars in the entire app
+dotenv.config({ path: "./.env" });
+// import needy packages
 import connectDB from "./db/index.js";
 import app from "./app.js";
-// configure dotenv for passing env vars in the entire app
-dotenv.config();
 // execute DB connection function
 connectDB()
   .then(() => {

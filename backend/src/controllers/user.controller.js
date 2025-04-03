@@ -1,10 +1,14 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
 import ApiError from "../utils/API_error.utils.js";
-import uploadOnCloudinary from "../utils/uploadOnCloudinary.utils.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.utils.js";
 import User from "../models/user.model.js";
-import { COOKIE_OPTIONS } from "../constants.js";
+import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
 import checkFields from "../utils/checkFields.utils.js";
+import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
@@ -30,8 +34,8 @@ const registerUser = asyncHandler(async (req, res, _) => {
       fullName,
       email,
       password,
-      avatar: "",
-      coverImage: "",
+      avatar: {},
+      coverImage: {},
       refreshToken: "",
     });
 
@@ -40,7 +44,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
     );
 
     if (!user) {
-      throw new ApiError(400, "Error while registering user");
+      throw new ApiError(500, "Error while registering user");
     }
 
     return res
@@ -288,6 +292,157 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
   }
 });
 
+const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
+  // check - request.file has properties?
+  // check - is requested file's extension valid?
+  // check for previous file
+  // if previous file exists, delete it and then upload new one else upload new one
+  // return response
+
+  try {
+    if (Object.keys(req.file).length === 0) {
+      throw new ApiError(400, "Image is required");
+    }
+
+    if (!IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)) {
+      throw new ApiError(
+        400,
+        `Invalid file type "${req.file.realFileType}" of requested file: Allowed ${IMAGE_EXTENTIONS.join(", ")}`
+      );
+    }
+    /* initialize variable for using requested file's field name in the form in frontend because
+    form's fieldname is match with my DB's fieldname */
+    const fieldName = req.file.fieldname;
+    // user's previous file
+    const prevFile = req.user[fieldName];
+    if (prevFile?.secureURL) {
+      const deletedFile = await deleteFromCloudinary(
+        prevFile?.publicId,
+        "image"
+      );
+      if (!deletedFile) {
+        throw new ApiError(
+          500,
+          `Internal server error while deleting previous ${fieldName}`
+        );
+      }
+    }
+
+    const uploadedFile = await uploadOnCloudinary(req.file.path, "image");
+    const fileDetails = {
+      secureURL: uploadedFile.secure_url,
+      resourceType: uploadedFile.resource_type,
+      publicId: uploadedFile.public_id,
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $set: {
+          [fieldName]: fileDetails,
+        },
+      },
+      { new: true }
+    ).select(`-password -refreshToken -${fieldName}`);
+
+    if (!updatedUser) {
+      throw new ApiError(
+        500,
+        "Internal server error while updating user after file uploading"
+      );
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          fileDetails,
+          `${fieldName} has updated successfully`
+        )
+      );
+  } catch (error) {
+    deleteFileFromLocalServer(req.file.path);
+    throw new ApiError(error.statusCode, error.message);
+  }
+});
+
+const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
+  // extract file's publicId and field's name from req.body
+  // check is fieldName valid?
+  // check if user have already avatar or coverImage
+  // match - both received and saved publicIds.
+  // if they'll be matched, delete file
+  // return response
+  const { fieldName, filePublicId } = req.body;
+
+  if (!filePublicId) {
+    throw new ApiError(400, "File's public Id is missing");
+  }
+
+  if (!["avatar", "coverImage"].includes(fieldName)) {
+    throw new ApiError(400, "Invalid fieldName provided");
+  }
+
+  const fileToBeDeleted = req.user[fieldName];
+
+  // this check is for cheking, does user have any previous avatar or coverImage?
+  /**
+   * avatar and coverImage's structure is lik this in DB
+   *  avatar: {
+      secureURL: undefined,
+      resourceType: undefined,
+      publicId: undefined,
+    },
+    when user don't have any avatar or coverImage."Object.values(fileToBeDeleted)" this code
+    creates an array "[undefined, undefined, undefined]" of all undefined values of
+    avatar or coverImage's object's each property and then this code ".every(val => val === undefined)"
+    checks if all values of array are undefined means user don't have avatar or coverImage,
+    throw error
+   */
+  if (Object.values(fileToBeDeleted).every(val => val === undefined)) {
+    throw new ApiError(400, `User doesn't have ${fieldName}`);
+  }
+
+  if (filePublicId !== fileToBeDeleted.publicId) {
+    throw new ApiError(
+      400,
+      `${fieldName} with the requested publicId doesn't exist`
+    );
+  }
+
+  const deletedFile = await deleteFromCloudinary(
+    filePublicId,
+    fileToBeDeleted.resourceType
+  );
+  if (!deletedFile) {
+    throw new ApiError(500, "Internal server error while deleting file");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        [fieldName]: 1,
+      },
+    },
+    { new: true }
+  ).select(`-password -refreshToken -${fieldName}`);
+
+  if (!updatedUser) {
+    throw new ApiError(
+      500,
+      "Internal server error while updating user after file deletion"
+    );
+  }
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, {}, `${fieldName} has been deleted successfully`)
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -295,4 +450,6 @@ export {
   refreshAccessToken,
   updatePassword,
   updateAccountDetails,
+  updateAvatarAndCoverImage,
+  deleteAvatarAndCoverImage,
 };
