@@ -196,10 +196,17 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
       .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
       .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
   } catch (error) {
-    throw new ApiError(
-      400,
-      error.message || "Refresh token has been expired or invalid"
-    );
+    if (
+      error.name === "TokenExpiredError" ||
+      error.name === "JsonWebTokenError"
+    ) {
+      throw error;
+    } else if (error.name === "ApiError") {
+      throw new ApiError(
+        400,
+        error.message || "Refresh token has been expired or invalid"
+      );
+    }
   }
 });
 

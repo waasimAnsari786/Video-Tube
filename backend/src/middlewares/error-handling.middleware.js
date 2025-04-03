@@ -17,7 +17,19 @@ const errorHandler = (err, _, res, next) => {
     console.log(err);
     // extracting error messages come from mongoDB
     const errors = Object.values(err.errors).map(error => error.message);
-    return res.status(400).json(new ApiError(400, "Validation Error:", errors));
+    return res.status(400).json({
+      data: null,
+      success: false,
+      message: "Validation Error",
+      errors: errors,
+    });
+  } else if (
+    err.name === "TokenExpiredError" ||
+    err.name === "JsonWebTokenError"
+  ) {
+    return res
+      .status(401)
+      .json({ data: null, success: false, message: err.message });
   }
 };
 export default errorHandler;
