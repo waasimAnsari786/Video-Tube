@@ -66,10 +66,12 @@ const userSchema = new Schema(
       resourceType: String,
       publicId: String,
     },
-    watchHistory: {
-      type: Schema.Types.ObjectId,
-      ref: "Video",
-    },
+    watchHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Video",
+      },
+    ],
   },
   { timestamps: true }
 );

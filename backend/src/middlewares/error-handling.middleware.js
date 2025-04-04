@@ -30,6 +30,13 @@ const errorHandler = (err, _, res, next) => {
     return res
       .status(401)
       .json({ data: null, success: false, message: err.message });
+  } else {
+    console.log("error name ", err.name);
+    console.log(err);
+
+    return res
+      .status(401)
+      .json({ data: null, success: false, message: err.message });
   }
 };
 export default errorHandler;
