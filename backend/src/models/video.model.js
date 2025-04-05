@@ -21,8 +21,12 @@ const videoSchema = new Schema(
       required: [true, "Thumbnail is required"], // Custom error message
     },
     videoStatus: {
-      type: Boolean,
-      default: true,
+      type: String,
+      enum: {
+        values: ["Public", "Private"],
+        message: "Invalid `{PATH}` with value `{VALUE}`",
+      },
+      default: "Public",
     },
     owner: {
       type: Schema.Types.ObjectId,

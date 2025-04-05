@@ -3,6 +3,7 @@ import ApiError from "../utils/API_error.utils.js";
 import checkFields from "../utils/checkFields.utils.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
+import Video from "../models/video.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -26,21 +27,39 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const videoLocalPath = video[0].path;
-
     if (!videoLocalPath) {
       throw new ApiError(400, "Video local path is missing");
     }
 
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
+    if (!uploadedVideo) {
+      throw new ApiError(
+        500,
+        "Internal server error while uploading video on cloudinary"
+      );
+    }
 
     const thumbnailLocalPath = thumbnail[0].path;
     if (!thumbnailLocalPath) {
       throw new ApiError(400, "Thumbnail local path is missing");
     }
+
     const uploadedThumbnail = await uploadOnCloudinary(
       thumbnailLocalPath,
       "image"
     );
+    if (!uploadedThumbnail) {
+      throw new ApiError(
+        500,
+        "Internal server error while uploading thumbnail on cloudinary"
+      );
+    }
+
+    const createdVideo = await Video.create({
+      title,
+      description,
+      videoStatus,
+    });
   } catch (error) {
     for (const file in req.files) {
       deleteFileFromLocalServer(req.files[file][0].path);
