@@ -4,6 +4,8 @@ import checkFields from "../utils/checkFields.utils.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import Video from "../models/video.model.js";
+import FileDetails from "../utils/fileObject.utils.js";
+import ApiResponse from "../utils/API_response.utils.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -13,7 +15,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const publishAVideo = asyncHandler(async (req, res) => {
   // extract title, description, videostatus from req.body
   // extract video and thumbnail from req.files
-  // check has all of the data valid values?
+  // check do all of the data have valid values?
   // upload files on cloudinary
   // save files and text data in video collection
   // return response
@@ -22,16 +24,23 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description, videoStatus } = req.body;
     const { video, thumbnail } = req.files;
 
+    /* "checkFields" is a utility function for validating those files which
+    contains data except files. It returns "Boolean" value */
     if (checkFields([title, description])) {
-      throw new ApiError(400, "Title and description is required");
+      throw new ApiError(400, "Title and description are required");
     }
 
+    // extract video and thumbnail's local file path
     const videoLocalPath = video[0].path;
-    if (!videoLocalPath) {
-      throw new ApiError(400, "Video local path is missing");
+    const thumbnailLocalPath = thumbnail[0].path;
+
+    // throw error if local paths will miss or empty
+    if (!videoLocalPath || !thumbnailLocalPath) {
+      throw new ApiError(400, "Video and thumbnail local paths are required");
     }
 
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
+
     if (!uploadedVideo) {
       throw new ApiError(
         500,
@@ -39,15 +48,11 @@ const publishAVideo = asyncHandler(async (req, res) => {
       );
     }
 
-    const thumbnailLocalPath = thumbnail[0].path;
-    if (!thumbnailLocalPath) {
-      throw new ApiError(400, "Thumbnail local path is missing");
-    }
-
     const uploadedThumbnail = await uploadOnCloudinary(
       thumbnailLocalPath,
       "image"
     );
+
     if (!uploadedThumbnail) {
       throw new ApiError(
         500,
@@ -55,16 +60,46 @@ const publishAVideo = asyncHandler(async (req, res) => {
       );
     }
 
+    /*"uploadedVideoDetails" and "uploadedThumbnailDetails" are instances of "FileDetails" class, 
+    which has created for storing uploaded file details in a structured way so that it can be 
+    use for saving it in "Video" collection's each created document's "video" and "thumbnail"
+    fields */
+    const uploadedVideoDetails = new FileDetails(
+      uploadedVideo.secure_url,
+      uploadedVideo.resource_type,
+      uploadedVideo.public_id
+    );
+
+    const uploadedThumbnailDetails = new FileDetails(
+      uploadedThumbnail.secure_url,
+      uploadedThumbnail.resource_type,
+      uploadedThumbnail.public_id
+    );
+
     const createdVideo = await Video.create({
       title,
       description,
       videoStatus,
+      video: uploadedVideoDetails,
+      thumbnail: uploadedThumbnailDetails,
+      owner: req.user._id,
+      duration: uploadedVideo.duration,
     });
+
+    if (!createdVideo) {
+      throw new ApiError(500, "Internal server error while creating video");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, createdVideo, "Video has created succesfully")
+      );
   } catch (error) {
     for (const file in req.files) {
       deleteFileFromLocalServer(req.files[file][0].path);
     }
-    throw new ApiError(error.statusCode, error.message);
+    throw error;
   }
 });
 
@@ -73,9 +108,29 @@ const getVideoById = asyncHandler(async (req, res) => {
   //TODO: get video by id
 });
 
-const updateVideo = asyncHandler(async (req, res) => {
+const updateVideoDetails = asyncHandler(async (req, res) => {
+  // extract videoID from req.param and text data from req.body
+  // check all provided data of user must contain valid values
+  // get video from provided videoId
+  // save details in the video document
+  // return response
   const { videoId } = req.params;
-  //TODO: update video details like title, description, thumbnail
+  const { title, description } = req.body;
+
+  if (!videoId) {
+    throw new ApiError(400, "Video id is missing");
+  }
+  if (checkFields([title, description])) {
+    throw new ApiError(400, "Title and description are required");
+  }
+
+  const video = await Video.findById(videoId);
+
+  if (!video) {
+    throw new ApiError(400, "Video with the requested id doesn't exist");
+  }
+
+  const updatedVideo = await video.save();
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {

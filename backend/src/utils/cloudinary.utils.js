@@ -49,6 +49,7 @@ const deleteFromCloudinary = async (publicId, type) => {
   // return deleted result
 
   try {
+    // "type" contains requested file's resourceType
     if (!publicId || !type) {
       throw new ApiError(
         500,
@@ -57,7 +58,7 @@ const deleteFromCloudinary = async (publicId, type) => {
     }
     const fileDetails = await cloudinary.api.resource(publicId);
     if (fileDetails.resource_type !== type) {
-      console.error("Provided resource-type of image is incorrect");
+      console.error("Provided resource-type of file is incorrect");
       throw new ApiError(
         500,
         "Internal server error while deleting files from cloudinary"

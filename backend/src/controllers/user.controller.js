@@ -9,6 +9,7 @@ import User from "../models/user.model.js";
 import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
 import checkFields from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
+import FileDetails from "../utils/fileObject.utils.js";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
@@ -51,14 +52,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
       .status(200)
       .json(new ApiResponse(200, user, "User registered successfully"));
   } catch (error) {
-    if (error.name === "ApiError") {
-      throw new ApiError(
-        error.statusCode || 500,
-        error.message || "Internal server error while registering user"
-      );
-    } else if (error.name === "ValidationError") {
-      throw error;
-    }
+    throw error;
   }
 });
 
@@ -69,7 +63,10 @@ const generateAccessAndRefreshTokens = async user => {
   // return user with access and refresh tokens
   try {
     if (!user) {
-      throw new ApiError(400, "User is missing for generating tokens");
+      throw new ApiError(
+        500,
+        "Internal server error: User is missing for generating tokens"
+      );
     }
 
     const accessToken = user.generateAccessToken();
@@ -128,7 +125,7 @@ const loginUser = asyncHandler(async (req, res, _) => {
   const isPasswordCorrect = await existedUser.comparePassword(password);
 
   if (!isPasswordCorrect) {
-    throw new ApiError(401, "Provided password isn't correct");
+    throw new ApiError(401, "Provided password is incorrect");
   }
 
   const { updatedUser, accessToken, refreshToken } =
@@ -196,17 +193,7 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
       .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
       .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
   } catch (error) {
-    if (
-      error.name === "TokenExpiredError" ||
-      error.name === "JsonWebTokenError"
-    ) {
-      throw error;
-    } else if (error.name === "ApiError") {
-      throw new ApiError(
-        400,
-        error.message || "Refresh token has been expired or invalid"
-      );
-    }
+    throw error;
   }
 });
 
@@ -249,7 +236,7 @@ const updatePassword = asyncHandler(async (req, res, _) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Password updated successfully"));
   } catch (error) {
-    throw new ApiError(error.statusCode, error.message);
+    throw error;
   }
 });
 
@@ -288,14 +275,7 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
         )
       );
   } catch (error) {
-    if (error.name === "ApiError") {
-      throw new ApiError(
-        error.statusCode || 500,
-        error.message || "Internal server error while registering user"
-      );
-    } else if (error.name === "ValidationError") {
-      throw error;
-    }
+    throw error;
   }
 });
 
@@ -336,11 +316,12 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     }
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, "image");
-    const fileDetails = {
-      secureURL: uploadedFile.secure_url,
-      resourceType: uploadedFile.resource_type,
-      publicId: uploadedFile.public_id,
-    };
+
+    const fileDetails = new FileDetails(
+      uploadedFile.secure_url,
+      uploadedFile.resource_type,
+      uploadedFile.public_id
+    );
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -370,7 +351,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       );
   } catch (error) {
     deleteFileFromLocalServer(req.file.path);
-    throw new ApiError(error.statusCode, error.message);
+    throw error;
   }
 });
 

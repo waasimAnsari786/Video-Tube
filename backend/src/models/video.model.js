@@ -13,12 +13,14 @@ const videoSchema = new Schema(
       trim: true,
     },
     video: {
-      type: String,
-      required: [true, "Video is required"],
+      secureURL: { type: String, required: true },
+      resourceType: { type: String, required: true },
+      publicId: { type: String, required: true },
     },
     thumbnail: {
-      type: String,
-      required: [true, "Thumbnail is required"], // Custom error message
+      secureURL: { type: String, required: true },
+      resourceType: { type: String, required: true },
+      publicId: { type: String, required: true },
     },
     videoStatus: {
       type: String,

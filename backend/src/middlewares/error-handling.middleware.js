@@ -1,17 +1,14 @@
 import multer from "multer";
 import ApiError from "../utils/API_error.utils.js";
+import ApiResponse from "../utils/API_response.utils.js";
 
 const errorHandler = (err, _, res, next) => {
-  // display errors of multer
   if (err instanceof multer.MulterError) {
     console.log(err);
-    return res
-      .status(400)
-      .json({ data: null, success: false, message: err.code });
-    // display custom errors of ApiErrors
+    return res.status(400).json(new ApiResponse(400, null, err.code));
   } else if (err instanceof ApiError) {
     console.log(err);
-    return res.status(400).json({ ...err, message: err.message });
+    return res.status(400).json(new ApiResponse(400, null, err.message));
     // display errors of Database
   } else if (err.name === "ValidationError") {
     console.log(err);
@@ -27,16 +24,11 @@ const errorHandler = (err, _, res, next) => {
     err.name === "TokenExpiredError" ||
     err.name === "JsonWebTokenError"
   ) {
-    return res
-      .status(401)
-      .json({ data: null, success: false, message: err.message });
+    return res.status(400).json(new ApiResponse(400, null, err.message));
   } else {
     console.log("error name ", err.name);
     console.log(err);
-
-    return res
-      .status(401)
-      .json({ data: null, success: false, message: err.message });
+    return res.status(401).json(new ApiResponse(401, null, err.message));
   }
 };
 export default errorHandler;

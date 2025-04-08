@@ -1,46 +1,40 @@
 import { Router } from "express";
-import upload from "../middlewares/multer.middleware.js";
 import {
-  deleteAvatarAndCoverImage,
+  registerUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
-  registerUser,
+  updatePassword,
   updateAccountDetails,
   updateAvatarAndCoverImage,
-  updatePassword,
 } from "../controllers/user.controller.js";
-import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
+import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
 
 const userRouter = Router();
 
-userRouter.route("/register-user").post(registerUser);
-userRouter.route("/login-user").post(loginUser);
-userRouter.route("/logout-user").post(verifyAuthorization, logoutUser);
+// --- Public Routes ---
+userRouter.route("/").post(registerUser);
+userRouter.route("/login").post(loginUser);
 userRouter.route("/refresh-token").post(refreshAccessToken);
-userRouter.route("/update-password").patch(verifyAuthorization, updatePassword);
+
+// --- Authenticated Routes ---
+userRouter.use(verifyAuthorization); // Protect everything below
+
+userRouter.route("/me/logout").post(logoutUser);
+userRouter.route("/me/password").patch(updatePassword);
+userRouter.route("/me").patch(updateAccountDetails); // Update account
+
 userRouter
-  .route("/update-account-details")
-  .patch(verifyAuthorization, updateAccountDetails);
+  .route("/me/avatar")
+  .patch(upload.single("avatar"), validateFileType, updateAvatarAndCoverImage);
 userRouter
-  .route("/update-avatar")
+  .route("/me/cover")
   .patch(
-    verifyAuthorization,
-    upload.single("avatar"),
-    validateFileType,
-    updateAvatarAndCoverImage
-  );
-userRouter
-  .route("/update-cover-image")
-  .patch(
-    verifyAuthorization,
     upload.single("coverImage"),
     validateFileType,
     updateAvatarAndCoverImage
   );
-userRouter
-  .route("/delete-avatar-cover-image")
-  .delete(verifyAuthorization, deleteAvatarAndCoverImage);
 
-export { userRouter };
+export default userRouter;
