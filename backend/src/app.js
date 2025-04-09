@@ -1,8 +1,8 @@
 import express, { json, urlencoded, static as static_ } from "express";
-import { userRouter } from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
-import errorHandler from "./middlewares/error-handling.middleware.js";
+import { userRouter } from "./routes/user.route.js";
 import { videoRouter } from "./routes/video.route.js";
+import errorHandler from "./middlewares/error-handling.middleware.js";
 
 // create app from express
 const app = express();

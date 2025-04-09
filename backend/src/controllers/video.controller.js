@@ -1,11 +1,15 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
 import checkFields from "../utils/checkFields.utils.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.utils.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import Video from "../models/video.model.js";
 import FileDetails from "../utils/fileObject.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
+import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -16,6 +20,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   // extract title, description, videostatus from req.body
   // extract video and thumbnail from req.files
   // check do all of the data have valid values?
+  // check - video field must contain video and thumbnail, image
   // upload files on cloudinary
   // save files and text data in video collection
   // return response
@@ -37,6 +42,13 @@ const publishAVideo = asyncHandler(async (req, res) => {
     // throw error if local paths will miss or empty
     if (!videoLocalPath || !thumbnailLocalPath) {
       throw new ApiError(400, "Video and thumbnail local paths are required");
+    }
+
+    if (!VIDEO_EXTENTIONS.includes(video[0].realFileType)) {
+      throw new ApiError(400, "Video field must contain video");
+    }
+    if (!IMAGE_EXTENTIONS.includes(thumbnail[0].realFileType)) {
+      throw new ApiError(400, "Thumbnail field must contain image");
     }
 
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
@@ -130,7 +142,124 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Video with the requested id doesn't exist");
   }
 
+  video.title = title;
+  video.description = description;
+
   const updatedVideo = await video.save();
+
+  if (!updatedVideo) {
+    throw new ApiError(500, "Internal server error while updating video");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedVideo, "Video has been updated successfully")
+    );
+});
+
+const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
+  // extract "videoId" from req.params
+  // check - request.file has properties?
+  // check - is requested file's extension valid?
+  // get video from vdieo id
+  // upload file on cloudinary
+  // save the response in DB
+  // check for previous file
+  // if previous file exists, delete it
+  // return response
+
+  try {
+    const { videoId } = req.params;
+    if (!videoId) {
+      throw new ApiError(400, "Video id is missing");
+    }
+
+    if (Object.keys(req.file).length === 0) {
+      throw new ApiError(400, "File is required");
+    }
+
+    /* initialize variable for using requested file's field name in the form in frontend because
+    form's fieldname matches with my DB's fieldname */
+    const fieldName = req.file.fieldname;
+
+    if (
+      fieldName === "thumbnail" &&
+      !IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)
+    ) {
+      throw new ApiError(
+        400,
+        `Invalid file type "${req.file.realFileType}" of requested file ${fieldName}: Allowed ${IMAGE_EXTENTIONS.join(", ")}`
+      );
+    } else if (
+      fieldName === "video" &&
+      !VIDEO_EXTENTIONS.includes(`.${req.file.realFileType}`)
+    ) {
+      throw new ApiError(
+        400,
+        `Invalid file type "${req.file.realFileType}" of requested file ${fieldName}: Allowed ${VIDEO_EXTENTIONS.join(", ")}`
+      );
+    }
+
+    const videoDoc = await Video.findById(videoId);
+
+    if (!videoDoc) {
+      throw new ApiError(400, "Video with the requested id doesn't exist");
+    }
+
+    let resourceType = fieldName === "thumbnail" ? "image" : "video";
+
+    const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
+
+    if (!uploadedFile) {
+      throw new ApiError(500, "Internal server error while uploading file");
+    }
+
+    const fileDetails = new FileDetails(
+      uploadedFile.secure_url,
+      uploadedFile.resource_type,
+      uploadedFile.public_id
+    );
+
+    videoDoc[fieldName] = fileDetails;
+
+    const updatedVideo = videoDoc.save();
+
+    if (!updatedVideo) {
+      throw new ApiError(
+        500,
+        "Internal server error while updating video after file uploading"
+      );
+    }
+
+    // user's previous file
+    const prevFile = videoDoc[fieldName];
+    if (prevFile?.secureURL) {
+      const deletedFile = await deleteFromCloudinary(
+        prevFile?.publicId,
+        prevFile?.resourceType
+      );
+      if (!deletedFile) {
+        throw new ApiError(
+          500,
+          `Internal server error while deleting previous ${fieldName}`
+        );
+      }
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          fileDetails,
+          `${fieldName} has updated successfully`
+        )
+      );
+  } catch (error) {
+    deleteFileFromLocalServer(req.file.path);
+    throw error;
+  }
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
@@ -144,9 +273,10 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
 export {
   getAllVideos,
-  publishAVideo,
   getVideoById,
-  updateVideo,
+  publishAVideo,
+  updateVideoDetails,
+  updateVideoAndThumbnail,
   deleteVideo,
   togglePublishStatus,
 };

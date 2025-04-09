@@ -305,7 +305,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     if (prevFile?.secureURL) {
       const deletedFile = await deleteFromCloudinary(
         prevFile?.publicId,
-        "image"
+        prevFile?.resourceType
       );
       if (!deletedFile) {
         throw new ApiError(

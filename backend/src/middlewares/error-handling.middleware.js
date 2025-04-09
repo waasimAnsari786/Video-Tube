@@ -12,7 +12,7 @@ const errorHandler = (err, _, res, next) => {
     // display errors of Database
   } else if (err.name === "ValidationError") {
     console.log(err);
-    // extracting error messages come from mongoDB
+    // extracting error messages, come from mongoDB
     const errors = Object.values(err.errors).map(error => error.message);
     return res.status(400).json({
       data: null,
