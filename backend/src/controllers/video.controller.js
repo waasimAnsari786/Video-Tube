@@ -82,6 +82,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
       uploadedVideo.public_id
     );
 
+    console.log("uploaded video details ", uploadedVideoDetails);
+
     const uploadedThumbnailDetails = new FileDetails(
       uploadedThumbnail.secure_url,
       uploadedThumbnail.resource_type,
@@ -97,6 +99,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
       owner: req.user._id,
       duration: uploadedVideo.duration,
     });
+
+    console.log("created video ", createdVideo);
 
     if (!createdVideo) {
       throw new ApiError(500, "Internal server error while creating video");
@@ -146,6 +150,7 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
   video.description = description;
 
   const updatedVideo = await video.save();
+  console.log("updated video for it's details ", updatedVideo);
 
   if (!updatedVideo) {
     throw new ApiError(500, "Internal server error while updating video");
@@ -233,6 +238,10 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 
     videoDoc[fieldName] = fileDetails;
 
+    if (fieldName === "video") {
+      videoDoc.duration = uploadedFile.duration;
+    }
+
     const updatedVideo = await videoDoc.save();
 
     if (!updatedVideo) {
@@ -272,7 +281,24 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
+  // extract video Id from req.params
+  // get video from videoId
+  // if video exists, delete it
+  // if video will be deleted successfully, delete video and thumbnail file from cloudinary too.
+  // return response
+  try {
+    const { videoId } = req.params;
+    if (!videoId) {
+      throw new ApiError(400, "Video id is missing");
+    }
+
+    const video = await Video.findById(videoId);
+    if (!video) {
+      throw new ApiError(400, "Video with the requested id doesn't exist");
+    }
+  } catch (error) {
+    throw error;
+  }
   //TODO: delete video
 });
 
