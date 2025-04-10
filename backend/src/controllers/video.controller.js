@@ -163,6 +163,8 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   // check - request.file has properties?
   // check - is requested file's extension valid?
   // get video from vdieo id
+  /* check - video has already that file in the the related field which will
+  be update in this request*/
   // upload file on cloudinary
   // save the response in DB
   // check for previous file
@@ -206,7 +208,12 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     if (!videoDoc) {
       throw new ApiError(400, "Video with the requested id doesn't exist");
     }
+    // user's previous file
+    const prevFile = videoDoc[fieldName];
 
+    /*initialize this variable for storing resource-type or type for file to be uploaded.
+    Because "uploadOnCloudinary()" method expects 2 arguments, file's to be uploaded
+    local-path and type*/
     let resourceType = fieldName === "thumbnail" ? "image" : "video";
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
@@ -215,6 +222,9 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
       throw new ApiError(500, "Internal server error while uploading file");
     }
 
+    /*"fileDetails" is instance of "FileDetails" class, which has created for storing
+    uploaded file details in a structured way so that it can be use for saving it in
+    "Video" collection's each created document's "video" and "thumbnail" fields */
     const fileDetails = new FileDetails(
       uploadedFile.secure_url,
       uploadedFile.resource_type,
@@ -223,7 +233,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 
     videoDoc[fieldName] = fileDetails;
 
-    const updatedVideo = videoDoc.save();
+    const updatedVideo = await videoDoc.save();
 
     if (!updatedVideo) {
       throw new ApiError(
@@ -232,8 +242,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
       );
     }
 
-    // user's previous file
-    const prevFile = videoDoc[fieldName];
+    // previous file deletion
     if (prevFile?.secureURL) {
       const deletedFile = await deleteFromCloudinary(
         prevFile?.publicId,
