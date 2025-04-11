@@ -52,6 +52,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
+    console.log("uploaded video details ", uploadedVideoDetails);
 
     if (!uploadedVideo) {
       throw new ApiError(
@@ -81,8 +82,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
       uploadedVideo.resource_type,
       uploadedVideo.public_id
     );
-
-    console.log("uploaded video details ", uploadedVideoDetails);
 
     const uploadedThumbnailDetails = new FileDetails(
       uploadedThumbnail.secure_url,
@@ -222,6 +221,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     let resourceType = fieldName === "thumbnail" ? "image" : "video";
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
+    console.log("uploaded file", uploadedFile);
 
     if (!uploadedFile) {
       throw new ApiError(500, "Internal server error while uploading file");
@@ -243,6 +243,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     }
 
     const updatedVideo = await videoDoc.save();
+    console.log("updated video ", updatedVideo);
 
     if (!updatedVideo) {
       throw new ApiError(
@@ -288,14 +289,53 @@ const deleteVideo = asyncHandler(async (req, res) => {
   // return response
   try {
     const { videoId } = req.params;
+
     if (!videoId) {
       throw new ApiError(400, "Video id is missing");
     }
 
-    const video = await Video.findById(videoId);
-    if (!video) {
-      throw new ApiError(400, "Video with the requested id doesn't exist");
+    const videoDoc = await Video.findById(videoId);
+
+    if (!videoDoc) {
+      throw new ApiError(404, "Video with the requested id doesn't exist");
     }
+
+    const { video, thumbnail } = videoDoc;
+
+    const deletedVideo = await Video.deleteOne({ _id: videoId });
+
+    console.log("deleted video ", deletedVideo);
+
+    if (deletedVideo.deletedCount === 0) {
+      throw new ApiError(404, "Video with the requested id doesn't exist");
+    }
+
+    const deletedVideoFile = await deleteFromCloudinary(
+      video.publicId,
+      video.resourceType
+    );
+
+    if (!deletedVideoFile) {
+      throw new ApiError(
+        500,
+        "Internal server error: Requested video has been deleted. But some how there is an error in this request"
+      );
+    }
+    const deletedThumbnailFile = await deleteFromCloudinary(
+      thumbnail.publicId,
+      thumbnail.resourceType
+    );
+
+    if (!deletedThumbnailFile) {
+      throw new ApiError(
+        500,
+        "Internal server error: Requested video has been deleted. But some how there is an error in this request"
+      );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "", "Video has been deleted successfully"));
   } catch (error) {
     throw error;
   }
@@ -303,7 +343,54 @@ const deleteVideo = asyncHandler(async (req, res) => {
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
+  // extract videoId from req.params
+  // extract video status from req.body
+  // get the video
+  // update videoStatus
+  // return response
+
+  try {
+    const { videoId } = req.params;
+
+    if (!videoId) {
+      throw new ApiError(400, "Video id is missing");
+    }
+
+    const { videoStatus } = req.body;
+
+    if (!videoStatus) {
+      throw new ApiError(400, "Video status is required");
+    }
+
+    const videoDoc = await Video.findById(videoId);
+
+    if (!videoDoc) {
+      throw new ApiError(404, "Video with the requested id doesn't exist");
+    }
+
+    videoDoc.videoStatus = videoStatus;
+
+    const updatedVideo = await videoDoc.save();
+
+    if (!updatedVideo) {
+      throw new ApiError(
+        500,
+        "Internal server error while updating video status"
+      );
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedVideo,
+          "Video status has been updated successfully"
+        )
+      );
+  } catch (error) {
+    throw error;
+  }
 });
 
 export {
