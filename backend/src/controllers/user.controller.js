@@ -280,17 +280,12 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
 });
 
 const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
-  // check - request.file has properties?
   // check - is requested file's extension valid?
   // check for previous file
   // if previous file exists, delete it and then upload new one else upload new one
   // return response
 
   try {
-    if (Object.keys(req.file).length === 0) {
-      throw new ApiError(400, "Image is required");
-    }
-
     if (!IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)) {
       throw new ApiError(
         400,
@@ -300,20 +295,6 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     /* initialize variable for using requested file's field name in the form in frontend because
     form's fieldname is match with my DB's fieldname */
     const fieldName = req.file.fieldname;
-    // user's previous file
-    const prevFile = req.user[fieldName];
-    if (prevFile?.secureURL) {
-      const deletedFile = await deleteFromCloudinary(
-        prevFile?.publicId,
-        prevFile?.resourceType
-      );
-      if (!deletedFile) {
-        throw new ApiError(
-          500,
-          `Internal server error while deleting previous ${fieldName}`
-        );
-      }
-    }
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, "image");
 
@@ -340,6 +321,21 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       );
     }
 
+    // user's previous file
+    const prevFile = req.user[fieldName];
+    if (prevFile?.secureURL) {
+      const deletedFile = await deleteFromCloudinary(
+        prevFile?.publicId,
+        prevFile?.resourceType
+      );
+      if (!deletedFile) {
+        throw new ApiError(
+          500,
+          `Internal server error while deleting previous ${fieldName}`
+        );
+      }
+    }
+
     return res
       .status(200)
       .json(
@@ -358,10 +354,12 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
 const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   // extract file's publicId and field's name from req.body
   // check is fieldName valid?
+  // check - does user send correct field name to this endpoint
   // check if user have already avatar or coverImage
   // match - both received and saved publicIds.
   // if they'll be matched, delete file
   // return response
+
   const { fieldName, filePublicId } = req.body;
 
   if (!filePublicId) {
@@ -372,23 +370,29 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     throw new ApiError(400, "Invalid fieldName provided");
   }
 
+  // Extract the last part of the URL path (either 'avatar' or 'cover')
+  const pathSegment = req.originalUrl.split("/").pop(); // 'avatar' or 'cover'
+
+  const expectedField = pathSegment === "avatar" ? "avatar" : "coverImage";
+
+  if (fieldName !== expectedField) {
+    throw new ApiError(
+      400,
+      `You are trying to delete '${fieldName}' via '${expectedField}' route. Please use the correct endpoint.`
+    );
+  }
+
   const fileToBeDeleted = req.user[fieldName];
 
-  // this check is for cheking, does user have any previous avatar or coverImage?
-  /**
-   * avatar and coverImage's structure is lik this in DB
-   *  avatar: {
-      secureURL: undefined,
-      resourceType: undefined,
-      publicId: undefined,
-    },
-    when user don't have any avatar or coverImage."Object.values(fileToBeDeleted)" this code
-    creates an array "[undefined, undefined, undefined]" of all undefined values of
-    avatar or coverImage's object's each property and then this code ".every(val => val === undefined)"
-    checks if all values of array are undefined means user don't have avatar or coverImage,
-    throw error
-   */
-  if (Object.values(fileToBeDeleted).every(val => val === undefined)) {
+  /* this check is for cheking, does user have any previous avatar or coverImage by checking 
+  that is "fileToBeDeleted" null object or if it has its values, are these values undefined?
+  Because due to some reasons avatar and cover image's fields contains an object wheather 
+  user have uploaded file in it or not.*/
+
+  if (
+    !fileToBeDeleted ||
+    Object.values(fileToBeDeleted).every(val => val === undefined)
+  ) {
     throw new ApiError(400, `User doesn't have ${fieldName}`);
   }
 
@@ -400,7 +404,7 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   }
 
   const deletedFile = await deleteFromCloudinary(
-    filePublicId,
+    fileToBeDeleted.publicId,
     fileToBeDeleted.resourceType
   );
   if (!deletedFile) {

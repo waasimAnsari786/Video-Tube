@@ -2,6 +2,16 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// Create mini-schema for video and thumbnail
+const mediaSchema = new Schema(
+  {
+    secureURL: { type: String, required: true },
+    resourceType: { type: String, required: true },
+    publicId: { type: String, required: true },
+  },
+  { _id: false } // Prevents MongoDB from generating _id for each media object
+);
+
 const userSchema = new Schema(
   {
     userName: {
@@ -57,14 +67,12 @@ const userSchema = new Schema(
       type: String,
     },
     avatar: {
-      secureURL: String,
-      resourceType: String,
-      publicId: String,
+      type: mediaSchema,
+      required: true,
     },
     coverImage: {
-      secureURL: String,
-      resourceType: String,
-      publicId: String,
+      type: mediaSchema,
+      required: true,
     },
     watchHistory: [
       {

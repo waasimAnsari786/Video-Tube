@@ -27,17 +27,8 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    if (
-      error.name === "TokenExpiredError" ||
-      error.name === "JsonWebTokenError"
-    ) {
-      throw error;
-    } else if (error.name === "ApiError") {
-      throw new ApiError(
-        400,
-        error.message || "Acccess token has been expired or invalid"
-      );
-    }
+    throw error;
   }
 });
+
 export default verifyAuthorization;

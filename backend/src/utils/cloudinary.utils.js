@@ -1,8 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { v2 as cloudinary } from "cloudinary";
 import ApiError from "./API_error.utils.js";
-import dotenv from "dotenv";
 import deleteFileFromLocalServer from "./deleteFileFromLocalServer.utils.js";
-dotenv.config();
 
 // Configuration
 cloudinary.config({
@@ -30,10 +30,10 @@ const uploadOnCloudinary = async (localFilePath, type) => {
     });
     return uploadedFile; // ✅ Return the upload result to the caller
   } catch (error) {
+    console.error(error);
     throw new ApiError(
       error.statusCode || 500,
-      `Cloudinary file upload error: ${error.message}` ||
-        "Internal server error while uploading file on cloudinary"
+      "Internal server error while uploading file on cloudinary"
     );
   } finally {
     // utility function for deleting files from local server

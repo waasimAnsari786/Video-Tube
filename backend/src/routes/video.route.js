@@ -10,6 +10,7 @@ import {
   updateVideoAndThumbnail,
   updateVideoDetails,
 } from "../controllers/video.controller.js";
+import videoOwnerCheck from "../middlewares/videoOwnerCheck.middleware.js";
 
 const videoRouter = Router();
 
@@ -29,14 +30,29 @@ videoRouter
 
 videoRouter
   .route("/video/:videoId")
-  .patch(upload.single("video"), validateFileType, updateVideoAndThumbnail);
+  .patch(
+    upload.single("video"),
+    validateFileType,
+    videoOwnerCheck,
+    updateVideoAndThumbnail
+  );
 
 videoRouter
   .route("/thumbnail/:videoId")
-  .patch(upload.single("thumbnail"), validateFileType, updateVideoAndThumbnail);
+  .patch(
+    upload.single("thumbnail"),
+    validateFileType,
+    videoOwnerCheck,
+    updateVideoAndThumbnail
+  );
 
-videoRouter.route("/details/:videoId").patch(updateVideoDetails);
+videoRouter
+  .route("/details/:videoId")
+  .patch(videoOwnerCheck, updateVideoDetails);
 
-videoRouter.route("/:videoId").get(getVideoById).delete(deleteVideo);
+videoRouter
+  .route("/:videoId")
+  .get(getVideoById)
+  .delete(videoOwnerCheck, deleteVideo);
 
 export default videoRouter;

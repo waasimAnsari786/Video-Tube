@@ -20,7 +20,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const publishAVideo = asyncHandler(async (req, res) => {
   // extract title, description, videostatus from req.body
   // extract video and thumbnail from req.files
-  // check do all of the data have valid values?
+  // check - all of the data have valid values?
   // check - video field must contain video and thumbnail must constain image
   // upload files on cloudinary
   // save files and text data in video collection
@@ -46,11 +46,14 @@ const publishAVideo = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Video local path is required");
     }
 
-    if (!VIDEO_EXTENTIONS.includes(video[0].realFileType)) {
+    if (!VIDEO_EXTENTIONS.includes(`.${video[0].realFileType}`)) {
       throw new ApiError(400, "Video field must contain video file");
     }
 
-    if (thumbnail && !IMAGE_EXTENTIONS.includes(thumbnail?.[0]?.realFileType)) {
+    if (
+      thumbnail &&
+      !IMAGE_EXTENTIONS.includes(`.${thumbnail?.[0]?.realFileType}`)
+    ) {
       throw new ApiError(400, "Thumbnail field must contain image file");
     }
 
@@ -63,6 +66,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
       );
     }
 
+    // initialize this variable for storing uploaded result of thumbnail
     let uploadedThumbnail = null;
 
     if (thumbnail && thumbnailLocalPath) {
@@ -79,8 +83,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
       uploadedVideo.public_id
     );
 
-    console.log("uploaded video details ", uploadedVideoDetails);
-
+    /* If thumbnail successfully uploads, this variable will contain necessary details
+    for saving it in DB otherwise it will be null*/
     const uploadedThumbnailDetails = uploadedThumbnail
       ? new FileDetails(
           uploadedThumbnail.secure_url,
@@ -89,17 +93,21 @@ const publishAVideo = asyncHandler(async (req, res) => {
         )
       : null;
 
+    /*I'm saving "uploadedeThumbnailDetails" in DB, it doesn't cause issues because if thumbnail 
+      will be uploaded successfully then "uploadedeThumbnailDetails" varibale will contain 
+      thumbnail details otherwise it will be "null" already because i'm using ternary operators
+      above where i'm checking if "uploadedThumbanil" variable will contain details of 
+      uploaded thumbnail then "uploadedeThumbnailDetails" variable will store details of it otherwise
+      it will be "null"*/
     const createdVideo = await Video.create({
       title,
       description,
       videoStatus,
       video: uploadedVideoDetails,
-      thumbnail: uploadedThumbnailDetails || null,
+      thumbnail: uploadedThumbnailDetails,
       owner: req.user._id,
       duration: uploadedVideo.duration,
     });
-
-    console.log("created video ", createdVideo);
 
     if (!createdVideo) {
       throw new ApiError(500, "Internal server error while creating video");
@@ -124,17 +132,10 @@ const getVideoById = asyncHandler(async (req, res) => {
 });
 
 const updateVideoDetails = asyncHandler(async (req, res) => {
-  // extract videoID from req.param and text data from req.body
-  // check - is videoId valid?
   // check all provided data of user must contain valid values
   // get video from provided videoId
   // save details in the video document
   // return response
-  const { videoId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(videoId)) {
-    throw new ApiError(400, "Invalid video id");
-  }
 
   const { title, description } = req.body;
 
@@ -142,16 +143,12 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Title and description are required");
   }
 
-  const video = await Video.findById(videoId);
+  const { videoDoc } = req;
 
-  if (!video) {
-    throw new ApiError(400, "Video with the requested id doesn't exist");
-  }
+  videoDoc.title = title;
+  videoDoc.description = description;
 
-  video.title = title;
-  video.description = description;
-
-  const updatedVideo = await video.save();
+  const updatedVideo = await videoDoc.save();
   console.log("updated video for it's details ", updatedVideo);
 
   if (!updatedVideo) {
@@ -166,8 +163,6 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 });
 
 const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
-  // extract "videoId" from req.params
-  // check - is videoId valid?
   // check - is requested file's extension valid?
   // get video from vdieo id
   /* check - video has already that file in the the related field which will
@@ -179,12 +174,6 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   // return response
 
   try {
-    const { videoId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(videoId)) {
-      throw new ApiError(400, "Invalid video id");
-    }
-
     /* initialize variable for using requested file's field name in the form in frontend because
     form's fieldname matches with my DB's fieldname */
     const fieldName = req.file.fieldname;
@@ -207,11 +196,8 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
       );
     }
 
-    const videoDoc = await Video.findById(videoId);
+    const { videoDoc } = req;
 
-    if (!videoDoc) {
-      throw new ApiError(400, "Video with the requested id doesn't exist");
-    }
     // user's previous file
     const prevFile = videoDoc[fieldName];
 
@@ -281,25 +267,13 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   }
 });
 
-const deleteVideo = asyncHandler(async (req, res) => {
-  // extract video Id from req.params
-  // check - is videoId valid?
+const deleteVideo = asyncHandler(async (req, res, next) => {
   // get video from videoId
   // if video exists, delete it
   // if video will be deleted successfully, delete video and thumbnail file from cloudinary too.
   // return response
   try {
-    const { videoId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(videoId)) {
-      throw new ApiError(400, "Invalid video id");
-    }
-
-    const videoDoc = await Video.findById(videoId);
-
-    if (!videoDoc) {
-      throw new ApiError(404, "Video with the requested id doesn't exist");
-    }
+    const { videoDoc } = req;
 
     const { video, thumbnail } = videoDoc;
 
@@ -331,7 +305,6 @@ const deleteVideo = asyncHandler(async (req, res) => {
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-  // extract videoId from req.params
   // extract video status from req.body
   // Make 1st character of veideoSatus uppercase which user has provided
   // get the video
@@ -339,13 +312,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   else update videoStatus and then return response*/
 
   try {
-    const { videoId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(videoId)) {
-      throw new ApiError(400, "Invalid video id");
-    }
-
     const { videoStatus } = req.body;
+    const { videoDoc } = req;
 
     if (!videoStatus) {
       throw new ApiError(400, "Video status is required");
@@ -353,12 +321,6 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     const normalizedStatus =
       videoStatus.charAt(0).toUpperCase() + videoStatus.slice(1).toLowerCase(); // "public" → "Public"
-
-    const videoDoc = await Video.findById(videoId);
-
-    if (!videoDoc) {
-      throw new ApiError(404, "Video with the requested id doesn't exist");
-    }
 
     if (videoDoc.videoStatus === normalizedStatus) {
       return res

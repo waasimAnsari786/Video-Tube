@@ -12,16 +12,18 @@ const validateFileType = asyncHandler(async (req, res, next) => {
   if (!req.file && !req.files) {
     throw new ApiError(400, "No file uploaded");
   } else if (req.file) {
-    // check - is req.file null?
+    // check - is req.file null object?
     if (Object.keys(req.file).length === 0) {
       throw new ApiError(400, "No file uploaded");
     } else {
       files.push(req.file);
     }
   } else if (req.files) {
-    // check - is req.files null?
+    // check - is req.files null object?
     if (Object.keys(req.files).length === 0) {
       throw new ApiError(400, "No file uploaded");
+      /* check - when files come from upload.fields, all are arrays or not? and then 
+      update fiels array by stroing just all file's objects*/
     } else if (Object.values(req.files).every(val => Array.isArray(val))) {
       files = Object.values(req.files).flat(); // ✅ Flatten array of arrays
     } else {
