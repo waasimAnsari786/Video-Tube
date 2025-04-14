@@ -7,6 +7,7 @@ import {
   updatePassword,
   updateAccountDetails,
   updateAvatarAndCoverImage,
+  deleteAvatarAndCoverImage,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
@@ -28,13 +29,15 @@ userRouter.route("/me").patch(updateAccountDetails); // Update account
 
 userRouter
   .route("/me/avatar")
-  .patch(upload.single("avatar"), validateFileType, updateAvatarAndCoverImage);
+  .patch(upload.single("avatar"), validateFileType, updateAvatarAndCoverImage)
+  .delete(deleteAvatarAndCoverImage);
 userRouter
   .route("/me/cover")
   .patch(
     upload.single("coverImage"),
     validateFileType,
     updateAvatarAndCoverImage
-  );
+  )
+  .delete(deleteAvatarAndCoverImage);
 
 export default userRouter;

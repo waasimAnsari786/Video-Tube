@@ -1,7 +1,7 @@
 import express, { json, urlencoded, static as static_ } from "express";
 import cookieParser from "cookie-parser";
-import { userRouter } from "./routes/user.route.js";
-import { videoRouter } from "./routes/video.route.js";
+import userRouter from "./routes/user.route.js";
+import videoRouter from "./routes/video.route.js";
 import errorHandler from "./middlewares/error-handling.middleware.js";
 
 // create app from express

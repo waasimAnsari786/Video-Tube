@@ -312,6 +312,9 @@ const deleteVideo = asyncHandler(async (req, res) => {
       deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType),
     ]);
 
+    console.log(deletedVideoFile);
+    console.log(deletedThumbnailFile);
+
     if (!deletedVideoFile || !deletedThumbnailFile) {
       throw new ApiError(
         500,
@@ -325,7 +328,6 @@ const deleteVideo = asyncHandler(async (req, res) => {
   } catch (error) {
     throw error;
   }
-  //TODO: delete video
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
