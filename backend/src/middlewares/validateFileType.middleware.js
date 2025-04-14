@@ -8,21 +8,24 @@ import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.
 const validateFileType = asyncHandler(async (req, res, next) => {
   // initialize empty array for storing files
   let files = [];
+
   if (!req.file && !req.files) {
-    //have throwed error if no file will be uploaded
-    throw new ApiError(400, "No file uploaded");
-  } else if (req.files && Object.keys(req.files).length === 0) {
-    // throwed error if req.files exists with empty object
     throw new ApiError(400, "No file uploaded");
   } else if (req.file) {
-    // have pushed files into files array when files will come from upload.single() method
-    files.push(req.file);
+    // check - is req.file null?
+    if (Object.keys(req.file).length === 0) {
+      throw new ApiError(400, "No file uploaded");
+    } else {
+      files.push(req.file);
+    }
   } else if (req.files) {
-    // have filtered all the files's object only instead off parent or child array or objects in upload.fields() method
-    if (Object.values(req.files).every(val => Array.isArray(val))) {
+    // check - is req.files null?
+    if (Object.keys(req.files).length === 0) {
+      throw new ApiError(400, "No file uploaded");
+    } else if (Object.values(req.files).every(val => Array.isArray(val))) {
       files = Object.values(req.files).flat(); // ✅ Flatten array of arrays
     } else {
-      // have updated files array when files will come form upload.array() method
+      //I have updated files array when files will come form upload.array() method
       files = req.files;
     }
   }

@@ -4,6 +4,8 @@ import app from "../app.js";
 
 const connectDB = async () => {
   try {
+    console.log("Database connecting...");
+
     // mongoDb returned connection object
     const connectionRes = await mongoose.connect(
       `${process.env.MONGODB_URL}/${DB_NAME}`
