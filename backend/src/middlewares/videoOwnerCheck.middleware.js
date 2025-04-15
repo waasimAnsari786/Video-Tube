@@ -5,7 +5,6 @@ import asyncHandler from "../utils/asyncHandler.utils.js";
 
 const videoOwnerCheck = asyncHandler(async (req, res, next) => {
   const { videoId } = req.params;
-  console.log(videoId);
 
   if (!mongoose.Types.ObjectId.isValid(videoId)) {
     throw new ApiError(400, "Invalid video id");
@@ -18,10 +17,8 @@ const videoOwnerCheck = asyncHandler(async (req, res, next) => {
     throw new ApiError(400, "Video with the requested id doesn't exist");
   }
 
-  if (
-    mongoose.Types.ObjectId(videoDoc.owner) !==
-    mongoose.Types.ObjectId(req.user._id)
-  ) {
+  // if (mongoose.Types.ObjectId(videoDoc.owner).equals(req.user._id)) {
+  if (!videoDoc.owner.equals(req.user._id)) {
     throw new ApiError(
       400,
       "You're not the owner of this video. You can't make changes in it."

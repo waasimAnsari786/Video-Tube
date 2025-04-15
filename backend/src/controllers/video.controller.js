@@ -149,7 +149,6 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
   videoDoc.description = description;
 
   const updatedVideo = await videoDoc.save();
-  console.log("updated video for it's details ", updatedVideo);
 
   if (!updatedVideo) {
     throw new ApiError(500, "Internal server error while updating video");
@@ -207,7 +206,6 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     let resourceType = fieldName === "thumbnail" ? "image" : "video";
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
-    console.log("uploaded file", uploadedFile);
 
     if (!uploadedFile) {
       throw new ApiError(500, "Internal server error while uploading file");
@@ -229,7 +227,6 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     }
 
     const updatedVideo = await videoDoc.save();
-    console.log("updated video ", updatedVideo);
 
     if (!updatedVideo) {
       throw new ApiError(
@@ -277,28 +274,37 @@ const deleteVideo = asyncHandler(async (req, res, next) => {
 
     const { video, thumbnail } = videoDoc;
 
-    const deletedVideo = await videoDoc.deleteOne();
+    // const deletedVideo = await videoDoc.deleteOne();
 
-    console.log("deleted video ", deletedVideo);
+    // console.log("deleted video ", deletedVideo);
 
-    const [deletedVideoFile, deletedThumbnailFile] = await Promise.all([
-      deleteFromCloudinary(video.publicId, video.resourceType),
-      deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType),
-    ]);
+    const deletedVideoFile = await deleteFromCloudinary(
+      video.publicId,
+      video.resourceType
+    );
 
-    console.log(deletedVideoFile);
-    console.log(deletedThumbnailFile);
+    let deletedThumbnailFile = null;
 
-    if (!deletedVideoFile || !deletedThumbnailFile) {
-      throw new ApiError(
-        500,
-        "Video deleted from DB, but there was a problem deleting files from Cloudinary"
+    if (thumbnail && Object.keys(thumbnail).length > 0) {
+      deletedThumbnailFile = await deleteFromCloudinary(
+        thumbnail.publicId,
+        thumbnail.resourceType
       );
     }
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, {}, "Video has been deleted successfully"));
+    // console.log(deletedVideoFile);
+    // console.log(deletedThumbnailFile);
+
+    // if (!deletedVideoFile || !deletedThumbnailFile) {
+    //   throw new ApiError(
+    //     500,
+    //     "Video deleted from DB, but there was a problem deleting files from Cloudinary"
+    //   );
+    // }
+
+    // return res
+    //   .status(200)
+    //   .json(new ApiResponse(200, {}, "Video has been deleted successfully"));
   } catch (error) {
     throw error;
   }

@@ -19,9 +19,10 @@ const uploadOnCloudinary = async (localFilePath, type) => {
   // return uploaded result
   try {
     if (!localFilePath || !type) {
+      console.error("File path or file resource type is missing");
       throw new ApiError(
         500,
-        "Internal server error: File path or file resource type is missing"
+        "Internal server error while uploading file on cloudinary"
       );
     }
     // Upload the file
@@ -31,10 +32,7 @@ const uploadOnCloudinary = async (localFilePath, type) => {
     return uploadedFile; // ✅ Return the upload result to the caller
   } catch (error) {
     console.error(error);
-    throw new ApiError(
-      error.statusCode || 500,
-      "Internal server error while uploading file on cloudinary"
-    );
+    throw error;
   } finally {
     // utility function for deleting files from local server
     deleteFileFromLocalServer(localFilePath);
@@ -51,12 +49,16 @@ const deleteFromCloudinary = async (publicId, type) => {
   try {
     // "type" contains requested file's resourceType
     if (!publicId || !type) {
+      console.error("File's public id or resource type is missing");
       throw new ApiError(
         500,
-        "Internal server error: File's public id or resource type is missing"
+        "Internal server error while deleting file on cloudinary"
       );
     }
+
     const fileDetails = await cloudinary.api.resource(publicId);
+    console.log("file-details", fileDetails);
+
     if (fileDetails.resource_type !== type) {
       console.error("Provided resource-type of file is incorrect");
       throw new ApiError(
@@ -64,18 +66,15 @@ const deleteFromCloudinary = async (publicId, type) => {
         "Internal server error while deleting files from cloudinary"
       );
     }
-    const deletedResult = await cloudinary.uploader.destroy(publicId, {
-      resource_type: type,
-      invalidate: true,
-    });
 
-    return deletedResult.result === "ok" ? true : false;
+    // const deletedResult = await cloudinary.uploader.destroy(publicId, {
+    //   resource_type: type,
+    //   invalidate: true,
+    // });
+
+    // return deletedResult.result === "ok" ? true : false;
   } catch (error) {
-    throw new ApiError(
-      error.statusCode || 500,
-      `Cloudinary file delete error: ${error.message}` ||
-        "Internal server error while deleting file from cloudinary"
-    );
+    throw error;
   }
 };
 
