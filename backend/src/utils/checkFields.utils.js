@@ -4,11 +4,16 @@ single field for getting validated*/
 
 const checkFields = (fields = "") => {
   if (Array.isArray(fields)) {
-    let isEmpty = fields.some(field => field.trim() === "");
+    let isEmpty = fields.some(
+      field => field === undefined || field.trim() === ""
+    );
     return isEmpty;
   } else if (!fields) {
     return true;
   }
 };
 
-export default checkFields;
+const isInvalidString = value =>
+  typeof value !== "string" || value.trim().length === 0;
+
+export { isInvalidString, checkFields };

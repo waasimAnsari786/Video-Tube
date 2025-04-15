@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
-import checkFields from "../utils/checkFields.utils.js";
+import { checkFields, isInvalidString } from "../utils/checkFields.utils.js";
 import {
   deleteFromCloudinary,
   uploadOnCloudinary,
@@ -32,18 +32,24 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     /* "checkFields" is a utility function for validating those files which
     contains data except files. It returns "Boolean" value */
-    if (checkFields([title, description])) {
-      throw new ApiError(400, "Title and description are required");
+    if (checkFields([title, description, videoStatus])) {
+      throw new ApiError(
+        400,
+        "Title, description, and Video-status are required"
+      );
     }
 
+    const normalizedStatus =
+      videoStatus.charAt(0).toUpperCase() + videoStatus.slice(1).toLowerCase(); // "public" → "Public"
+
     // extract video and thumbnail's local file path
-    const videoLocalPath = video[0].path;
+    const videoLocalPath = video?.[0]?.path;
     // used "?." optional chaining operator because thumbnail is optional
     const thumbnailLocalPath = thumbnail?.[0]?.path;
 
     // throw error if local paths will miss or empty
     if (!videoLocalPath) {
-      throw new ApiError(400, "Video local path is required");
+      throw new ApiError(400, "Video is required");
     }
 
     if (!VIDEO_EXTENTIONS.includes(`.${video[0].realFileType}`)) {
@@ -59,13 +65,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
 
-    if (!uploadedVideo) {
-      throw new ApiError(
-        500,
-        "Internal server error while uploading video on cloudinary"
-      );
-    }
-
     // initialize this variable for storing uploaded result of thumbnail
     let uploadedThumbnail = null;
 
@@ -73,8 +72,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
       uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath, "image");
     }
 
-    /*"uploadedVideoDetails" and "uploadedThumbnailDetails" are instances of "FileDetails" class, 
-    which has created for storing uploaded file details in a structured way so that it can be 
+    /*"uploadedVideoDetails" and "uploadedThumbnailDetails" are instances of "FileDetails" class,
+    which has created for storing uploaded file details in a structured way so that it can be
     use for saving it in "Video" collection's each created document's "video" and "thumbnail"
     fields */
     const uploadedVideoDetails = new FileDetails(
@@ -93,16 +92,16 @@ const publishAVideo = asyncHandler(async (req, res) => {
         )
       : null;
 
-    /*I'm saving "uploadedeThumbnailDetails" in DB, it doesn't cause issues because if thumbnail 
-      will be uploaded successfully then "uploadedeThumbnailDetails" varibale will contain 
+    /*I'm saving "uploadedThumbnailDetails" in DB, it doesn't cause issues because if thumbnail
+      will be uploaded successfully then "uploadedeThumbnailDetails" varibale will contain
       thumbnail details otherwise it will be "null" already because i'm using ternary operators
-      above where i'm checking if "uploadedThumbanil" variable will contain details of 
+      above where i'm checking if "uploadedThumbanil" variable will contain details of
       uploaded thumbnail then "uploadedeThumbnailDetails" variable will store details of it otherwise
       it will be "null"*/
     const createdVideo = await Video.create({
       title,
       description,
-      videoStatus,
+      normalizedStatus,
       video: uploadedVideoDetails,
       thumbnail: uploadedThumbnailDetails,
       owner: req.user._id,
@@ -139,14 +138,14 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
   const { title, description } = req.body;
 
-  if (checkFields([title, description])) {
-    throw new ApiError(400, "Title and description are required");
+  if (isInvalidString(title) && isInvalidString(description)) {
+    throw new ApiError(400, "Title and description are invalid");
   }
 
   const { videoDoc } = req;
 
-  videoDoc.title = title;
-  videoDoc.description = description;
+  videoDoc.title = title ? title : videoDoc.title;
+  videoDoc.description = description ? description : videoDoc.description;
 
   const updatedVideo = await videoDoc.save();
 
@@ -207,10 +206,6 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 
     const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
 
-    if (!uploadedFile) {
-      throw new ApiError(500, "Internal server error while uploading file");
-    }
-
     /*"fileDetails" is instance of "FileDetails" class, which has created for storing
     uploaded file details in a structured way so that it can be use for saving it in
     "Video" collection's each created document's "video" and "thumbnail" fields */
@@ -237,16 +232,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 
     // previous file deletion
     if (prevFile?.secureURL) {
-      const deletedFile = await deleteFromCloudinary(
-        prevFile?.publicId,
-        prevFile?.resourceType
-      );
-      if (!deletedFile) {
-        throw new ApiError(
-          500,
-          `Internal server error while deleting previous ${fieldName}`
-        );
-      }
+      await deleteFromCloudinary(prevFile?.publicId, prevFile?.resourceType);
     }
 
     return res
@@ -274,37 +260,17 @@ const deleteVideo = asyncHandler(async (req, res, next) => {
 
     const { video, thumbnail } = videoDoc;
 
-    // const deletedVideo = await videoDoc.deleteOne();
+    await videoDoc.deleteOne();
 
-    // console.log("deleted video ", deletedVideo);
-
-    const deletedVideoFile = await deleteFromCloudinary(
-      video.publicId,
-      video.resourceType
-    );
-
-    let deletedThumbnailFile = null;
+    await deleteFromCloudinary(video.publicId, video.resourceType);
 
     if (thumbnail && Object.keys(thumbnail).length > 0) {
-      deletedThumbnailFile = await deleteFromCloudinary(
-        thumbnail.publicId,
-        thumbnail.resourceType
-      );
+      deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType);
     }
 
-    // console.log(deletedVideoFile);
-    // console.log(deletedThumbnailFile);
-
-    // if (!deletedVideoFile || !deletedThumbnailFile) {
-    //   throw new ApiError(
-    //     500,
-    //     "Video deleted from DB, but there was a problem deleting files from Cloudinary"
-    //   );
-    // }
-
-    // return res
-    //   .status(200)
-    //   .json(new ApiResponse(200, {}, "Video has been deleted successfully"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Video has been deleted successfully"));
   } catch (error) {
     throw error;
   }
@@ -330,11 +296,11 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     if (videoDoc.videoStatus === normalizedStatus) {
       return res
-        .status(200)
+        .status(201)
         .json(
           new ApiResponse(
-            200,
-            videoDoc,
+            201,
+            {},
             "Video status is already set to the provided value"
           )
         );

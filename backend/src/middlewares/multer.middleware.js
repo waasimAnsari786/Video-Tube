@@ -17,7 +17,7 @@ const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (!ext) {
-    return cb(new multer.MulterError("File must have an extension."));
+    return cb(new multer.MulterError("File must have an extention."));
   }
 
   if (!ALLOWED_EXTENTIONS.includes(ext)) {

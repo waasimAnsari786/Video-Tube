@@ -7,7 +7,7 @@ import {
 } from "../utils/cloudinary.utils.js";
 import User from "../models/user.model.js";
 import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
-import checkFields from "../utils/checkFields.utils.js";
+import { checkFields, isInvalidString } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import FileDetails from "../utils/fileObject.utils.js";
 
@@ -45,7 +45,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
     );
 
     if (!user) {
-      throw new ApiError(500, "Error while registering user");
+      throw new ApiError(500, "Internal server error while registering user");
     }
 
     return res
@@ -57,26 +57,22 @@ const registerUser = asyncHandler(async (req, res, _) => {
 });
 
 const generateAccessAndRefreshTokens = async user => {
-  // generate access and refresh tokens
-  // save refresh token on user.refreshToken
-  // save user in DB
-  // return user with access and refresh tokens
   try {
     if (!user) {
-      throw new ApiError(
-        500,
-        "Internal server error: User is missing for generating tokens"
-      );
+      console.error("User is missing for generating tokens");
+      throw new ApiError(500, "Internal server error while generating tokens");
     }
 
     const accessToken = user.generateAccessToken();
     if (!accessToken) {
-      throw new ApiError(500, "Error while generating access-token");
+      console.error("Error while generating access-token");
+      throw new ApiError(500, "Internal server error while generating tokens");
     }
 
     const refreshToken = user.generateRefreshToken();
     if (!refreshToken) {
-      throw new ApiError(500, "Error while generating refresh-token");
+      console.error("Error while generating refresh-token");
+      throw new ApiError(500, "Internal server error while generating tokens");
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -88,54 +84,54 @@ const generateAccessAndRefreshTokens = async user => {
     )
       .select("-password")
       .lean();
+
     if (!updatedUser) {
+      console.error("Error while updating user after creating tokens");
       throw new ApiError(
         500,
-        "Error while updating user after creating tokens"
+        "Internal server error while updating user with refresh token"
       );
     }
 
     updatedUser.accessToken = accessToken;
     return { updatedUser, accessToken, refreshToken };
   } catch (error) {
-    throw new ApiError(error.statusCode, error.message);
+    console.error("Token generation error:", error);
+    throw error;
   }
 };
 
 const loginUser = asyncHandler(async (req, res, _) => {
-  // get data from req.body
-  // check that all fields are empty or not. If any of them is throw error
-  // check does user exist in DB? if he doens't throw error
-  // check is user's provided password correct
-  // generate access and refresh tokens
-  // set tokens in user's browser's cookies
-  // return response
+  try {
+    const { email, password } = req.body;
+    if (checkFields([email, password])) {
+      throw new ApiError(400, "Email and password are required");
+    }
 
-  const { email, password } = req.body;
-  if (checkFields([email, password])) {
-    throw new ApiError(400, "Email and passsword are required");
+    const existedUser = await User.findOne({ email });
+
+    if (!existedUser) {
+      throw new ApiError(401, "User doesn't exist");
+    }
+
+    const isPasswordCorrect = await existedUser.comparePassword(password);
+
+    if (!isPasswordCorrect) {
+      throw new ApiError(401, "Provided password is incorrect");
+    }
+
+    const { updatedUser, accessToken, refreshToken } =
+      await generateAccessAndRefreshTokens(existedUser);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+      .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+      .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
+  } catch (error) {
+    console.error("Login error:", error.message || error);
+    throw error;
   }
-
-  const existedUser = await User.findOne({ email });
-
-  if (!existedUser) {
-    throw new ApiError(401, "User doesn't exist");
-  }
-
-  const isPasswordCorrect = await existedUser.comparePassword(password);
-
-  if (!isPasswordCorrect) {
-    throw new ApiError(401, "Provided password is incorrect");
-  }
-
-  const { updatedUser, accessToken, refreshToken } =
-    await generateAccessAndRefreshTokens(existedUser);
-
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
-    .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
@@ -180,6 +176,7 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
     const user = await User.findById(decodedToken?._id);
+
     if (!user || token !== user.refreshToken) {
       throw new ApiError(400, "Refresh token has been expired or invalid");
     }
@@ -226,10 +223,7 @@ const updatePassword = asyncHandler(async (req, res, _) => {
     user.password = newPassword;
     const updatedUser = await user.save();
     if (!updatedUser) {
-      throw new ApiError(
-        500,
-        "Internal server Error: Error while updating password"
-      );
+      throw new ApiError(500, "Internal server Error while updating password");
     }
 
     return res
@@ -242,11 +236,17 @@ const updatePassword = asyncHandler(async (req, res, _) => {
 
 const updateAccountDetails = asyncHandler(async (req, res, _) => {
   // extract account details from req.body
+  // check - is requested data valid?
   // update user
   // return response
 
   try {
     const { fullName, email } = req.body;
+
+    if (isInvalidString(fullName) && isInvalidString(email)) {
+      throw new ApiError(400, "Email and full name is invalid");
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       {
@@ -315,25 +315,13 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     ).select(`-password -refreshToken -${fieldName}`);
 
     if (!updatedUser) {
-      throw new ApiError(
-        500,
-        "Internal server error while updating user after file uploading"
-      );
+      throw new ApiError(500, "Internal server error while updating user");
     }
 
     // user's previous file
     const prevFile = req.user[fieldName];
     if (prevFile?.secureURL) {
-      const deletedFile = await deleteFromCloudinary(
-        prevFile?.publicId,
-        prevFile?.resourceType
-      );
-      if (!deletedFile) {
-        throw new ApiError(
-          500,
-          `Internal server error while deleting previous ${fieldName}`
-        );
-      }
+      await deleteFromCloudinary(prevFile?.publicId, prevFile?.resourceType);
     }
 
     return res
@@ -354,7 +342,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
 const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   // extract file's publicId and field's name from req.body
   // check is fieldName valid?
-  // check - does user send correct field name to this endpoint
+  // check - does user send correct field name to the correct endpoint
   // check if user have already avatar or coverImage
   // match - both received and saved publicIds.
   // if they'll be matched, delete file

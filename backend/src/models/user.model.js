@@ -5,9 +5,9 @@ import jwt from "jsonwebtoken";
 // Create mini-schema for video and thumbnail
 const mediaSchema = new Schema(
   {
-    secureURL: { type: String, required: true },
-    resourceType: { type: String, required: true },
-    publicId: { type: String, required: true },
+    secureURL: String,
+    resourceType: String,
+    publicId: String,
   },
   { _id: false } // Prevents MongoDB from generating _id for each media object
 );
@@ -68,11 +68,9 @@ const userSchema = new Schema(
     },
     avatar: {
       type: mediaSchema,
-      required: true,
     },
     coverImage: {
       type: mediaSchema,
-      required: true,
     },
     watchHistory: [
       {

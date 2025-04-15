@@ -20,10 +20,7 @@ const uploadOnCloudinary = async (localFilePath, type) => {
   try {
     if (!localFilePath || !type) {
       console.error("File path or file resource type is missing");
-      throw new ApiError(
-        500,
-        "Internal server error while uploading file on cloudinary"
-      );
+      throw new ApiError(500, "Internal server error while uploading file");
     }
     // Upload the file
     const uploadedFile = await cloudinary.uploader.upload(localFilePath, {
@@ -50,29 +47,24 @@ const deleteFromCloudinary = async (publicId, type) => {
     // "type" contains requested file's resourceType
     if (!publicId || !type) {
       console.error("File's public id or resource type is missing");
-      throw new ApiError(
-        500,
-        "Internal server error while deleting file on cloudinary"
-      );
+      throw new ApiError(500, "Internal server error while deleting file");
     }
 
-    const fileDetails = await cloudinary.api.resource(publicId);
-    console.log("file-details", fileDetails);
+    const fileDetails = await cloudinary.api.resource(publicId, {
+      resource_type: type,
+    });
 
     if (fileDetails.resource_type !== type) {
       console.error("Provided resource-type of file is incorrect");
-      throw new ApiError(
-        500,
-        "Internal server error while deleting files from cloudinary"
-      );
+      throw new ApiError(500, "Internal server error while deleting file");
     }
 
-    // const deletedResult = await cloudinary.uploader.destroy(publicId, {
-    //   resource_type: type,
-    //   invalidate: true,
-    // });
+    const deletedResult = await cloudinary.uploader.destroy(publicId, {
+      resource_type: type,
+      invalidate: true,
+    });
 
-    // return deletedResult.result === "ok" ? true : false;
+    return deletedResult.result === "ok" ? true : false;
   } catch (error) {
     throw error;
   }
