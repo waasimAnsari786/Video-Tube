@@ -14,7 +14,7 @@ const videoOwnerCheck = asyncHandler(async (req, res, next) => {
   const videoDoc = await Video.findById(videoId);
 
   if (!videoDoc) {
-    throw new ApiError(400, "Video with the requested id doesn't exist");
+    throw new ApiError(404, "Video with the requested id doesn't exist");
   }
 
   // if (mongoose.Types.ObjectId(videoDoc.owner).equals(req.user._id)) {

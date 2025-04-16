@@ -111,13 +111,13 @@ const loginUser = asyncHandler(async (req, res, _) => {
     const existedUser = await User.findOne({ email });
 
     if (!existedUser) {
-      throw new ApiError(401, "User doesn't exist");
+      throw new ApiError(404, "User doesn't exist");
     }
 
     const isPasswordCorrect = await existedUser.comparePassword(password);
 
     if (!isPasswordCorrect) {
-      throw new ApiError(401, "Provided password is incorrect");
+      throw new ApiError(400, "Provided password is incorrect");
     }
 
     const { updatedUser, accessToken, refreshToken } =
@@ -348,79 +348,80 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   // if they'll be matched, delete file
   // return response
 
-  const { fieldName, filePublicId } = req.body;
+  try {
+    const { fieldName, filePublicId } = req.body;
 
-  if (!filePublicId) {
-    throw new ApiError(400, "File's public Id is missing");
-  }
+    if (!filePublicId) {
+      throw new ApiError(400, "File's public Id is missing");
+    }
 
-  if (!["avatar", "coverImage"].includes(fieldName)) {
-    throw new ApiError(400, "Invalid fieldName provided");
-  }
+    if (!["avatar", "coverImage"].includes(fieldName)) {
+      throw new ApiError(400, "Invalid fieldName provided");
+    }
 
-  // Extract the last part of the URL path (either 'avatar' or 'cover')
-  const pathSegment = req.originalUrl.split("/").pop(); // 'avatar' or 'cover'
+    // Extract the last part of the URL path (either 'avatar' or 'cover')
+    const pathSegment = req.originalUrl.split("/").pop(); // 'avatar' or 'cover'
 
-  const expectedField = pathSegment === "avatar" ? "avatar" : "coverImage";
+    const expectedField = pathSegment === "avatar" ? "avatar" : "coverImage";
 
-  if (fieldName !== expectedField) {
-    throw new ApiError(
-      400,
-      `You are trying to delete '${fieldName}' via '${expectedField}' route. Please use the correct endpoint.`
+    if (fieldName !== expectedField) {
+      throw new ApiError(
+        400,
+        `You are trying to delete '${fieldName}' via '${expectedField}' route. Please use the correct endpoint.`
+      );
+    }
+
+    const fileToBeDeleted = req.user[fieldName];
+
+    /* this check is for cheking, does user have any previous avatar or coverImage by checking 
+    that is "fileToBeDeleted" null object or if it has its values, are these values undefined?
+    Because due to some reasons avatar and cover image's fields contains an object wheather 
+    user have uploaded file in it or not.*/
+
+    if (
+      !fileToBeDeleted ||
+      Object.values(fileToBeDeleted).every(val => val === undefined)
+    ) {
+      throw new ApiError(400, `User doesn't have ${fieldName}`);
+    }
+
+    if (filePublicId !== fileToBeDeleted.publicId) {
+      throw new ApiError(
+        404,
+        `${fieldName} with the requested publicId doesn't exist`
+      );
+    }
+
+    await deleteFromCloudinary(
+      fileToBeDeleted.publicId,
+      fileToBeDeleted.resourceType
     );
-  }
 
-  const fileToBeDeleted = req.user[fieldName];
-
-  /* this check is for cheking, does user have any previous avatar or coverImage by checking 
-  that is "fileToBeDeleted" null object or if it has its values, are these values undefined?
-  Because due to some reasons avatar and cover image's fields contains an object wheather 
-  user have uploaded file in it or not.*/
-
-  if (
-    !fileToBeDeleted ||
-    Object.values(fileToBeDeleted).every(val => val === undefined)
-  ) {
-    throw new ApiError(400, `User doesn't have ${fieldName}`);
-  }
-
-  if (filePublicId !== fileToBeDeleted.publicId) {
-    throw new ApiError(
-      400,
-      `${fieldName} with the requested publicId doesn't exist`
-    );
-  }
-
-  const deletedFile = await deleteFromCloudinary(
-    fileToBeDeleted.publicId,
-    fileToBeDeleted.resourceType
-  );
-  if (!deletedFile) {
-    throw new ApiError(500, "Internal server error while deleting file");
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $unset: {
-        [fieldName]: 1,
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $unset: {
+          [fieldName]: 1,
+        },
       },
-    },
-    { new: true }
-  ).select(`-password -refreshToken -${fieldName}`);
+      { new: true }
+    ).select(`-password -refreshToken -${fieldName}`);
 
-  if (!updatedUser) {
-    throw new ApiError(
-      500,
-      "Internal server error while updating user after file deletion"
-    );
+    if (!updatedUser) {
+      throw new ApiError(
+        500,
+        "Internal server error while updating user after file deletion"
+      );
+    }
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, {}, `${fieldName} has been deleted successfully`)
+      );
+  } catch (error) {
+    throw error;
   }
-
-  res
-    .status(200)
-    .json(
-      new ApiResponse(200, {}, `${fieldName} has been deleted successfully`)
-    );
 });
 
 export {

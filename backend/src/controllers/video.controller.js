@@ -10,7 +10,6 @@ import Video from "../models/video.model.js";
 import FileDetails from "../utils/fileObject.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
 import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
-import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -144,8 +143,13 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
   const { videoDoc } = req;
 
-  videoDoc.title = title ? title : videoDoc.title;
-  videoDoc.description = description ? description : videoDoc.description;
+  if (title) {
+    videoDoc.title = title;
+  }
+
+  if (description) {
+    videoDoc.description = description;
+  }
 
   const updatedVideo = await videoDoc.save();
 
@@ -250,7 +254,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   }
 });
 
-const deleteVideo = asyncHandler(async (req, res, next) => {
+const deleteVideo = asyncHandler(async (req, res) => {
   // get video from videoId
   // if video exists, delete it
   // if video will be deleted successfully, delete video and thumbnail file from cloudinary too.
@@ -260,12 +264,17 @@ const deleteVideo = asyncHandler(async (req, res, next) => {
 
     const { video, thumbnail } = videoDoc;
 
-    await videoDoc.deleteOne();
+    const deletedVideo = await videoDoc.deleteOne();
+
+    if (deletedVideo.deletedCount === 0) {
+      throw new ApiError(404, "Video doesn't exist");
+    }
 
     await deleteFromCloudinary(video.publicId, video.resourceType);
 
+    // check if thumbnail exists, and it's object must not be null then delete it
     if (thumbnail && Object.keys(thumbnail).length > 0) {
-      deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType);
+      await deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType);
     }
 
     return res

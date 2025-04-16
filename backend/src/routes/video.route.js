@@ -15,14 +15,10 @@ import videoOwnerCheck from "../middlewares/videoOwnerCheck.middleware.js";
 
 const videoRouter = Router();
 
-// Apply auth check to all routes
+// Global auth check
 videoRouter.use(verifyAuthorization);
 
-/* 
-|--------------------------------------------------------------------------
-| Routes that require only Authorization (not ownership)
-|--------------------------------------------------------------------------
-*/
+// Routes that don't need videoOwnerCheck
 videoRouter
   .route("/")
   .post(
@@ -35,13 +31,13 @@ videoRouter
   )
   .get(getAllVideos);
 
-/* 
-|--------------------------------------------------------------------------
-| Routes that require both Authorization + Video Ownership
-|--------------------------------------------------------------------------
-*/
-videoRouter.use(videoOwnerCheck);
+// Apply videoOwnerCheck only on routes that have :videoId param
+videoRouter.use(
+  ["/video/:videoId", "/thumbnail/:videoId", "/details/:videoId", "/:videoId"],
+  videoOwnerCheck
+);
 
+// Routes that need ownership validation
 videoRouter
   .route("/video/:videoId")
   .patch(upload.single("video"), validateFileType, updateVideoAndThumbnail);

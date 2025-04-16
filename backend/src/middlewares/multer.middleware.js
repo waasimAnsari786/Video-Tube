@@ -14,6 +14,9 @@ const storage = multer.diskStorage({
 
 // File Filter Function
 const fileFilter = (req, file, cb) => {
+  // check - filename has entention?
+  // check - is extention vlaid?
+  // check is filename valid?
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (!ext) {
@@ -24,6 +27,18 @@ const fileFilter = (req, file, cb) => {
     return cb(
       new multer.MulterError(
         `Invalid file type: "${ext}" of file "${file.originalname}". Allowed: ${ALLOWED_EXTENTIONS.join(", ")}`
+      )
+    );
+  }
+
+  const safeFileNameRegex = /^[a-zA-Z0-9._-]+$/;
+
+  const isSafeFileName = filename => safeFileNameRegex.test(filename);
+
+  if (!isSafeFileName(file.originalname)) {
+    return cb(
+      new multer.MulterError(
+        `Unsafe filename: "${file.originalname}". Only alphanumeric, ".", "_", "-" allowed.`
       )
     );
   }

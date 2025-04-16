@@ -21,7 +21,7 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
 
     const user = await User.findById(decodedToken?._id);
     if (!user) {
-      throw new ApiError(400, "Access token has been expired or invalid");
+      throw new ApiError(404, "User doesn't exist");
     }
 
     req.user = user;

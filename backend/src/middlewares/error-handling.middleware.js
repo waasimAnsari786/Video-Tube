@@ -16,7 +16,9 @@ const errorHandler = (err, _, res, next) => {
     };
 
     const friendlyMessage =
-      multerErrorMessages[err.code] || "File upload error occurred.";
+      multerErrorMessages[err.code] ||
+      err.code ||
+      "File upload error occurred.";
 
     return res.status(400).json(new ApiResponse(400, null, friendlyMessage));
   }
