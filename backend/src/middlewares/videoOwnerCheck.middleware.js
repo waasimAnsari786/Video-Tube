@@ -1,14 +1,12 @@
-import mongoose from "mongoose";
 import Video from "../models/video.model.js";
 import ApiError from "../utils/API_error.utils.js";
 import asyncHandler from "../utils/asyncHandler.utils.js";
+import { checkObjectID } from "../utils/checkFields.utils.js";
 
 const videoOwnerCheck = asyncHandler(async (req, res, next) => {
   const { videoId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(videoId)) {
-    throw new ApiError(400, "Invalid video id");
-  }
+  checkObjectID(videoId, "Video id is invalid");
 
   // "videoDoc stands for Video Document"
   const videoDoc = await Video.findById(videoId);

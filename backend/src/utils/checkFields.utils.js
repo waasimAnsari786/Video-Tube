@@ -1,19 +1,30 @@
-/* it's a utility method for checking are requested fields which contains data except files,
-valid? It receives fields as an array so that multiple fields can be checked and it allows 
-single field for getting validated*/
+/**
+ * this method has written for checking fields will be passed in the "fields"
+ * parameter valid or not? When "requireAll" will be true, this method
+ * will check all passed fields in the "fields" param must be valid else
+ * it will check for any one of them
+ */
+import mongoose from "mongoose";
+import ApiError from "./API_error.utils.js";
 
-const checkFields = (fields = "") => {
-  if (Array.isArray(fields)) {
-    let isEmpty = fields.some(
-      field => field === undefined || field.trim() === ""
-    );
-    return isEmpty;
-  } else if (!fields) {
-    return true;
+const checkFields = (fields, message, requireAll = true) => {
+  let isEmpty = null;
+  if (requireAll) {
+    isEmpty = fields.some(field => !field || !field.trim());
+  } else {
+    isEmpty = fields.every(field => !field || !field.trim());
+  }
+
+  if (isEmpty) {
+    throw new ApiError(400, message || "All fields are required");
   }
 };
 
-const isInvalidString = value =>
-  typeof value !== "string" || value.trim().length === 0;
+//  This method has written for getting validate all the ObjectIDs which will be comming in request
+const checkObjectID = (id, message) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, message);
+  }
+};
 
-export { isInvalidString, checkFields };
+export { checkFields, checkObjectID };

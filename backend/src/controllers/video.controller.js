@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
-import { checkFields, isInvalidString } from "../utils/checkFields.utils.js";
+import { checkFields } from "../utils/checkFields.utils.js";
 import {
   deleteFromCloudinary,
   uploadOnCloudinary,
@@ -10,6 +10,7 @@ import Video from "../models/video.model.js";
 import FileDetails from "../utils/fileObject.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
 import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
+import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -29,14 +30,10 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description, videoStatus } = req.body;
     const { video, thumbnail } = req.files;
 
-    /* "checkFields" is a utility function for validating those files which
-    contains data except files. It returns "Boolean" value */
-    if (checkFields([title, description, videoStatus])) {
-      throw new ApiError(
-        400,
-        "Title, description, and Video-status are required"
-      );
-    }
+    checkFields(
+      [title, description, videoStatus],
+      "Title, description, and Video-status are required"
+    );
 
     const normalizedStatus =
       videoStatus.charAt(0).toUpperCase() + videoStatus.slice(1).toLowerCase(); // "public" → "Public"
@@ -125,8 +122,27 @@ const publishAVideo = asyncHandler(async (req, res) => {
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
+  // extract videoID
+  // check - is videoId valid
+  // find video with same vidoeId
+  // update views
+  // push videoId in current user's watchHistory
+  // return response
+
   const { videoId } = req.params;
-  //TODO: get video by id
+  console.log("ip address ", req.ip);
+
+  checkFields([videoId], "Video id is missing");
+
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    { $inc: { views: 1 } },
+    { new: true }
+  ).populate("owner", "userName fullName email");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video fetched successfully"));
 });
 
 const updateVideoDetails = asyncHandler(async (req, res) => {
@@ -137,9 +153,7 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
   const { title, description } = req.body;
 
-  if (isInvalidString(title) && isInvalidString(description)) {
-    throw new ApiError(400, "Title and description are invalid");
-  }
+  checkFields([title, description], "Title and description are invalid", false);
 
   const { videoDoc } = req;
 
@@ -296,9 +310,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoStatus } = req.body;
     const { videoDoc } = req;
 
-    if (!videoStatus) {
-      throw new ApiError(400, "Video status is required");
-    }
+    checkFields([videoStatus], "Video status is required");
 
     const normalizedStatus =
       videoStatus.charAt(0).toUpperCase() + videoStatus.slice(1).toLowerCase(); // "public" → "Public"

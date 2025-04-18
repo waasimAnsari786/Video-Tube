@@ -18,7 +18,7 @@ app.use(cookieParser());
 // configure routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);
-app.use("/api/v1/subscription", subscriptionRouter);
+app.use("/api/v1/subscriptions", subscriptionRouter);
 // Error Handling Middleware
 app.use(errorHandler);
 

@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
 import ApiError from "../utils/API_error.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
 import Subscription from "../models/subscription.model.js";
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import User from "../models/user.model.js";
+import { checkObjectID } from "../utils/checkFields.utils.js";
 
 const toggleSubscription = asyncHandler(async (req, res) => {
   // extract channelID
@@ -18,9 +18,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
   const { channelId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(channelId)) {
-    throw new ApiError(400, "Channel id is invalid");
-  }
+  checkObjectID(channelId, "Channel id is invalid");
 
   const isChannelExist = await User.findById(channelId);
 
@@ -94,6 +92,12 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
+  // extract  channelID
+  // check - is channel valid?
+  // check - does channel exist?
+  // get subscribers
+  // return response
+
   const { channelId } = req.params;
 });
 

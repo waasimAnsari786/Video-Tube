@@ -7,7 +7,7 @@ import {
 } from "../utils/cloudinary.utils.js";
 import User from "../models/user.model.js";
 import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
-import { checkFields, isInvalidString } from "../utils/checkFields.utils.js";
+import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import FileDetails from "../utils/fileObject.utils.js";
 
@@ -21,9 +21,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
 
   const { userName, email, fullName, password } = req.body;
   try {
-    if (checkFields([userName, fullName, email, password])) {
-      throw new ApiError(400, "All fields are required");
-    }
+    checkFields([userName, fullName, email, password]);
 
     const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
     if (existedUser) {
@@ -104,9 +102,8 @@ const generateAccessAndRefreshTokens = async user => {
 const loginUser = asyncHandler(async (req, res, _) => {
   try {
     const { email, password } = req.body;
-    if (checkFields([email, password])) {
-      throw new ApiError(400, "Email and password are required");
-    }
+
+    checkFields([email, password], "Email and password are required");
 
     const existedUser = await User.findOne({ email });
 
@@ -205,9 +202,7 @@ const updatePassword = asyncHandler(async (req, res, _) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
-    if (checkFields([oldPassword, newPassword, confirmPassword])) {
-      throw new ApiError(400, "All fields are required");
-    }
+    checkFields([oldPassword, newPassword, confirmPassword]);
 
     if (newPassword !== confirmPassword) {
       throw new ApiError(400, "New and confirm passwords aren't same");
@@ -243,9 +238,7 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
   try {
     const { fullName, email } = req.body;
 
-    if (isInvalidString(fullName) && isInvalidString(email)) {
-      throw new ApiError(400, "Email and full name is invalid");
-    }
+    checkFields([fullName, email], "Email and full name is invalid", false);
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -424,6 +417,105 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   }
 });
 
+const getUserChannelDetails = asyncHandler(async (req, res) => {
+  // extract userName
+  // check - is userName valid?
+  // find user with the same userName
+  // get subscribers and channels subcsribed by userName
+  /*
+  * add fields for subcriber and subscribed channels count, is current user subscribed this channel,
+  in the user object
+  */
+  /**
+   * check is current user is the owner of the channel? If yes don't add isSubcribed field meanwhile
+   * add isOwner field in the user object
+   */
+  // return response
+
+  const { userName } = req.params;
+
+  checkFields([userName], "Username is required");
+
+  const channel = await User.aggregate([
+    {
+      $match: { userName },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedChannels",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        subscribedChannelsCount: {
+          $size: "$subscribedChannels",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+        isOwner: {
+          $cond: {
+            if: { $eq: [req.user?._id, "$_id"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        subscribersCount: 1,
+        subscribedChannelsCount: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+        isOwner: {
+          $cond: {
+            if: { $not: ["$isOwner"] },
+            then: "$$REMOVE",
+            else: "$isOwner",
+          },
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $not: ["$isOwner"] },
+            then: "$isSubscribed",
+            else: "$$REMOVE",
+          },
+        },
+      },
+    },
+  ]);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel doesn't exist");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, channel[0], "Channel fetched successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -433,4 +525,5 @@ export {
   updateAccountDetails,
   updateAvatarAndCoverImage,
   deleteAvatarAndCoverImage,
+  getUserChannelDetails,
 };
