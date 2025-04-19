@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
-import { checkFields } from "../utils/checkFields.utils.js";
+import { checkFields, checkObjectID } from "../utils/checkFields.utils.js";
 import {
   deleteFromCloudinary,
   uploadOnCloudinary,
@@ -11,6 +11,7 @@ import FileDetails from "../utils/fileObject.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
 import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
 import mongoose from "mongoose";
+import User from "../models/user.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -125,20 +126,63 @@ const getVideoById = asyncHandler(async (req, res) => {
   // extract videoID
   // check - is videoId valid
   // find video with same vidoeId
-  // update views
+  // populate owner details in found video's object
   // push videoId in current user's watchHistory
   // return response
 
   const { videoId } = req.params;
-  console.log("ip address ", req.ip);
 
-  checkFields([videoId], "Video id is missing");
+  checkObjectID(videoId, "Video id is invalid");
 
-  const video = await Video.findByIdAndUpdate(
-    videoId,
-    { $inc: { views: 1 } },
-    { new: true }
-  ).populate("owner", "userName fullName email");
+  const video = await Video.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(videoId) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              userName: 1,
+              fullName: 1,
+              email: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        description: 1,
+        video: 1,
+        views: 1,
+        duration: 1,
+        owner: 1,
+      },
+    },
+  ]);
+
+  if (!video) {
+    throw new ApiError(404, "Video doesn't exist");
+  }
+
+  const user = await User.findById(req.user._id);
+
+  if (!user.watchHistory.includes(videoId)) {
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        watchHistory: {
+          $each: [videoId],
+          $position: 0,
+          $slice: 20,
+        },
+      },
+    });
+  }
 
   return res
     .status(200)

@@ -10,6 +10,7 @@ import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
 import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import FileDetails from "../utils/fileObject.utils.js";
+import mongoose from "mongoose";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
@@ -516,6 +517,67 @@ const getUserChannelDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, channel[0], "Channel fetched successfully"));
 });
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    userName: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $project: {
+              title: 1,
+              description: 1,
+              video: 1,
+              thumbnail: 1,
+              views: 1,
+              duration: 1,
+              owner: 1,
+            },
+          },
+          {
+            $unwind: "$owner",
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "Watch history fetched successfully"
+      )
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -526,4 +588,5 @@ export {
   updateAvatarAndCoverImage,
   deleteAvatarAndCoverImage,
   getUserChannelDetails,
+  getWatchHistory,
 };

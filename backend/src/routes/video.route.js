@@ -33,7 +33,7 @@ videoRouter
 
 // Apply videoOwnerCheck only on routes that have :videoId param
 videoRouter.use(
-  ["/video/:videoId", "/thumbnail/:videoId", "/details/:videoId", "/:videoId"],
+  ["/video/:videoId", "/thumbnail/:videoId", "/details/:videoId"],
   videoOwnerCheck
 );
 
@@ -51,7 +51,7 @@ videoRouter.route("/details/:videoId").patch(updateVideoDetails);
 videoRouter
   .route("/:videoId")
   .get(getVideoById)
-  .delete(deleteVideo)
-  .patch(togglePublishStatus);
+  .delete(videoOwnerCheck, deleteVideo)
+  .patch(videoOwnerCheck, togglePublishStatus);
 
 export default videoRouter;

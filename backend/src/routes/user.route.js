@@ -9,6 +9,7 @@ import {
   updateAvatarAndCoverImage,
   deleteAvatarAndCoverImage,
   getUserChannelDetails,
+  getWatchHistory,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
@@ -27,7 +28,8 @@ userRouter.use(verifyAuthorization); // Protect everything below
 userRouter.route("/me/logout").post(logoutUser);
 userRouter.route("/me/password").patch(updatePassword);
 userRouter.route("/me").patch(updateAccountDetails); // Update account
-userRouter.route("/channel/:userName").get(getUserChannelDetails); // Update account
+userRouter.route("/channel/:userName").get(getUserChannelDetails);
+userRouter.route("/history").get(getWatchHistory);
 
 userRouter
   .route("/me/avatar")
