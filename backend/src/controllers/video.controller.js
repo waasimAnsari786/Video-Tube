@@ -14,8 +14,65 @@ import mongoose from "mongoose";
 import User from "../models/user.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "createdAt",
+      sortType = -1,
+    } = req.query;
+
+    const countAggregate = Video.aggregate([
+      { $match: { videoStatus: "Public" } },
+    ]);
+
+    const options = {
+      page,
+      limit,
+      sort: { [sortBy]: sortType },
+      countQuery: countAggregate,
+    };
+
+    const myAggregate = [
+      { $match: { videoStatus: "Public" } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                userName: 1,
+                fullName: 1,
+                "avatar.secureURL": 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          "video.secureURL": 1,
+          "thumbnail.secureURL": 1,
+          views: 1,
+          duration: 1,
+          owner: 1,
+        },
+      },
+      { $unwind: "$owner" },
+    ];
+
+    const videos = await Video.aggregatePaginate(myAggregate, options);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, videos, "Videos fetched successfully"));
+  } catch (error) {
+    throw error;
+  }
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
