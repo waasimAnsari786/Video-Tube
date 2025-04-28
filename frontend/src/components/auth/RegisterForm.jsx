@@ -19,6 +19,7 @@ const RegisterForm = () => {
           <div className="w-full max-w-md">
             <div className="bg-white shadow-2xl rounded-xl p-10">
               <FormHeading title="Register" />
+              <FormText text="No credit card required" />
               <form className="mt-5">
                 <div className="space-y-5 mb-5">
                   <FormInput
@@ -44,7 +45,11 @@ const RegisterForm = () => {
                 </div>
                 <div className="text-center">
                   <FormButton label="Get Started" />
-                  <FormText text="Already have an account? Sign In" />
+                  <FormText
+                    text="Already have an account?"
+                    linkText="Sign In"
+                    linkTo="/login"
+                  />
                 </div>
               </form>
             </div>
