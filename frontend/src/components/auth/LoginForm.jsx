@@ -1,38 +1,39 @@
 import React from "react";
-import Logo from "./reuseable-components/Logo";
-import FormHeading from "./reuseable-components/FormHeading";
-import FormInput from "./reuseable-components/FormInput";
-import FormButton from "./reuseable-components/FormButton";
-import FormText from "./reuseable-components/FormText";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import Logo from "./reuseable-components/Logo";
+import FormHeading from "./reuseable-components/FormHeading";
+import FormText from "./reuseable-components/FormText";
+import FormInput from "./reuseable-components/FormInput";
+import FormButton from "./reuseable-components/FormButton";
+import showFormErrors from "../utils/ShowFormError";
 
 const LoginForm = () => {
-  const {
-    register,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ defaultValues: { email: "", password: "" } });
-  const handleLogin = (data) => {
-    console.log(data);
-    console.log(errors);
+  const { register, reset, handleSubmit } = useForm({
+    defaultValues: { email: "", password: "" },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+  });
 
+  const handleLogin = (data) => {
+    console.log("Handle login executed");
+    console.log("form data", data);
     reset();
   };
+
   return (
     <section className="h-screen flex items-center flex-col justify-center">
-      <Logo
-        src={
-          "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
-        }
-      />
+      <Logo src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />
       <div className="w-full max-w-md mx-auto mt-5">
         <div className="bg-white shadow-2xl rounded-xl p-10 text-center">
           <FormHeading title="Login" />
           <FormText text="Enter your details below" />
 
-          <form className="mt-5" onSubmit={handleSubmit(handleLogin)}>
+          <form
+            onSubmit={handleSubmit(handleLogin, (formErrors) =>
+              showFormErrors(formErrors)
+            )}
+          >
             <div className="space-y-5 mb-5">
               <FormInput
                 type="email"
@@ -40,22 +41,29 @@ const LoginForm = () => {
                 icon={<FaEnvelope />}
                 {...register("email", {
                   required: "Email is required",
-                  pattern:
-                    /^[da-zA-Z]+(?:[+%._-][da-zA-Z]+)*@(?:[-.])*[a-zA-Zd]+(?:[-])*.[A-Za-z]{2,}$/,
+                  pattern: {
+                    value:
+                      /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
+                    message: "Enter a valid email address",
+                  },
                 })}
               />
-              {errors.email && <p>{errors.email.message}</p>}
+
               <FormInput
                 type="password"
                 placeholder="Password"
                 icon={<FaLock />}
+                isPassword
                 {...register("password", {
                   required: "Password is required",
-                  pattern:
-                    /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
+                  pattern: {
+                    value:
+                      /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
+                    message:
+                      "Password must be at least 8 characters, contain uppercase, lowercase, digit, special character, and no repeating chars.",
+                  },
                 })}
               />
-              {errors.password && <p>{errors.password.message}</p>}
             </div>
             <div className="text-center">
               <FormButton label="Sign In" />
