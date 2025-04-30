@@ -4,9 +4,11 @@ import { useForm } from "react-hook-form";
 import Logo from "./reuseable-components/Logo";
 import FormHeading from "./reuseable-components/FormHeading";
 import FormText from "./reuseable-components/FormText";
-import FormInput from "./reuseable-components/FormInput";
+import InputContainer from "./reuseable-components/InputContainer";
 import FormButton from "./reuseable-components/FormButton";
 import showFormErrors from "../utils/ShowFormError";
+import authService from "../../services/authService";
+import { toast } from "react-toastify";
 
 const RegisterForm = () => {
   const { register, reset, handleSubmit } = useForm({
@@ -21,9 +23,17 @@ const RegisterForm = () => {
   });
 
   const handleRegister = (data) => {
-    console.log("Handle register executed");
-    console.log("form data", data);
-    reset();
+    authService
+      .createAccount(data)
+      .then((res) => {
+        if (res.data?.data?.success) {
+          console.log("registered user response ", res);
+        }
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message);
+      })
+      .finally(reset());
   };
 
   return (
@@ -40,24 +50,18 @@ const RegisterForm = () => {
             )}
           >
             <div className="space-y-5 mb-5">
-              {/* Username Field */}
-              <FormInput
+              {/* fullname Field */}
+              <InputContainer
                 type="text"
-                placeholder="Username"
+                placeholder="Full Name"
                 icon={<FaUser />}
-                {...register("userName", {
-                  required: "Username is required",
-                  pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/,
-                    message:
-                      "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
-                  },
+                {...register("fullName", {
+                  required: "Full name is required",
                 })}
               />
 
               {/* Email Field */}
-              <FormInput
+              <InputContainer
                 type="email"
                 placeholder="Email Address"
                 icon={<FaEnvelope />}
@@ -71,18 +75,23 @@ const RegisterForm = () => {
                 })}
               />
 
-              {/* fullname Field */}
-              <FormInput
+              {/* Username Field */}
+              <InputContainer
                 type="text"
-                placeholder="Full Name"
+                placeholder="Username"
                 icon={<FaUser />}
-                {...register("fullName", {
-                  required: "Full name is required",
+                {...register("userName", {
+                  required: "Username is required",
+                  pattern: {
+                    value:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/,
+                    message:
+                      "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
+                  },
                 })}
               />
-
               {/* Password Field */}
-              <FormInput
+              <InputContainer
                 type="password"
                 placeholder="Password"
                 icon={<FaLock />}

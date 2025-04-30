@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import Logo from "./reuseable-components/Logo";
 import FormHeading from "./reuseable-components/FormHeading";
 import FormText from "./reuseable-components/FormText";
-import FormInput from "./reuseable-components/FormInput";
+import InputContainer from "./reuseable-components/InputContainer";
 import FormButton from "./reuseable-components/FormButton";
 import showFormErrors from "../utils/ShowFormError";
 
@@ -35,7 +35,7 @@ const LoginForm = () => {
             )}
           >
             <div className="space-y-5 mb-5">
-              <FormInput
+              <InputContainer
                 type="email"
                 placeholder="Email Address"
                 icon={<FaEnvelope />}
@@ -49,11 +49,11 @@ const LoginForm = () => {
                 })}
               />
 
-              <FormInput
+              <InputContainer
                 type="password"
                 placeholder="Password"
-                icon={<FaLock />}
                 isPassword
+                icon={<FaLock />}
                 {...register("password", {
                   required: "Password is required",
                   pattern: {
