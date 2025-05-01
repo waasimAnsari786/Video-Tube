@@ -152,6 +152,12 @@ const logoutUser = asyncHandler(async (req, res, _) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
+const getCurrentUser = asyncHandler(async (req, res, _) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User fetched successfully"));
+});
+
 const refreshAccessToken = asyncHandler(async (req, res, _) => {
   // get refresh token from cookies or header if exists, if it doesn't throw error
   // decode token
@@ -589,4 +595,5 @@ export {
   deleteAvatarAndCoverImage,
   getUserChannelDetails,
   getWatchHistory,
+  getCurrentUser,
 };

@@ -1,22 +1,14 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 export default function HomePage() {
+  const userData = useSelector((state) => state.auth.user);
+
   return (
     <>
-      <nav>
-        <ul className="text-white">
-          <li>
-            <NavLink to={"/"}>Home</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/login"}>Login</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/register"}>Signup</NavLink>
-          </li>
-        </ul>
-      </nav>
+      <h1>This is Home page</h1>
+      {userData?.fullName && <h2>Hello {userData?.fullName}</h2>}
     </>
   );
 }

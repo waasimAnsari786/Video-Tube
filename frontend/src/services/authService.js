@@ -1,4 +1,4 @@
-import axiosInstance from "../components/utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 
 class AuthService {
   async createAccount(data) {
@@ -16,6 +16,38 @@ class AuthService {
         password,
       });
       return loggedInAccount;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getUser() {
+    try {
+      const user = await axiosInstance.get("/users/me");
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateUserDetails(data) {
+    try {
+      const updatedUser = await axiosInstance.patch("/users/me", data);
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updatePassword(data) {
+    try {
+      const response = await axiosInstance.patch("/users/me/password", data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async logout() {
+    try {
+      const response = await axiosInstance.post("/users/me/logout");
+      return response;
     } catch (error) {
       throw error;
     }

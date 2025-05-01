@@ -6,13 +6,15 @@ import FormHeading from "./reuseable-components/FormHeading";
 import FormText from "./reuseable-components/FormText";
 import InputContainer from "./reuseable-components/InputContainer";
 import FormButton from "./reuseable-components/FormButton";
-import showFormErrors from "../utils/ShowFormError";
-import authService from "../../services/authService";
+import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { registerUserThunk } from "../../features/authSlice";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { register, reset, handleSubmit } = useForm({
     defaultValues: {
@@ -26,18 +28,14 @@ const RegisterForm = () => {
   });
 
   const handleRegister = async (data) => {
-    try {
-      await authService.createAccount(data);
-      const loggedInAccount = await authService.loginAccount(data);
-      if (loggedInAccount?.data?.success) {
-        toast.success(loggedInAccount?.data?.message);
-        navigate("/");
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-    } finally {
-      reset();
+    const result = await dispatch(registerUserThunk(data));
+    if (registerUserThunk.fulfilled.match(result)) {
+      toast.success("User registerede successfully");
+      navigate("/");
+    } else {
+      toast.error(result.payload || "Registration failed");
     }
+    reset();
   };
 
   return (
