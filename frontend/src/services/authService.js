@@ -9,6 +9,17 @@ class AuthService {
       throw error;
     }
   }
+  async loginAccount({ email, password }) {
+    try {
+      const loggedInAccount = await axiosInstance.post("/users/login", {
+        email,
+        password,
+      });
+      return loggedInAccount;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const authService = new AuthService();

@@ -9,8 +9,11 @@ import FormButton from "./reuseable-components/FormButton";
 import showFormErrors from "../utils/ShowFormError";
 import authService from "../../services/authService";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
+
   const { register, reset, handleSubmit } = useForm({
     defaultValues: {
       userName: "",
@@ -22,18 +25,19 @@ const RegisterForm = () => {
     reValidateMode: "onSubmit",
   });
 
-  const handleRegister = (data) => {
-    authService
-      .createAccount(data)
-      .then((res) => {
-        if (res.data?.data?.success) {
-          console.log("registered user response ", res);
-        }
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message);
-      })
-      .finally(reset());
+  const handleRegister = async (data) => {
+    try {
+      await authService.createAccount(data);
+      const loggedInAccount = await authService.loginAccount(data);
+      if (loggedInAccount?.data?.success) {
+        toast.success(loggedInAccount?.data?.message);
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    } finally {
+      reset();
+    }
   };
 
   return (

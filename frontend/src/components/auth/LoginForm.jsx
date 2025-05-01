@@ -7,6 +7,9 @@ import FormText from "./reuseable-components/FormText";
 import InputContainer from "./reuseable-components/InputContainer";
 import FormButton from "./reuseable-components/FormButton";
 import showFormErrors from "../utils/ShowFormError";
+import authService from "../../services/authService";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const { register, reset, handleSubmit } = useForm({
@@ -15,10 +18,20 @@ const LoginForm = () => {
     reValidateMode: "onSubmit",
   });
 
-  const handleLogin = (data) => {
-    console.log("Handle login executed");
-    console.log("form data", data);
-    reset();
+  const navigate = useNavigate();
+
+  const handleLogin = async (data) => {
+    try {
+      const loggedInAccount = await authService.loginAccount(data);
+      if (loggedInAccount?.data?.success) {
+        toast.success(loggedInAccount?.data?.message);
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    } finally {
+      reset();
+    }
   };
 
   return (
