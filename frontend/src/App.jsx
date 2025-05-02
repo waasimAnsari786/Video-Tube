@@ -6,6 +6,7 @@ import {
   HomePage,
   AuthProtectedLayout,
   ProfileSection,
+  UpdateProfileSection,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -43,6 +44,14 @@ const App = () => {
           element: (
             <AuthProtectedLayout>
               <ProfileSection />
+            </AuthProtectedLayout>
+          ),
+        },
+        {
+          path: "/update-profile",
+          element: (
+            <AuthProtectedLayout>
+              <UpdateProfileSection />
             </AuthProtectedLayout>
           ),
         },

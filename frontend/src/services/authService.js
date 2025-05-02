@@ -52,6 +52,30 @@ class AuthService {
       throw error;
     }
   }
+  async refreshAccessToken() {
+    try {
+      const response = await axiosInstance.post("/users/refresh-token");
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateAvatar(data) {
+    try {
+      const response = await axiosInstance.patch("/users/me/avatar", data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateCoverImage(data) {
+    try {
+      const response = await axiosInstance.patch("/users/me/cover", data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const authService = new AuthService();

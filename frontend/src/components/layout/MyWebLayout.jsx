@@ -2,7 +2,10 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Header, Footer } from "../../index";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getCurrentUserThunk } from "../../features/authSlice";
+import {
+  getCurrentUserThunk,
+  refreshAccessTokenThunk,
+} from "../../features/authSlice";
 
 const MyWebLayout = () => {
   const dispatch = useDispatch();
@@ -13,7 +16,11 @@ const MyWebLayout = () => {
     (async () => {
       const currentUser = await dispatch(getCurrentUserThunk());
       if (!getCurrentUserThunk.fulfilled.match(currentUser)) {
-        navigate("/login");
+        const refreshedToken = await dispatch(refreshAccessTokenThunk());
+        if (!refreshAccessTokenThunk.fulfilled.match(refreshedToken)) {
+          console.log("Refresh token error: ", refreshedToken.payload);
+          navigate("/login");
+        }
       }
       setLoading(false);
     })();

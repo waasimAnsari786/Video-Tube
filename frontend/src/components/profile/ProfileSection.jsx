@@ -1,42 +1,27 @@
 import React from "react";
-import { UpdateUserDetailsForm, Logo, UpdatePasswordForm } from "../../index";
+import { Avatar, CoverImage, FullName, Email, Username } from "../../index"; // Already implemented
 
-export default function ProfileSection() {
+const ProfileSection = () => {
   return (
-    <div className="faq-page py-10 px-4">
-      <Logo src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Banner image */}
+      <div className="relative">
+        <CoverImage />
 
-      <div className="max-w-3xl mx-auto space-y-4">
-        {/* Account details settings */}
-        <div className="collapse collapse-arrow bg-base-100 border border-base-300">
-          <input type="radio" name="faq-accordion" defaultChecked />
-          <div className="collapse-title font-semibold flex items-center gap-2">
-            <i className="ti-user"></i>
-            Account Details
-            <span className="text-sm block text-gray-500">
-              Update your account details
-            </span>
-          </div>
-          <div className="collapse-content">
-            <UpdateUserDetailsForm />
-          </div>
+        {/* Avatar */}
+        <div className="absolute bottom-[-40px] left-6">
+          <Avatar width="w-24" textSize="text-6xl" />
         </div>
+      </div>
 
-        {/* passowrd setting */}
-        <div className="collapse collapse-arrow bg-base-100 border border-base-300">
-          <input type="radio" name="faq-accordion" />
-          <div className="collapse-title font-semibold flex items-center gap-2">
-            <i className="ti-credit-card"></i>
-            Password
-            <span className="text-sm block text-gray-500">
-              Update your account password
-            </span>
-          </div>
-          <div className="collapse-content">
-            <UpdatePasswordForm />
-          </div>
-        </div>
+      {/* User Info */}
+      <div className="pt-16 px-6 text-white">
+        <FullName />
+        <Email />
+        <Username />
       </div>
     </div>
   );
-}
+};
+
+export default ProfileSection;

@@ -2,12 +2,12 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 export default function HomePage() {
-  const userData = useSelector((state) => state.auth.user);
+  const fullName = useSelector((state) => state.auth.fullName);
 
   return (
     <>
       <h1>This is Home page</h1>
-      {userData?.fullName && <h2>Hello {userData?.fullName}</h2>}
+      {fullName && <h2>Hello {fullName}</h2>}
     </>
   );
 }

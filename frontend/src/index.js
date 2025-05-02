@@ -15,6 +15,14 @@ import AuthProtectedLayout from "./components/resuseable-components/AuthProtecte
 import Icon from "./components/resuseable-components/Icon";
 import HomePage from "./components/pages/HomePage";
 import ProfileSection from "./components/profile/ProfileSection";
+import UpdateProfileSection from "./components/profile/UpdateProfileSection";
+import NavbarEnd from "./components/Navbar/NavbarEnd";
+import Avatar from "./components/profile/Avatar";
+import CoverImage from "./components/profile/CoverImage";
+import FullName from "./components/profile/FullName";
+import Email from "./components/profile/Email";
+import Username from "./components/profile/Username";
+import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
 
 export {
   FormButton,
@@ -34,4 +42,12 @@ export {
   Icon,
   HomePage,
   ProfileSection,
+  NavbarEnd,
+  Avatar,
+  UpdateProfileSection,
+  CoverImage,
+  FullName,
+  Email,
+  Username,
+  UpdateUserMediaForm,
 };

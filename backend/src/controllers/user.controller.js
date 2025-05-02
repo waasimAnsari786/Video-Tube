@@ -11,6 +11,7 @@ import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import FileDetails from "../utils/fileObject.utils.js";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
