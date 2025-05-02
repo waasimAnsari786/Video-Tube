@@ -1,14 +1,16 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import LoginForm from "./components/auth/LoginForm";
-import RegisterForm from "./components/auth/RegisterForm";
-import HomePage from "./components/pages/HomePage";
+import {
+  LoginForm,
+  RegisterForm,
+  MyWebLayout,
+  HomePage,
+  AuthProtectedLayout,
+  ProfileSection,
+} from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-import MyWebLayout from "./components/layout/MyWebLayout";
-import UpdateUserDetailsForm from "./components/auth/UpdateUserDetailsForm";
-import UpdatePasswordForm from "./components/auth/updatePasswordForm";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -22,19 +24,27 @@ const App = () => {
         },
         {
           path: "/login",
-          element: <LoginForm />,
+          element: (
+            <AuthProtectedLayout authentication={false}>
+              <LoginForm />
+            </AuthProtectedLayout>
+          ),
         },
         {
           path: "/register",
-          element: <RegisterForm />,
+          element: (
+            <AuthProtectedLayout authentication={false}>
+              <RegisterForm />
+            </AuthProtectedLayout>
+          ),
         },
         {
-          path: "/details",
-          element: <UpdateUserDetailsForm />,
-        },
-        {
-          path: "/password",
-          element: <UpdatePasswordForm />,
+          path: "/profile",
+          element: (
+            <AuthProtectedLayout>
+              <ProfileSection />
+            </AuthProtectedLayout>
+          ),
         },
       ],
     },

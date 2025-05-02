@@ -1,13 +1,14 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
-import React from "react";
+import React, { useId } from "react";
 import { logoutThunk } from "../../features/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const authStatus = useSelector((state) => state.auth.authStatus);
+
   const handleLogout = async () => {
     const result = await dispatch(logoutThunk());
     if (logoutThunk.fulfilled.match(result)) {
@@ -17,6 +18,14 @@ export default function Header() {
       toast.error(result.payload || "Registration failed");
     }
   };
+
+  const navItems = [
+    { name: "Home", slug: "", active: true, id: useId() },
+    { name: "Login", slug: "login", active: !authStatus, id: useId() },
+    { name: "Signup", slug: "register", active: !authStatus, id: useId() },
+    { name: "Profile", slug: "profile", active: authStatus, id: useId() },
+  ];
+
   return (
     <div className="navbar bg-base-300 shadow-sm">
       <div className="flex-1">
@@ -24,22 +33,21 @@ export default function Header() {
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
-          <li>
-            <NavLink to={"/"}>Home</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/login"}>Login</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/register"}>Signup</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/details"}>Update Details</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/password"}>Update Password</NavLink>
-          </li>
-          <button onClick={handleLogout}>Logout</button>
+          {navItems
+            .filter((item) => item.active)
+            .map((item) => (
+              <li key={item.id} className="bg-transparent text-white">
+                <NavLink
+                  className={({ isActive }) =>
+                    isActive ? "bg-white text-amber-700" : ""
+                  }
+                  to={item.slug}
+                >
+                  {item.name}
+                </NavLink>
+              </li>
+            ))}{" "}
+          {authStatus && <button onClick={handleLogout}>Logout</button>}
           <li>
             <details>
               <summary>Parent</summary>

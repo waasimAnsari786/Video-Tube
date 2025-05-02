@@ -1,11 +1,13 @@
 import React from "react";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import Logo from "./reuseable-components/Logo";
-import FormHeading from "./reuseable-components/FormHeading";
-import FormText from "./reuseable-components/FormText";
-import InputContainer from "./reuseable-components/InputContainer";
-import FormButton from "./reuseable-components/FormButton";
+import {
+  Logo,
+  FormHeading,
+  FormText,
+  InputContainer,
+  FormButton,
+} from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";

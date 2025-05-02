@@ -1,10 +1,16 @@
 import React from "react";
-import Icon from "../../resuseable-components/Icon";
-import FormInput from "./FormInput";
+import { Icon, FormInput } from "../../../index";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useFormContextCustom } from "../../../context/FormContext";
 
-const InputContainer = ({ type, placeholder, icon, isPassword, ...props }) => {
+const InputContainer = ({
+  type,
+  placeholder,
+  icon,
+  isPassword,
+  customClass = "",
+  ...props
+}) => {
   const { showPassword, togglePasswordVisibility } = useFormContextCustom();
 
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
@@ -25,7 +31,7 @@ const InputContainer = ({ type, placeholder, icon, isPassword, ...props }) => {
     : iconClasses;
 
   return (
-    <div className="relative">
+    <div className={`relative ${customClass}`}>
       <Icon
         icon={displayIcon}
         className={finalIconClasses}
