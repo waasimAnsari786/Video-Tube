@@ -12,12 +12,7 @@ const UpdateUserDetailsForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-  } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       fullName: "",
       email: "",
@@ -67,7 +62,10 @@ const UpdateUserDetailsForm = () => {
       </div>
 
       <div className="text-center">
-        <FormButton label={isSubmitting ? "Updating..." : "Update"} />
+        <FormButton
+          label={"Update Details"}
+          loadingLabel="Updaitng Details..."
+        />
       </div>
     </form>
   );

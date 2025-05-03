@@ -24,24 +24,20 @@ const UpdateUserMediaForm = ({ media }) => {
 
     const formData = new FormData();
     formData.append(media, file);
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+
+    const action =
+      media === "avatar" ? updateAvatarThunk : updateCoverImageThunk;
+
+    const result = await dispatch(action(formData));
+
+    if (action.fulfilled.match(result)) {
+      toast.success(result.payload.message);
+      navigate("profile");
+    } else {
+      toast.error(result.payload || "Update failed");
     }
 
-    // const action =
-    //   media === "avatar"
-    //     ? updateAvatarThunk(formData)
-    //     : updateCoverImageThunk(formData);
-
-    // const result = await dispatch(action);
-
-    // if (action.fulfilled.match(result)) {
-    //   toast.success(result.payload.message);
-    // } else {
-    //   toast.error(result.payload || "Update failed");
-    // }
-
-    // reset();
+    reset();
   };
 
   return (
@@ -59,7 +55,7 @@ const UpdateUserMediaForm = ({ media }) => {
       />
 
       <div className="text-center">
-        <FormButton label={`Update ${media}`} />
+        <FormButton label={"Update File"} loadingLabel="Updating File..." />
       </div>
     </form>
   );

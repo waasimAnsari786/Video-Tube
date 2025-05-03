@@ -113,7 +113,7 @@ const RegisterForm = () => {
             </div>
 
             <div className="text-center">
-              <FormButton label="Register" />
+              <FormButton label="Register" loadingLabel="Signing Up..." />
               <FormText
                 text="Already have an account?"
                 linkText="Login"

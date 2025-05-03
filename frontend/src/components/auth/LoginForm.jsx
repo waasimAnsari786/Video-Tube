@@ -80,7 +80,7 @@ const LoginForm = () => {
               />
             </div>
             <div className="text-center">
-              <FormButton label="Sign In" />
+              <FormButton label="Sign In" loadingLabel="Signing in..." />
               <FormText
                 text="Don't have an account?"
                 linkText="Register"

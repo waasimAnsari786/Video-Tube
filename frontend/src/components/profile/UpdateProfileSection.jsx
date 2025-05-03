@@ -55,6 +55,20 @@ export default function UpdateProfileSection() {
             <UpdateUserMediaForm media={"avatar"} />
           </div>
         </div>
+        {/* coverImage setting */}
+        <div className="collapse collapse-arrow bg-base-100 border border-base-300">
+          <input type="radio" name="faq-accordion" />
+          <div className="collapse-title font-semibold flex items-center gap-2">
+            <i className="ti-credit-card"></i>
+            Cover Image
+            <span className="text-sm block text-gray-500">
+              Update your account cover image
+            </span>
+          </div>
+          <div className="collapse-content">
+            <UpdateUserMediaForm media={"coverImage"} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -233,7 +233,7 @@ const authSlice = createSlice({
       })
       .addCase(updateAvatarThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.avatar = action.payload.data.avatar;
+        state.avatar = action.payload.data;
       })
       .addCase(updateAvatarThunk.rejected, (state, action) => {
         state.loading = false;
@@ -246,7 +246,7 @@ const authSlice = createSlice({
       })
       .addCase(updateCoverImageThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.avatar = action.payload.data.coverImage;
+        state.coverImage = action.payload.data;
       })
       .addCase(updateCoverImageThunk.rejected, (state, action) => {
         state.loading = false;

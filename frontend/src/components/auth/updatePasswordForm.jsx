@@ -12,13 +12,7 @@ const UpdatePasswordForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { isSubmitting },
-  } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
 
   const handleUpdatePassword = async (data) => {
     const result = await dispatch(updatePasswordThunk(data));
@@ -77,7 +71,8 @@ const UpdatePasswordForm = () => {
       </div>
 
       <FormButton
-        label={isSubmitting ? "Password Updating..." : "Update Password"}
+        label={"Update Password"}
+        loadingLabel="Updating Password..."
       />
     </form>
   );

@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Icon, FormInput } from "../../../index";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useFormContextCustom } from "../../../context/FormContext";
 
 const InputContainer = ({
   type,
@@ -11,8 +10,11 @@ const InputContainer = ({
   customClass = "",
   ...props
 }) => {
-  const { showPassword, togglePasswordVisibility } = useFormContextCustom();
+  const [showPassword, setShowPassword] = useState(false);
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
   const inputType = isPassword ? (showPassword ? "text" : "password") : type;
   const displayIcon = isPassword ? (
     showPassword ? (
@@ -31,7 +33,7 @@ const InputContainer = ({
     : iconClasses;
 
   return (
-    <div className={`relative ${customClass}`}>
+    <div className={`relative ${customClass}`} id={id} ref={inputRef}>
       <Icon
         icon={displayIcon}
         className={finalIconClasses}
