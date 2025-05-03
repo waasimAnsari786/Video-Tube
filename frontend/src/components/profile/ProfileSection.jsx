@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, CoverImage, FullName, Email, Username } from "../../index"; // Already implemented
+import { Avatar, CoverImage, FullName, Email, Username } from "../../index";
 
 const ProfileSection = () => {
   return (

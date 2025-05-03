@@ -1,3 +1,12 @@
+/**
+ * this slice calls methods from "authService" object in each "thunk" and then returns
+ * the data "object" from axios response and error if requests fails. Data object
+ * contains the returned response from the server. "initialState" is an object
+ * that contains "loading" and "error" states for displaying pending and falied message
+ * to the user in the UI, "authStatus" is for storing the status of user
+ * (is he logged-in?), remaining states are for displaying user-data in the diferent
+ * sections of UI */
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/authService";
 import updateStateFromResponse from "../utils/updateStateFromResponse";

@@ -1,3 +1,12 @@
+/**
+ * This component is a container of input and icon for all form. It is a reusable component
+ * for creating a field with icon and input in all forms of this app. specifically, It
+ * checks for password fields for implementing the show/hide password functionality on
+ * icon of those fieds. It expects a prop "isPassword". If this prope is passed in this
+ * component it assigns "togglePasswordVisibility()" method to that field's icon's "onClick"
+ * event listener. This method toggles the state "showPassword" for changing the field's
+ * type and selecting an icon to display.
+ */
 import React, { useState } from "react";
 import { Icon, FormInput } from "../../../index";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -33,7 +42,7 @@ const InputContainer = ({
     : iconClasses;
 
   return (
-    <div className={`relative ${customClass}`} id={id} ref={inputRef}>
+    <div className={`relative ${customClass}`}>
       <Icon
         icon={displayIcon}
         className={finalIconClasses}

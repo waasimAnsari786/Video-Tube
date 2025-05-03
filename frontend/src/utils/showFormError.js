@@ -1,3 +1,4 @@
+// this is a utility function, wrote for displaying the vry first error of react-hook-form
 import { toast } from "react-toastify";
 
 const showFormErrors = (errors) => {

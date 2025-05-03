@@ -1,3 +1,9 @@
+/**
+ * This component has written for protecting each component which requires both
+ * authorization and authentication of user. It takes a prop "authentication"
+ * and reads "authStatus"(a state value of "authSlice.js") and then take user
+ * to the correct page by checking that is user authnticated and authorized?*/
+
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";

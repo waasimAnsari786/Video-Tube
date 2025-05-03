@@ -1,3 +1,4 @@
+// it's a main file for importing and exporting all components throught out the app.
 import FormButton from "./components/auth/reuseable-components/FormButton";
 import FormHeading from "./components/auth/reuseable-components/FormHeading";
 import FormInput from "./components/auth/reuseable-components/FormInput";

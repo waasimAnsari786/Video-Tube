@@ -1,3 +1,5 @@
+// it's a service or file which contians all api requests methods regarding authentication
+
 import axiosInstance from "../utils/axiosInstance";
 
 class AuthService {

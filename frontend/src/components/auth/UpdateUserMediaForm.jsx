@@ -1,3 +1,9 @@
+/**
+ * This form component has written for updating user "Avatar" and "CoverImage". It expects
+ * a prop "media" for choosing that which file it is suppose to update. It selects an
+ * action(defined asyncThunk in the "authSlice.js") for making update request by checking
+ * "media" prop.
+ */
 import React from "react";
 import { useForm } from "react-hook-form";
 import { InputContainer, FormButton } from "../../index";
