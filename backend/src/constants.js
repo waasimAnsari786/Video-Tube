@@ -8,7 +8,7 @@ const COOKIE_OPTIONS = {
   secure: true,
 };
 // uploaded files allowed extensions
-const IMAGE_EXTENTIONS = [".jpg", ".jpeg", ".png"];
+const IMAGE_EXTENTIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
 const VIDEO_EXTENTIONS = [".mp4", ".mov", ".avi", ".mkv"];
 const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
 

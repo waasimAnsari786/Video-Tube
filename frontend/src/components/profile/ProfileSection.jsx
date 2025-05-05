@@ -1,9 +1,16 @@
 import React from "react";
-import { Avatar, CoverImage, FullName, Email, Username } from "../../index";
+import {
+  Avatar,
+  CoverImage,
+  FullName,
+  Email,
+  Username,
+  Container,
+} from "../../index";
 
 const ProfileSection = () => {
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <Container>
       {/* Banner image */}
       <div className="relative">
         <CoverImage />
@@ -20,7 +27,7 @@ const ProfileSection = () => {
         <Email />
         <Username />
       </div>
-    </div>
+    </Container>
   );
 };
 

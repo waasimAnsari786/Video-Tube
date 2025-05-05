@@ -24,6 +24,7 @@ import FullName from "./components/profile/FullName";
 import Email from "./components/profile/Email";
 import Username from "./components/profile/Username";
 import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
+import Container from "./components/resuseable-components/Container";
 
 export {
   FormButton,
@@ -51,4 +52,5 @@ export {
   Email,
   Username,
   UpdateUserMediaForm,
+  Container,
 };
