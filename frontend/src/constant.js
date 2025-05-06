@@ -1,0 +1,3 @@
+const REFRESH_INTERVAL = 14 * 60 * 1000;
+
+export { REFRESH_INTERVAL };

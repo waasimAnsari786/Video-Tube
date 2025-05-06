@@ -4,14 +4,9 @@
  * action(defined asyncThunk in the "authSlice.js") for making update request by checking
  * "media" prop.
  */
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import {
-  InputContainer,
-  FormButton,
-  useImagePreview,
-  ImagePreview,
-} from "../../index";
+import { FormButton, FileInputContainer } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import {
@@ -20,7 +15,6 @@ import {
 } from "../../features/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaFile } from "react-icons/fa";
 
 const UpdateUserMediaForm = ({ media }) => {
   const dispatch = useDispatch();
@@ -29,8 +23,6 @@ const UpdateUserMediaForm = ({ media }) => {
     mode: "onSubmit",
     reValidateMode: "onSubmit",
   });
-
-  const { setImagePreview } = useImagePreview();
 
   const handleUpdateMedia = async (data) => {
     const file = data[media]?.[0];
@@ -53,11 +45,6 @@ const UpdateUserMediaForm = ({ media }) => {
     reset();
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setImagePreview(file);
-  };
-
   return (
     <form
       onSubmit={handleSubmit(handleUpdateMedia, (formErrors) =>
@@ -65,12 +52,8 @@ const UpdateUserMediaForm = ({ media }) => {
       )}
       className="bg-white shadow-2xl rounded-xl p-5 sm:p-10"
     >
-      <InputContainer
-        type="file"
-        icon={<FaFile />}
+      <FileInputContainer
         {...register(media, { required: `${media} is required` })}
-        onChange={handleImageChange}
-        accept=".jpg,.jpeg,.png,.webp,.avif"
       />
 
       <FormButton label={"Update File"} loadingLabel="Updating File..." />

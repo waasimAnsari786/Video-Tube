@@ -11,27 +11,37 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath, type) => {
-  // check that is "locaFilePath" present? if doesn't, throw error
-  // upload file on cloudinary
-  // throw errors from cath block
-  // write localFilePath's file on local server delete logic in finally block
-  // return uploaded result
+const uploadOnCloudinary = async (
+  localFilePath,
+  type,
+  transformationOptions = {}
+) => {
   try {
-    if (!localFilePath || !type) {
-      console.error("File path or file resource type is missing");
+    if (
+      !localFilePath ||
+      !type ||
+      Object.keys(transformationOptions).length === 0
+    ) {
+      console.error(
+        "File path, file resource type and tranformation options of file are required"
+      );
       throw new ApiError(500, "Internal server error while uploading file");
     }
-    // Upload the file
-    const uploadedFile = await cloudinary.uploader.upload(localFilePath, {
+
+    const uploadConfig = {
       resource_type: type,
-    });
-    return uploadedFile; // ✅ Return the upload result to the caller
+      transformation: [transformationOptions],
+    };
+
+    const uploadedFile = await cloudinary.uploader.upload(
+      localFilePath,
+      uploadConfig
+    );
+    return uploadedFile;
   } catch (error) {
     console.error(error);
     throw error;
   } finally {
-    // utility function for deleting files from local server
     deleteFileFromLocalServer(localFilePath);
   }
 };

@@ -5,7 +5,6 @@ import {
   UpdatePasswordForm,
   UpdateUserMediaForm,
   Container,
-  ImagePreview,
 } from "../../index";
 
 export default function UpdateProfileSection() {
@@ -54,7 +53,6 @@ export default function UpdateProfileSection() {
         </div>
         <div className="collapse-content">
           <UpdateUserMediaForm media={"avatar"} />
-          <ImagePreview />
         </div>
       </div>
       {/* coverImage setting */}

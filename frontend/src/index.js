@@ -25,11 +25,8 @@ import Email from "./components/profile/Email";
 import Username from "./components/profile/Username";
 import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
 import Container from "./components/resuseable-components/Container";
-import {
-  ImagePreviewProvider,
-  useImagePreview,
-} from "./context/ImagePreviewContext";
 import ImagePreview from "./components/auth/reuseable-components/ImagePreview";
+import FileInputContainer from "./components/auth/reuseable-components/FileInputContainer";
 
 export {
   FormButton,
@@ -59,6 +56,5 @@ export {
   UpdateUserMediaForm,
   Container,
   ImagePreview,
-  ImagePreviewProvider,
-  useImagePreview,
+  FileInputContainer,
 };

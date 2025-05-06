@@ -6,28 +6,47 @@ import {
   getCurrentUserThunk,
   refreshAccessTokenThunk,
 } from "../../features/authSlice";
+import { REFRESH_INTERVAL } from "../../constant";
 
 const MyWebLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
+  /**
+   * this useEffect call an asyncThunk of "authSlice.js" which gets current user.
+   * If this thunks falis, then useEffect calls another thunk which requests
+   * to the server for refreshing access token of the user. However, if
+   * "getCurrentUSerThunk" gets response successfully, this useEffect schedules
+   * a "setTimeout()" for refreshing the access token on every 14 minutes,
+   * before meeting the expiration time of the accesstoken.
+   */
   useEffect(() => {
+    let timeoutId;
+
+    const scheduleRefresh = async () => {
+      await dispatch(refreshAccessTokenThunk());
+      timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
+    };
+
     (async () => {
       const currentUser = await dispatch(getCurrentUserThunk());
       if (!getCurrentUserThunk.fulfilled.match(currentUser)) {
         const refreshedToken = await dispatch(refreshAccessTokenThunk());
         if (!refreshAccessTokenThunk.fulfilled.match(refreshedToken)) {
-          console.log("Refresh token error: ", refreshedToken.payload);
           navigate("/login");
+          setLoading(false);
+          return;
         }
       }
-      const interval = setInterval(() => {
-        console.log("interval run again");
-      }, 500);
+
       setLoading(false);
-      return () => clearInterval(interval);
+      timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
     })();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return loading ? (

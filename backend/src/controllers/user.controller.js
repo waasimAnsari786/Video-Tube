@@ -12,6 +12,7 @@ import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.
 import FileDetails from "../utils/fileObject.utils.js";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
@@ -281,11 +282,6 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
 });
 
 const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
-  // check - is requested file's extension valid?
-  // check for previous file
-  // if previous file exists, delete it and then upload new one else upload new one
-  // return response
-
   try {
     if (!IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)) {
       throw new ApiError(
@@ -293,11 +289,23 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
         `Invalid file type "${req.file.realFileType}" of requested file: Allowed ${IMAGE_EXTENTIONS.join(", ")}`
       );
     }
-    /* initialize variable for using requested file's field name in the form in frontend because
-    form's fieldname is match with my DB's fieldname */
+
     const fieldName = req.file.fieldname;
 
-    const uploadedFile = await uploadOnCloudinary(req.file.path, "image");
+    // Define transform based on field name
+    let transformParams = null;
+
+    if (fieldName === "avatar") {
+      transformParams = new CloudinaryTransform(80, 80);
+    } else if (fieldName === "coverImage") {
+      transformParams = new CloudinaryTransform(256, 1200);
+    }
+
+    const uploadedFile = await uploadOnCloudinary(
+      req.file.path,
+      "image",
+      transformParams
+    );
 
     const fileDetails = new FileDetails(
       uploadedFile.secure_url,
@@ -319,7 +327,6 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       throw new ApiError(500, "Internal server error while updating user");
     }
 
-    // user's previous file
     const prevFile = req.user[fieldName];
     if (prevFile?.secureURL) {
       await deleteFromCloudinary(prevFile?.publicId, prevFile?.resourceType);
