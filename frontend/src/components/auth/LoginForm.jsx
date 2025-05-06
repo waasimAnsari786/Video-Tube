@@ -44,7 +44,7 @@ const LoginForm = () => {
         onSubmit={handleSubmit(handleLogin, (formErrors) =>
           showFormErrors(formErrors)
         )}
-        className="bg-white shadow-2xl rounded-xl p-10 text-center"
+        className="bg-white shadow-2xl rounded-xl p-10 text-center w-1/2"
       >
         <FormHeading title="Login" />
         <FormText text="Enter your details below" />

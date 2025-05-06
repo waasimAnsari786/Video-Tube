@@ -22,9 +22,14 @@ const MyWebLayout = () => {
           navigate("/login");
         }
       }
+      const interval = setInterval(() => {
+        console.log("interval run again");
+      }, 500);
       setLoading(false);
+      return () => clearInterval(interval);
     })();
   }, []);
+
   return loading ? (
     <h1>Loading...</h1>
   ) : (

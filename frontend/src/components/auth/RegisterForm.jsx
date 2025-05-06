@@ -49,7 +49,7 @@ const RegisterForm = () => {
         onSubmit={handleSubmit(handleRegister, (formErrors) =>
           showFormErrors(formErrors)
         )}
-        className="bg-white shadow-2xl rounded-xl p-10 text-center"
+        className="bg-white shadow-2xl rounded-xl p-10 text-center w-1/2"
       >
         <FormHeading title="Register" />
         <FormText text="Create your account" />

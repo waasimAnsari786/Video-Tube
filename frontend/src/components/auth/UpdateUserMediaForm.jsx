@@ -4,9 +4,14 @@
  * action(defined asyncThunk in the "authSlice.js") for making update request by checking
  * "media" prop.
  */
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { InputContainer, FormButton } from "../../index";
+import {
+  InputContainer,
+  FormButton,
+  useImagePreview,
+  ImagePreview,
+} from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import {
@@ -25,6 +30,8 @@ const UpdateUserMediaForm = ({ media }) => {
     reValidateMode: "onSubmit",
   });
 
+  const { setImagePreview } = useImagePreview();
+
   const handleUpdateMedia = async (data) => {
     const file = data[media]?.[0];
 
@@ -38,12 +45,17 @@ const UpdateUserMediaForm = ({ media }) => {
 
     if (action.fulfilled.match(result)) {
       toast.success(result.payload.message);
-      navigate("profile");
+      navigate("/profile");
     } else {
       toast.error(result.payload || "Update failed");
     }
 
     reset();
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setImagePreview(file);
   };
 
   return (
@@ -55,14 +67,13 @@ const UpdateUserMediaForm = ({ media }) => {
     >
       <InputContainer
         type="file"
-        placeholder="Full Name"
         icon={<FaFile />}
         {...register(media, { required: `${media} is required` })}
+        onChange={handleImageChange}
+        accept=".jpg,.jpeg,.png,.webp,.avif"
       />
 
-      <div className="text-center">
-        <FormButton label={"Update File"} loadingLabel="Updating File..." />
-      </div>
+      <FormButton label={"Update File"} loadingLabel="Updating File..." />
     </form>
   );
 };
