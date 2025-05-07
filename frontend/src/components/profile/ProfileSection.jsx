@@ -7,8 +7,11 @@ import {
   Username,
   Container,
 } from "../../index";
+import { useParams } from "react-router-dom";
 
 const ProfileSection = () => {
+  const { userName } = useParams();
+
   return (
     <Container>
       {/* Banner image */}

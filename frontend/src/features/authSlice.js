@@ -20,6 +20,7 @@ const initialState = {
   avatar: {},
   coverImage: {},
   authStatus: false,
+  channelData: {},
 };
 
 // Async thunks...
@@ -113,6 +114,7 @@ const refreshAccessTokenThunk = createAsyncThunk(
     }
   }
 );
+
 const updateAvatarThunk = createAsyncThunk(
   "auth/updateAvatar",
   async (formData, { rejectWithValue }) => {
@@ -124,6 +126,7 @@ const updateAvatarThunk = createAsyncThunk(
     }
   }
 );
+
 const updateCoverImageThunk = createAsyncThunk(
   "auth/updateCoverImage",
   async (formData, { rejectWithValue }) => {
@@ -141,128 +144,89 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    const initializeLoading = (state) => {
+      state.loading = true;
+      state.error = null;
+    };
+    const updateloadingAndError = (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    };
+    const updateUserInfo = (state, action) => {
+      state.loading = false;
+      state.authStatus = true;
+      updateStateFromResponse(state, action.payload.data);
+    };
+
     builder
       // Register
-      .addCase(registerUserThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUserThunk.fulfilled, (state, action) => {
+      .addCase(registerUserThunk.pending, initializeLoading)
+      .addCase(registerUserThunk.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(registerUserThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(registerUserThunk.rejected, updateloadingAndError)
+
       // Login
-      .addCase(loginUserThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginUserThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.authStatus = true;
-        updateStateFromResponse(state, action.payload.data);
-      })
-      .addCase(loginUserThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(loginUserThunk.pending, initializeLoading)
+      .addCase(loginUserThunk.fulfilled, updateUserInfo)
+      .addCase(loginUserThunk.rejected, updateloadingAndError)
+
       // Get Current User
-      .addCase(getCurrentUserThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getCurrentUserThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.authStatus = true;
-        localStorage.setItem("refreshToken", action.payload.data.refreshToken);
-        updateStateFromResponse(state, action.payload.data);
-      })
-      .addCase(getCurrentUserThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Update Details
-      .addCase(updateUserDetailsThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(getCurrentUserThunk.pending, initializeLoading)
+      .addCase(getCurrentUserThunk.fulfilled, updateUserInfo)
+      .addCase(getCurrentUserThunk.rejected, updateloadingAndError)
+
+      // Update User Details
+      .addCase(updateUserDetailsThunk.pending, initializeLoading)
       .addCase(updateUserDetailsThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.fullName = action.payload.data.fullName;
         state.email = action.payload.data.email;
       })
-      .addCase(updateUserDetailsThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(updateUserDetailsThunk.rejected, updateloadingAndError)
+
       // Update Password
-      .addCase(updatePasswordThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      .addCase(updatePasswordThunk.pending, initializeLoading)
       .addCase(updatePasswordThunk.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(updatePasswordThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(updatePasswordThunk.rejected, updateloadingAndError)
+
       // Logout
-      .addCase(logoutThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(logoutThunk.pending, initializeLoading)
+      .addCase(logoutThunk.fulfilled, (state) => {
+        Object.assign(state, initialState); // reset to initial state
       })
-      .addCase(logoutThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.authStatus = false;
-        Object.assign(state, initialState); // resets all user data
-      })
-      .addCase(logoutThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+      .addCase(logoutThunk.rejected, updateloadingAndError)
+
       // Refresh Token
-      .addCase(refreshAccessTokenThunk.pending, (state) => {
-        state.error = null;
-      })
-      .addCase(refreshAccessTokenThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.authStatus = true;
-        updateStateFromResponse(state, action.payload.data);
-        localStorage.setItem("refreshToken", action.payload.data.refreshToken);
-      })
-      .addCase(refreshAccessTokenThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Avatar
-      .addCase(updateAvatarThunk.pending, (state) => {
-        state.error = null;
-        state.loading = true;
-      })
+      .addCase(refreshAccessTokenThunk.pending, initializeLoading)
+      .addCase(refreshAccessTokenThunk.fulfilled, updateUserInfo)
+      .addCase(refreshAccessTokenThunk.rejected, updateloadingAndError)
+
+      // Update Avatar
+      .addCase(updateAvatarThunk.pending, initializeLoading)
       .addCase(updateAvatarThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.avatar = action.payload.data;
       })
-      .addCase(updateAvatarThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Cover Image
-      .addCase(updateCoverImageThunk.pending, (state) => {
-        state.error = null;
-        state.loading = true;
-      })
+      .addCase(updateAvatarThunk.rejected, updateloadingAndError)
+
+      // Update Cover Image
+      .addCase(updateCoverImageThunk.pending, initializeLoading)
       .addCase(updateCoverImageThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.coverImage = action.payload.data;
       })
-      .addCase(updateCoverImageThunk.rejected, (state, action) => {
+      .addCase(updateCoverImageThunk.rejected, updateloadingAndError)
+
+      // Channel Details
+      .addCase(getUserChannelDetailsThunk.pending, initializeLoading)
+      .addCase(getUserChannelDetailsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      });
+        state.channelData = action.payload.data;
+      })
+      .addCase(getUserChannelDetailsThunk.rejected, updateloadingAndError);
   },
 });
 

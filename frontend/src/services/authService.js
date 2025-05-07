@@ -88,6 +88,14 @@ class AuthService {
       throw error;
     }
   }
+  async getUserChannelDetails(userName) {
+    try {
+      const response = await axiosInstance.get(`/users/channel/${userName}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const authService = new AuthService();

@@ -7,6 +7,8 @@ import {
   refreshAccessTokenThunk,
 } from "../../features/authSlice";
 import { REFRESH_INTERVAL } from "../../constant";
+import authService from "../../services/authService";
+import { toast } from "react-toastify";
 
 const MyWebLayout = () => {
   const dispatch = useDispatch();
@@ -25,8 +27,12 @@ const MyWebLayout = () => {
     let timeoutId;
 
     const scheduleRefresh = async () => {
-      await dispatch(refreshAccessTokenThunk());
-      timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
+      try {
+        await authService.refreshAccessToken();
+        timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Refresh failed");
+      }
     };
 
     (async () => {

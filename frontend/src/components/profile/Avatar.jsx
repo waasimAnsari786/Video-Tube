@@ -7,14 +7,14 @@ export default function Avatar({ width = "w-10", textSize = "text-xl" }) {
   const avatar = useSelector((state) => state.auth.avatar);
   const fullName = useSelector((state) => state.auth.fullName);
 
-  const cld = new Cloudinary({
-    cloud: {
-      cloudName: "waasim-ansari",
-    },
-  });
+  // const cld = new Cloudinary({
+  //   cloud: {
+  //     cloudName: "waasim-ansari",
+  //   },
+  // });
 
   // Use the image with public ID, 'sample'.
-  const myImage = cld.image(avatar.publicId);
+  // const myImage = cld.image(avatar.publicId);
 
   // Use the responsive plugin, setting the step size to 200 pixels
   // return (
@@ -27,7 +27,7 @@ export default function Avatar({ width = "w-10", textSize = "text-xl" }) {
   //   </div>
   // );
 
-  if (avatar && avatar.secureURL) {
+  if (avatar?.secureURL) {
     return (
       <div className={width}>
         <img

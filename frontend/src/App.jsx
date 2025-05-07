@@ -40,7 +40,7 @@ const App = () => {
           ),
         },
         {
-          path: "/profile",
+          path: "/profile/:userName",
           element: (
             <AuthProtectedLayout>
               <ProfileSection />

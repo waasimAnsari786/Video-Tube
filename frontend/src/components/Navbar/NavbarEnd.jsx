@@ -1,8 +1,10 @@
 import React from "react";
 import { Avatar } from "../../index";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function NavbarEnd({ handleLogout }) {
+  const userName = useSelector((state) => state.auth.userName);
   return (
     <div className="navbar-end">
       <div className="dropdown dropdown-end">
@@ -18,7 +20,7 @@ export default function NavbarEnd({ handleLogout }) {
           className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
         >
           <li>
-            <NavLink to={"/profile"} className="justify-between">
+            <NavLink to={`/profile/${userName}`} className="justify-between">
               Profile <span className="badge">New</span>
             </NavLink>
           </li>
