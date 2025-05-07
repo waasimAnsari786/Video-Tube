@@ -1,12 +1,8 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage, responsive } from "@cloudinary/react";
 
-export default function Avatar({ width = "w-10", textSize = "text-xl" }) {
-  const avatar = useSelector((state) => state.auth.avatar);
-  const fullName = useSelector((state) => state.auth.fullName);
-
+export default function Avatar({ width = "w-10", avatar = "" }) {
   // const cld = new Cloudinary({
   //   cloud: {
   //     cloudName: "waasim-ansari",
@@ -27,23 +23,15 @@ export default function Avatar({ width = "w-10", textSize = "text-xl" }) {
   //   </div>
   // );
 
-  if (avatar?.secureURL) {
+  if (avatar) {
     return (
       <div className={width}>
         <img
           alt="User Avatar"
-          src={avatar.secureURL}
+          src={avatar}
           className="object-cover rounded-full w-full"
         />
       </div>
     );
   }
-
-  return (
-    <div className="avatar avatar-placeholder">
-      <div className={`bg-neutral text-neutral-content ${width} rounded-full`}>
-        <span className={textSize}>{fullName?.[0]?.toUpperCase()}</span>
-      </div>
-    </div>
-  );
 }

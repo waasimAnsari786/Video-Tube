@@ -7,6 +7,7 @@ import {
   AuthProtectedLayout,
   ProfileSection,
   UpdateProfileSection,
+  ChannelDetails,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -40,7 +41,7 @@ const App = () => {
           ),
         },
         {
-          path: "/profile/:userName",
+          path: "/profile",
           element: (
             <AuthProtectedLayout>
               <ProfileSection />
@@ -52,6 +53,14 @@ const App = () => {
           element: (
             <AuthProtectedLayout>
               <UpdateProfileSection />
+            </AuthProtectedLayout>
+          ),
+        },
+        {
+          path: "/:channelName",
+          element: (
+            <AuthProtectedLayout>
+              <ChannelDetails />
             </AuthProtectedLayout>
           ),
         },

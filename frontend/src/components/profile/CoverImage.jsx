@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { AdvancedImage, responsive } from "@cloudinary/react";
 
-const CoverImage = () => {
-  const coverImage = useSelector((state) => state.auth.coverImage);
+const CoverImage = ({ coverImage }) => {
+  // const coverImage = useSelector((state) => state.auth.coverImage);
 
   // const cld = new Cloudinary({
   //   cloud: {
@@ -26,11 +26,11 @@ const CoverImage = () => {
   //   </div>
   // );
 
-  if (!coverImage?.secureURL) return null;
+  if (!coverImage) return null;
 
   return (
     <img
-      src={coverImage.secureURL}
+      src={coverImage}
       alt="Banner"
       className="w-full h-36 sm:h-44 md:h-56 lg:h-64 object-cover rounded-b-xl shadow-md"
     />

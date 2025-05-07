@@ -3,8 +3,9 @@ import { Avatar } from "../../index";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-export default function NavbarEnd({ handleLogout }) {
-  const userName = useSelector((state) => state.auth.userName);
+export default React.memo(function NavbarEnd({ handleLogout }) {
+  const avatar = useSelector((state) => state.auth.avatar);
+
   return (
     <div className="navbar-end">
       <div className="dropdown dropdown-end">
@@ -13,14 +14,16 @@ export default function NavbarEnd({ handleLogout }) {
           role="button"
           className="btn btn-ghost btn-circle avatar"
         >
-          <Avatar />
+          <Avatar
+            avatar={avatar?.secureURL || "./src/assets/man vector avatar.jpg"}
+          />
         </div>
         <ul
           tabIndex={0}
           className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
         >
           <li>
-            <NavLink to={`/profile/${userName}`} className="justify-between">
+            <NavLink to={"/profile"} className="justify-between">
               Profile <span className="badge">New</span>
             </NavLink>
           </li>
@@ -34,4 +37,4 @@ export default function NavbarEnd({ handleLogout }) {
       </div>
     </div>
   );
-}
+});

@@ -7,28 +7,35 @@ import {
   Username,
   Container,
 } from "../../index";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ProfileSection = () => {
-  const { userName } = useParams();
+  const fullName = useSelector((state) => state.auth.fullName);
+  const email = useSelector((state) => state.auth.email);
+  const userName = useSelector((state) => state.auth.userName);
+  const coverImage = useSelector((state) => state.auth.coverImage);
+  const avatar = useSelector((state) => state.auth.avatar);
 
   return (
     <Container>
       {/* Banner image */}
       <div className="relative">
-        <CoverImage />
+        <CoverImage coverImage={coverImage?.secureURL} />
 
         {/* Avatar */}
         <div className="absolute bottom-[-40px] left-6">
-          <Avatar width="w-24" textSize="text-6xl" />
+          <Avatar
+            width="w-24"
+            avatar={avatar?.secureURL || "./src/assets/man vector avatar.jpg"}
+          />
         </div>
       </div>
 
       {/* User Info */}
       <div className="pt-16 px-6 text-white">
-        <FullName />
-        <Email />
-        <Username />
+        <FullName fullName={fullName} />
+        <Email email={email} />
+        <Username userName={userName} />
       </div>
     </Container>
   );

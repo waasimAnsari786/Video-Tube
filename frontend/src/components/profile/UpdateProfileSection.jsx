@@ -5,6 +5,7 @@ import {
   UpdatePasswordForm,
   UpdateUserMediaForm,
   Container,
+  DeleteMedia,
 } from "../../index";
 
 export default function UpdateProfileSection() {
@@ -67,6 +68,20 @@ export default function UpdateProfileSection() {
         </div>
         <div className="collapse-content">
           <UpdateUserMediaForm media={"coverImage"} />
+        </div>
+      </div>
+      {/* delete media setting */}
+      <div className="collapse collapse-arrow bg-base-100 border border-base-300">
+        <input type="radio" name="faq-accordion" />
+        <div className="collapse-title font-semibold flex items-center gap-2">
+          <i className="ti-credit-card"></i>
+          Delete Media
+          <span className="text-sm block text-gray-500">
+            Delete your account cover-image and avatar
+          </span>
+        </div>
+        <div className="collapse-content">
+          <DeleteMedia />
         </div>
       </div>
     </Container>

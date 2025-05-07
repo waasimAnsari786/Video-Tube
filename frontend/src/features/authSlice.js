@@ -139,6 +139,42 @@ const updateCoverImageThunk = createAsyncThunk(
   }
 );
 
+const getChannelDetailsThunk = createAsyncThunk(
+  "auth/getChannelDetails",
+  async (userName, { rejectWithValue }) => {
+    try {
+      const response = await authService.getUserChannelDetails(userName);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch");
+    }
+  }
+);
+
+const deleteAvatarThunk = createAsyncThunk(
+  "auth/deleteAvatar",
+  async (fileData, { rejectWithValue }) => {
+    try {
+      const response = await authService.deleteAvatar(fileData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Delete failed");
+    }
+  }
+);
+
+const deleteCoverImageThunk = createAsyncThunk(
+  "auth/deleteCoverImage",
+  async (fileData, { rejectWithValue }) => {
+    try {
+      const response = await authService.deleteCoverImage(fileData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Delete failed");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -221,12 +257,28 @@ const authSlice = createSlice({
       .addCase(updateCoverImageThunk.rejected, updateloadingAndError)
 
       // Channel Details
-      .addCase(getUserChannelDetailsThunk.pending, initializeLoading)
-      .addCase(getUserChannelDetailsThunk.fulfilled, (state, action) => {
+      .addCase(getChannelDetailsThunk.pending, initializeLoading)
+      .addCase(getChannelDetailsThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.channelData = action.payload.data;
       })
-      .addCase(getUserChannelDetailsThunk.rejected, updateloadingAndError);
+      .addCase(getChannelDetailsThunk.rejected, updateloadingAndError)
+
+      // Delete Avatar
+      .addCase(deleteAvatarThunk.pending, initializeLoading)
+      .addCase(deleteAvatarThunk.fulfilled, (state) => {
+        state.loading = false;
+        state.avatar = {};
+      })
+      .addCase(deleteAvatarThunk.rejected, updateloadingAndError)
+
+      // Delete Cover Image
+      .addCase(deleteCoverImageThunk.pending, initializeLoading)
+      .addCase(deleteCoverImageThunk.fulfilled, (state) => {
+        state.loading = false;
+        state.coverImage = {};
+      })
+      .addCase(deleteCoverImageThunk.rejected, updateloadingAndError);
   },
 });
 
@@ -240,6 +292,9 @@ export {
   refreshAccessTokenThunk,
   updateAvatarThunk,
   updateCoverImageThunk,
+  getChannelDetailsThunk,
+  deleteAvatarThunk,
+  deleteCoverImageThunk,
 };
 
 export default authSlice.reducer;

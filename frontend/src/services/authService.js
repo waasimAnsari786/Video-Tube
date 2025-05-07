@@ -71,7 +71,6 @@ class AuthService {
       throw error;
     }
   }
-
   async updateAvatar(data) {
     try {
       const response = await axiosInstance.patch("/users/me/avatar", data);
@@ -91,6 +90,22 @@ class AuthService {
   async getUserChannelDetails(userName) {
     try {
       const response = await axiosInstance.get(`/users/channel/${userName}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteAvatar(data) {
+    try {
+      const response = await axiosInstance.delete("/users/me/avatar", { data });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteCoverImage(data) {
+    try {
+      const response = await axiosInstance.delete("/users/me/cover", { data });
       return response;
     } catch (error) {
       throw error;

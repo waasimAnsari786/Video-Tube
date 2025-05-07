@@ -1,8 +1,7 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
-const Username = () => {
-  const userName = useSelector((state) => state.auth.userName);
+const Username = ({ userName }) => {
+  if (!userName) null;
   return <p className="text-sm text-gray-600">@{userName}</p>;
 };
 

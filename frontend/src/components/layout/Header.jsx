@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import React, { useId } from "react";
+import React, { useCallback, useId } from "react";
 import { logoutThunk } from "../../features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { NavbarEnd } from "../../index";
@@ -10,7 +10,7 @@ export default function Header() {
   const navigate = useNavigate();
   const authStatus = useSelector((state) => state.auth.authStatus);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     const result = await dispatch(logoutThunk());
     if (logoutThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
@@ -18,7 +18,7 @@ export default function Header() {
     } else {
       toast.error(result.payload || "Registration failed");
     }
-  };
+  }, []);
 
   const navItems = [
     { name: "Home", slug: "", active: true, id: useId() },

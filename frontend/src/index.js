@@ -27,6 +27,11 @@ import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
 import Container from "./components/resuseable-components/Container";
 import ImagePreview from "./components/auth/reuseable-components/ImagePreview";
 import FileInputContainer from "./components/auth/reuseable-components/FileInputContainer";
+import ChannelDetails from "./components/profile/ChannelDetails";
+import SubscribeButton from "./components/profile/SubscribeButton";
+import SubscribedToCount from "./components/profile/SubscribedToCount";
+import SubscribersCount from "./components/profile/SubscribersCount";
+import DeleteMedia from "./components/auth/DeleteMedia";
 
 export {
   FormButton,
@@ -57,4 +62,9 @@ export {
   Container,
   ImagePreview,
   FileInputContainer,
+  ChannelDetails,
+  SubscribeButton,
+  SubscribedToCount,
+  SubscribersCount,
+  DeleteMedia,
 };

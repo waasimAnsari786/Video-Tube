@@ -1,8 +1,7 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
-const FullName = () => {
-  const fullName = useSelector((state) => state.auth.fullName);
+const FullName = ({ fullName }) => {
+  if (!fullName) null;
   return <h1 className="text-2xl font-semibold">{fullName}</h1>;
 };
 

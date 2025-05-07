@@ -296,7 +296,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     let transformParams = null;
 
     if (fieldName === "avatar") {
-      transformParams = new CloudinaryTransform(80, 80);
+      transformParams = new CloudinaryTransform(100, 100);
     } else if (fieldName === "coverImage") {
       transformParams = new CloudinaryTransform(256, 1200);
     }
@@ -498,7 +498,7 @@ const getUserChannelDetails = asyncHandler(async (req, res) => {
     {
       $project: {
         fullName: 1,
-        username: 1,
+        userName: 1,
         subscribersCount: 1,
         subscribedChannelsCount: 1,
         avatar: 1,
