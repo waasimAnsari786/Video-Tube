@@ -55,8 +55,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
       {
         $project: {
           title: 1,
-          "video.secureURL": 1,
-          "thumbnail.secureURL": 1,
+          video: 1,
+          thumbnail: 1,
           views: 1,
           duration: 1,
           owner: 1,
@@ -204,8 +204,7 @@ const getVideoById = asyncHandler(async (req, res) => {
             $project: {
               userName: 1,
               fullName: 1,
-              email: 1,
-              avatar: 1,
+              "avatar.secureURL": 1,
             },
           },
         ],
@@ -215,7 +214,7 @@ const getVideoById = asyncHandler(async (req, res) => {
       $project: {
         title: 1,
         description: 1,
-        video: 1,
+        "video.secureURL": 1,
         views: 1,
         duration: 1,
         owner: 1,
