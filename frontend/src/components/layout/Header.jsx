@@ -11,7 +11,13 @@ export default function Header() {
   const authStatus = useSelector((state) => state.auth.authStatus);
 
   const handleLogout = useCallback(async () => {
-    const result = await dispatch(logoutThunk());
+    const result = await dispatch(
+      logoutThunk({
+        url: "/users/me/logout",
+        payload: {},
+        config: {},
+      })
+    );
     if (logoutThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
       navigate("/login");

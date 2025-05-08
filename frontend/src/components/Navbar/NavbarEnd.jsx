@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 export default React.memo(function NavbarEnd({ handleLogout }) {
   const avatar = useSelector((state) => state.auth.avatar);
+  const userName = useSelector((state) => state.auth.userName);
 
   return (
     <div className="navbar-end">
@@ -25,6 +26,11 @@ export default React.memo(function NavbarEnd({ handleLogout }) {
           <li>
             <NavLink to={"/profile"} className="justify-between">
               Profile <span className="badge">New</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={`/${userName}`} className="justify-between">
+              Channel
             </NavLink>
           </li>
           <li>

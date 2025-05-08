@@ -15,7 +15,13 @@ const UpdatePasswordForm = () => {
   const { register, handleSubmit, reset, watch } = useForm();
 
   const handleUpdatePassword = async (data) => {
-    const result = await dispatch(updatePasswordThunk(data));
+    const result = await dispatch(
+      updatePasswordThunk({
+        url: "/users/me/password",
+        payload: data,
+        config: {},
+      })
+    );
     if (updatePasswordThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
       navigate("/");

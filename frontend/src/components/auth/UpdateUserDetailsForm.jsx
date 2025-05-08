@@ -22,7 +22,13 @@ const UpdateUserDetailsForm = () => {
   });
 
   const handleUpdateDetails = async (data) => {
-    const result = await dispatch(updateUserDetailsThunk(data));
+    const result = await dispatch(
+      updateUserDetailsThunk({
+        url: "/users/me",
+        payload: data,
+        config: {},
+      })
+    );
     if (updateUserDetailsThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
       navigate("/");

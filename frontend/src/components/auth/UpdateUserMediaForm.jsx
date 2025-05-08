@@ -33,7 +33,15 @@ const UpdateUserMediaForm = ({ media }) => {
     const action =
       media === "avatar" ? updateAvatarThunk : updateCoverImageThunk;
 
-    const result = await dispatch(action(formData));
+    const url = media === "avatar" ? "/users/me/avatar" : "/users/me/cover";
+
+    const result = await dispatch(
+      action({
+        url,
+        payload: formData,
+        config: {},
+      })
+    );
 
     if (action.fulfilled.match(result)) {
       toast.success(result.payload.message);

@@ -26,7 +26,12 @@ const LoginForm = () => {
   const dispatch = useDispatch();
 
   const handleLogin = async (data) => {
-    const result = await dispatch(loginUserThunk(data));
+    const result = await dispatch(
+      loginUserThunk({
+        url: "/users/login",
+        payload: data,
+      })
+    );
     if (loginUserThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
       navigate("/");

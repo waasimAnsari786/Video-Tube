@@ -36,9 +36,20 @@ const MyWebLayout = () => {
     };
 
     (async () => {
-      const currentUser = await dispatch(getCurrentUserThunk());
+      const currentUser = await dispatch(
+        getCurrentUserThunk({
+          url: "/users/me",
+          config: {},
+        })
+      );
       if (!getCurrentUserThunk.fulfilled.match(currentUser)) {
-        const refreshedToken = await dispatch(refreshAccessTokenThunk());
+        const refreshedToken = await dispatch(
+          refreshAccessTokenThunk({
+            url: "/users/refresh-token",
+            payload: {},
+            config: {},
+          })
+        );
         if (!refreshAccessTokenThunk.fulfilled.match(refreshedToken)) {
           navigate("/login");
           setLoading(false);

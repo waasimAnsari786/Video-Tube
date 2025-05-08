@@ -10,6 +10,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/authService";
 import updateStateFromResponse from "../utils/updateStateFromResponse";
+import asyncThunkService from "../services/asyncThunkService";
 
 const initialState = {
   loading: false,
@@ -23,7 +24,147 @@ const initialState = {
   channelData: {},
 };
 
-// Async thunks...
+// // Async thunks...
+// const registerUserThunk = createAsyncThunk(
+//   "auth/registerUser",
+//   async (formData, { rejectWithValue }) => {
+//     try {
+//       await authService.createAccount(formData);
+//       const loggedInAccount = await authService.loginAccount(formData);
+//       return loggedInAccount.data;
+//     } catch (err) {
+//       return rejectWithValue(
+//         err.response?.data?.message || "User hasn't registered"
+//       );
+//     }
+//   }
+// );
+
+// const loginUserThunk = createAsyncThunk(
+//   "auth/loginUser",
+//   async (formData, { rejectWithValue }) => {
+//     try {
+//       const loggedInAccount = await authService.loginAccount(formData);
+//       return loggedInAccount.data;
+//     } catch (err) {
+//       return rejectWithValue(
+//         err.response?.data?.message || "User hasn't logged-in"
+//       );
+//     }
+//   }
+// );
+
+// const getCurrentUserThunk = createAsyncThunk(
+//   "auth/getCurrentUser",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const user = await authService.getUser();
+//       return user.data;
+//     } catch (err) {
+//       return rejectWithValue(
+//         err.response?.data?.message || "User hasn't fetched"
+//       );
+//     }
+//   }
+// );
+
+// const updateUserDetailsThunk = createAsyncThunk(
+//   "auth/updateUserDetails",
+//   async (updatedData, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.updateUserDetails(updatedData);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Update failed");
+//     }
+//   }
+// );
+
+// const updatePasswordThunk = createAsyncThunk(
+//   "auth/updatePassword",
+//   async (passwordData, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.updatePassword(passwordData);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Update failed");
+//     }
+//   }
+// );
+
+// const logoutThunk = createAsyncThunk(
+//   "auth/logout",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.logout();
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Logout failed");
+//     }
+//   }
+// );
+
+// const refreshAccessTokenThunk = createAsyncThunk(
+//   "auth/refreshAccessToken",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.refreshAccessToken();
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Refresh failed");
+//     }
+//   }
+// );
+
+// const updateAvatarThunk = createAsyncThunk(
+//   "auth/updateAvatar",
+//   async (formData, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.updateAvatar(formData);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Update failed");
+//     }
+//   }
+// );
+
+// const updateCoverImageThunk = createAsyncThunk(
+//   "auth/updateCoverImage",
+//   async (formData, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.updateCoverImage(formData);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Update failed");
+//     }
+//   }
+// );
+
+// const getChannelDetailsThunk = createAsyncThunk(
+//   "auth/getChannelDetails",
+//   async (userName, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.getUserChannelDetails(userName);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Failed to fetch");
+//     }
+//   }
+// );
+
+// const deleteAvatarThunk = createAsyncThunk(
+//   "auth/deleteAvatar",
+//   async (fileData, { rejectWithValue }) => {
+//     try {
+//       const response = await authService.deleteAvatar(fileData);
+//       return response.data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Delete failed");
+//     }
+//   }
+// );
+
+// For user registration (custom logic - not using generic thunk)
 const registerUserThunk = createAsyncThunk(
   "auth/registerUser",
   async (formData, { rejectWithValue }) => {
@@ -39,140 +180,70 @@ const registerUserThunk = createAsyncThunk(
   }
 );
 
+// Login
 const loginUserThunk = createAsyncThunk(
   "auth/loginUser",
-  async (formData, { rejectWithValue }) => {
-    try {
-      const loggedInAccount = await authService.loginAccount(formData);
-      return loggedInAccount.data;
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "User hasn't logged-in"
-      );
-    }
-  }
+  asyncThunkService.postThunk()
 );
 
+// Get current user (GET)
 const getCurrentUserThunk = createAsyncThunk(
   "auth/getCurrentUser",
-  async (_, { rejectWithValue }) => {
-    try {
-      const user = await authService.getUser();
-      return user.data;
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "User hasn't fetched"
-      );
-    }
-  }
+  asyncThunkService.getThunk()
 );
 
+// Update user details (PATCH)
 const updateUserDetailsThunk = createAsyncThunk(
   "auth/updateUserDetails",
-  async (updatedData, { rejectWithValue }) => {
-    try {
-      const response = await authService.updateUserDetails(updatedData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Update failed");
-    }
-  }
+  asyncThunkService.patchThunk()
 );
 
+// Update password (PATCH)
 const updatePasswordThunk = createAsyncThunk(
   "auth/updatePassword",
-  async (passwordData, { rejectWithValue }) => {
-    try {
-      const response = await authService.updatePassword(passwordData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Update failed");
-    }
-  }
+  asyncThunkService.patchThunk()
 );
 
+// Logout (POST)
 const logoutThunk = createAsyncThunk(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await authService.logout();
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Logout failed");
-    }
-  }
+  asyncThunkService.postThunk()
 );
 
+// Refresh token (POST)
 const refreshAccessTokenThunk = createAsyncThunk(
   "auth/refreshAccessToken",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await authService.refreshAccessToken();
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Refresh failed");
-    }
-  }
+  asyncThunkService.postThunk()
 );
 
+// Update avatar (PATCH)
 const updateAvatarThunk = createAsyncThunk(
   "auth/updateAvatar",
-  async (formData, { rejectWithValue }) => {
-    try {
-      const response = await authService.updateAvatar(formData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Update failed");
-    }
-  }
+  asyncThunkService.patchThunk()
 );
 
+// Update cover image (PATCH)
 const updateCoverImageThunk = createAsyncThunk(
   "auth/updateCoverImage",
-  async (formData, { rejectWithValue }) => {
-    try {
-      const response = await authService.updateCoverImage(formData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Update failed");
-    }
-  }
+  asyncThunkService.patchThunk()
 );
 
+// Get channel details (GET)
 const getChannelDetailsThunk = createAsyncThunk(
   "auth/getChannelDetails",
-  async (userName, { rejectWithValue }) => {
-    try {
-      const response = await authService.getUserChannelDetails(userName);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Failed to fetch");
-    }
-  }
+  asyncThunkService.getThunk()
 );
 
+// Delete avatar (DELETE)
 const deleteAvatarThunk = createAsyncThunk(
   "auth/deleteAvatar",
-  async (fileData, { rejectWithValue }) => {
-    try {
-      const response = await authService.deleteAvatar(fileData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Delete failed");
-    }
-  }
+  asyncThunkService.deleteThunk()
 );
 
+// Delete cover image (DELETE)
 const deleteCoverImageThunk = createAsyncThunk(
   "auth/deleteCoverImage",
-  async (fileData, { rejectWithValue }) => {
-    try {
-      const response = await authService.deleteCoverImage(fileData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Delete failed");
-    }
-  }
+  asyncThunkService.deleteThunk()
 );
 
 const authSlice = createSlice({

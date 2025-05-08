@@ -14,14 +14,28 @@ const DeleteMedia = () => {
   const avatar = useSelector((state) => state.auth.avatar);
   const coverImage = useSelector((state) => state.auth.coverImage);
 
+  const avatarConfig = {
+    url: "/users/me/avatar",
+    config: {
+      data: {
+        fieldName: "avatar",
+        filePublicId: avatar?.publicId,
+      },
+    },
+  };
+  const coverConfig = {
+    url: "/users/me/cover",
+    config: {
+      data: {
+        fieldName: "coverImage",
+        filePublicId: coverImage?.publicId,
+      },
+    },
+  };
+
   const handleDeleteAvatar = async () => {
     if (avatar?.publicId) {
-      const result = await dispatch(
-        deleteAvatarThunk({
-          fieldName: "avatar",
-          filePublicId: avatar?.publicId,
-        })
-      );
+      const result = await dispatch(deleteAvatarThunk(avatarConfig));
 
       if (deleteAvatarThunk.fulfilled.match(result)) {
         toast.success(result.payload.message);
@@ -34,12 +48,7 @@ const DeleteMedia = () => {
 
   const handleDeleteCoverImage = async () => {
     if (coverImage?.publicId) {
-      const result = await dispatch(
-        deleteCoverImageThunk({
-          fieldName: "coverImage",
-          filePublicId: coverImage?.publicId,
-        })
-      );
+      const result = await dispatch(deleteCoverImageThunk(coverConfig));
 
       if (deleteCoverImageThunk.fulfilled.match(result)) {
         toast.success(result.payload.message);

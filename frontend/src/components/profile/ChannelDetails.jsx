@@ -20,7 +20,12 @@ const ChannelDetails = () => {
 
   useEffect(() => {
     if (channelName) {
-      dispatch(getChannelDetailsThunk(channelName));
+      dispatch(
+        getChannelDetailsThunk({
+          url: `/users/channel/${channelName}`,
+          config: {},
+        })
+      );
     }
   }, []);
 
@@ -38,15 +43,16 @@ const ChannelDetails = () => {
     subscribedChannelsCount,
   } = channelData || {};
 
-  console.log(channelData);
-
   return (
     <Container>
       {/* Cover Image */}
       <div className="relative">
         <CoverImage coverImage={coverImage?.secureURL} />
         <div className="absolute bottom-[-40px] left-6">
-          <Avatar width="w-24" avatar={avatar?.secureURL} />
+          <Avatar
+            width="w-24"
+            avatar={avatar?.secureURL || "./src/assets/man vector avatar.jpg"}
+          />
         </div>
       </div>
 
