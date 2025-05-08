@@ -9,6 +9,7 @@ import {
 import { REFRESH_INTERVAL } from "../../constant";
 import authService from "../../services/authService";
 import { toast } from "react-toastify";
+import apiRequestService from "../../services/apiRequestService";
 
 const MyWebLayout = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,16 @@ const MyWebLayout = () => {
 
     const scheduleRefresh = async () => {
       try {
-        await authService.refreshAccessToken();
+        const token = localStorage.getItem("refreshToken");
+        await apiRequestService.post_req(
+          "/users/refresh-token",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
       } catch (err) {
         toast.error(err.response?.data?.message || "Refresh failed");
