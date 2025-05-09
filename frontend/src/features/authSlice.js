@@ -11,6 +11,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../services/authService";
 import updateStateFromResponse from "../utils/updateStateFromResponse";
 import asyncThunkService from "../services/asyncThunkService";
+import { initializeLoading, updateloadingAndError } from "../utils/thunkUtils";
 
 const initialState = {
   loading: false,
@@ -251,14 +252,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    const initializeLoading = (state) => {
-      state.loading = true;
-      state.error = null;
-    };
-    const updateloadingAndError = (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    };
     const updateUserInfo = (state, action) => {
       state.loading = false;
       state.authStatus = true;
