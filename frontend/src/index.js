@@ -32,6 +32,10 @@ import SubscribeButton from "./components/profile/SubscribeButton";
 import SubscribedToCount from "./components/profile/SubscribedToCount";
 import SubscribersCount from "./components/profile/SubscribersCount";
 import DeleteMedia from "./components/auth/DeleteMedia";
+import AddUpdateVideoForm from "./components/video/AddUpdateVideoForm";
+import UploadVideoPage from "./components/pages/UploadVideoPage";
+import UpdateVideoPage from "./components/pages/UpdateVideoPage";
+import VideoCard from "./components/video/VideoCard";
 
 export {
   FormButton,
@@ -67,4 +71,8 @@ export {
   SubscribedToCount,
   SubscribersCount,
   DeleteMedia,
+  AddUpdateVideoForm,
+  UploadVideoPage,
+  UpdateVideoPage,
+  VideoCard,
 };

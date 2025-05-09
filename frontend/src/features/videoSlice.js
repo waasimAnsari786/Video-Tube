@@ -39,7 +39,17 @@ const getAllVideosThunk = createAsyncThunk(
 const videoSlice = createSlice({
   name: "video",
   initialState,
-  reducers: {},
+  reducers: {
+    setVideoById: (state, action) => {
+      const id = action.payload;
+      const foundVideo = state.videosArr.find((v) => v._id === id);
+      if (foundVideo) {
+        state.video = foundVideo;
+      } else {
+        state.video = {};
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Upload Video
@@ -97,3 +107,4 @@ export {
 };
 
 export default videoSlice.reducer;
+export const { setVideoById } = videoSlice.actions;

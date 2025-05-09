@@ -9,11 +9,12 @@ import {
   FormText,
   FormButton,
   FileInputContainer,
+  InputContainer,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { uploadVideoThunk, updateVideoThunk } from "../../features/videoSlice";
 
-const VideoForm = ({ isEditing = false, initialData = {} }) => {
+const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loading = useSelector((state) => state.video.loading);
@@ -25,41 +26,34 @@ const VideoForm = ({ isEditing = false, initialData = {} }) => {
   });
 
   const handleVideoSubmit = async (data) => {
-    try {
-      const formData = new FormData();
+    const formData = new FormData();
 
-      for (let key in data) {
-        if (key === "video" && data.video?.[0]) {
-          formData.append("video", data.video[0]);
-        } else if (key === "thumbnail" && data.thumbnail?.[0]) {
-          formData.append("thumbnail", data.thumbnail[0]);
-        } else {
-          formData.append(key, data[key]);
-        }
-      }
-
-      const result = await dispatch(
-        uploadVideoThunk({
-          url: isEditing ? `/videos/${initialData._id}` : "/videos",
-          payload: formData,
-          config: { headers: { "Content-Type": "multipart/form-data" } },
-          method: isEditing ? "patch" : "post",
-        })
-      );
-
-      if (uploadVideoThunk.fulfilled.match(result)) {
-        toast.success(
-          result.payload.message ||
-            `Video ${isEditing ? "updated" : "uploaded"} successfully`
-        );
-        navigate("/videos");
+    for (let key in data) {
+      if (key === "video" && data.video?.[0]) {
+        formData.append("video", data.video[0]);
+      } else if (key === "thumbnail" && data.thumbnail?.[0]) {
+        formData.append("thumbnail", data.thumbnail[0]);
       } else {
-        toast.error(
-          result.payload || `Video ${isEditing ? "update" : "upload"} failed`
-        );
+        formData.append(key, data[key]);
       }
-    } catch (err) {
-      toast.error("An unexpected error occurred");
+    }
+
+    const action = isEditing ? updateVideoThunk : uploadVideoThunk;
+    const url = isEditing ? `/videos/${initialData._id}` : "/videos";
+
+    const result = await dispatch(
+      action({
+        url,
+        payload: formData,
+        config: { headers: { "Content-Type": "multipart/form-data" } },
+      })
+    );
+
+    if (action.fulfilled.match(result)) {
+      toast.success(result.payload.message);
+      navigate("/videos");
+    } else {
+      toast.error(result.payload);
     }
 
     reset();
@@ -75,35 +69,28 @@ const VideoForm = ({ isEditing = false, initialData = {} }) => {
         <FormText text="Fill in the video details below" />
 
         <div className="space-y-5 mb-5">
-          <input
+          <InputContainer
             type="text"
             placeholder="Video Title"
-            className="input w-full"
             {...register("title", { required: "Title is required" })}
           />
 
-          <input
+          <InputContainer
             type="text"
             placeholder="Description"
-            className="input w-full"
             {...register("description", {
               required: "Description is required",
             })}
           />
 
           <FileInputContainer
-            accept="video/*"
-            customClass="w-full"
+            accept=".mp4,.mov.avi.mkv"
             {...register("video", {
               required: !isEditing && "Video file is required",
             })}
           />
 
-          <FileInputContainer
-            accept="image/*"
-            customClass="w-full"
-            {...register("thumbnail")}
-          />
+          <FileInputContainer {...register("thumbnail")} />
 
           <select {...register("videoStatus")} className="input w-full">
             <option value="Public">Public</option>
@@ -120,4 +107,4 @@ const VideoForm = ({ isEditing = false, initialData = {} }) => {
   );
 };
 
-export default VideoForm;
+export default AddUpdateVideoForm;

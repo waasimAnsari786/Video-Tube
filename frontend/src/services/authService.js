@@ -56,16 +56,7 @@ class AuthService {
   }
   async refreshAccessToken() {
     try {
-      const token = localStorage.getItem("refreshToken");
-      const response = await axiosInstance.post(
-        "/users/refresh-token",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosInstance.post("/users/refresh-token");
       return response;
     } catch (error) {
       throw error;

@@ -8,6 +8,8 @@ import {
   ProfileSection,
   UpdateProfileSection,
   ChannelDetails,
+  UploadVideoPage,
+  UpdateVideoPage,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -61,6 +63,22 @@ const App = () => {
           element: (
             <AuthProtectedLayout>
               <ChannelDetails />
+            </AuthProtectedLayout>
+          ),
+        },
+        {
+          path: "/video/publish",
+          element: (
+            <AuthProtectedLayout>
+              <UploadVideoPage />
+            </AuthProtectedLayout>
+          ),
+        },
+        {
+          path: "/video/update/:videoId",
+          element: (
+            <AuthProtectedLayout>
+              <UpdateVideoPage />
             </AuthProtectedLayout>
           ),
         },

@@ -43,11 +43,13 @@ const InputContainer = ({
 
   return (
     <div className={`relative ${customClass}`}>
-      <Icon
-        icon={displayIcon}
-        className={finalIconClasses}
-        onClick={isPassword ? togglePasswordVisibility : undefined}
-      />
+      {icon && (
+        <Icon
+          icon={displayIcon}
+          className={finalIconClasses}
+          onClick={isPassword ? togglePasswordVisibility : undefined}
+        />
+      )}
       <FormInput type={inputType} placeholder={placeholder} {...props} />
     </div>
   );

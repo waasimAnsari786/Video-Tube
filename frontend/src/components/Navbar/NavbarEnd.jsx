@@ -34,6 +34,11 @@ export default React.memo(function NavbarEnd({ handleLogout }) {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/video/publish" className="justify-between">
+              Publish Video
+            </NavLink>
+          </li>
+          <li>
             <NavLink to={"/update-profile"}>Settings</NavLink>
           </li>
           <li>

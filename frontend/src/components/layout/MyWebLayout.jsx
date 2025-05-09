@@ -7,7 +7,6 @@ import {
   refreshAccessTokenThunk,
 } from "../../features/authSlice";
 import { REFRESH_INTERVAL } from "../../constant";
-import authService from "../../services/authService";
 import { toast } from "react-toastify";
 import apiRequestService from "../../services/apiRequestService";
 
@@ -29,21 +28,15 @@ const MyWebLayout = () => {
 
     const scheduleRefresh = async () => {
       try {
-        const token = localStorage.getItem("refreshToken");
-        await apiRequestService.post_req(
-          "/users/refresh-token",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await apiRequestService.post_req("/users/refresh-token", {}, {});
+
         timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
       } catch (err) {
         toast.error(err.response?.data?.message || "Refresh failed");
       }
     };
+
+    scheduleRefresh();
 
     (async () => {
       const currentUser = await dispatch(
@@ -76,15 +69,23 @@ const MyWebLayout = () => {
     };
   }, []);
 
-  return loading ? (
-    <h1>Loading...</h1>
-  ) : (
+  return (
     <>
       <Header />
       <Outlet />
       <Footer />
     </>
   );
+
+  // return loading ? (
+  //   <h1>Loading...</h1>
+  // ) : (
+  //   <>
+  //     <Header />
+  //     <Outlet />
+  //     <Footer />
+  //   </>
+  // );
 };
 
 export default MyWebLayout;
