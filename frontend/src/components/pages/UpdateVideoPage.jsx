@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AddUpdateVideoForm } from "../../index";
-import { setVideoById } from "../../features/videoSlice";
+import { getVideo } from "../../features/videoSlice";
 
 const UpdateVideoPage = () => {
   const { videoId } = useParams();
@@ -11,7 +11,7 @@ const UpdateVideoPage = () => {
 
   useEffect(() => {
     if (videoId) {
-      dispatch(setVideoById(videoId));
+      dispatch(getVideo(videoId));
     }
   }, []);
 

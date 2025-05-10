@@ -12,6 +12,7 @@ import ApiResponse from "../utils/API_response.utils.js";
 import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   try {
@@ -117,13 +118,24 @@ const publishAVideo = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Thumbnail field must contain image file");
     }
 
-    const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
+    let videoTransformParams = new CloudinaryTransform(600, 800);
+
+    const uploadedVideo = await uploadOnCloudinary(
+      videoLocalPath,
+      "video",
+      videoTransformParams
+    );
 
     // initialize this variable for storing uploaded result of thumbnail
     let uploadedThumbnail = null;
 
     if (thumbnail && thumbnailLocalPath) {
-      uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath, "image");
+      let thumbTransformParams = new CloudinaryTransform(400, 400);
+      uploadedThumbnail = await uploadOnCloudinary(
+        thumbnailLocalPath,
+        "image",
+        thumbTransformParams
+      );
     }
 
     /*"uploadedVideoDetails" and "uploadedThumbnailDetails" are instances of "FileDetails" class,
@@ -452,6 +464,52 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   }
 });
 
+const incrementView = asyncHandler(async (req, res) => {
+  const videoId = req.params.videoId;
+
+  if (!mongoose.Types.ObjectId.isValid(videoId)) {
+    throw new ApiError(400, "Invalid video ID");
+  }
+
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(404, "Video not found");
+  }
+
+  const userId = req.user?._id;
+  const ip = req.ip;
+
+  // Build query
+  const query = {
+    video: video._id,
+    ...(userId ? { user: userId } : { ipAddress: ip }),
+  };
+
+  // Check if a view exists in the last 24 hours
+  const alreadyViewed = await VideoView.findOne({
+    ...query,
+    viewedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+  });
+
+  if (alreadyViewed) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, null, "View already counted in the last 24 hours")
+      );
+  }
+
+  // Save the view
+  await VideoView.create({ ...query });
+
+  // Increment video views count
+  await Video.findByIdAndUpdate(video._id, { $inc: { views: 1 } });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "View counted successfully"));
+});
+
 export {
   getAllVideos,
   getVideoById,
@@ -460,4 +518,5 @@ export {
   updateVideoAndThumbnail,
   deleteVideo,
   togglePublishStatus,
+  incrementView,
 };

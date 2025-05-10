@@ -40,14 +40,10 @@ const videoSlice = createSlice({
   name: "video",
   initialState,
   reducers: {
-    setVideoById: (state, action) => {
+    getVideo: (state, action) => {
       const id = action.payload;
       const foundVideo = state.videosArr.find((v) => v._id === id);
-      if (foundVideo) {
-        state.video = foundVideo;
-      } else {
-        state.video = {};
-      }
+      state.video = foundVideo ? foundVideo : {};
     },
   },
   extraReducers: (builder) => {
@@ -107,4 +103,4 @@ export {
 };
 
 export default videoSlice.reducer;
-export const { setVideoById } = videoSlice.actions;
+export const { getVideo } = videoSlice.actions;

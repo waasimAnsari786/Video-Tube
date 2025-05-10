@@ -1,19 +1,8 @@
 import React from "react";
 
-const VideoCard = ({ video }) => {
-  const {
-    thumbnail,
-    title,
-    season,
-    year,
-    ageLimit,
-    duration,
-    rating,
-    description,
-    uploaderAvatar,
-    uploaderName,
-    channelName,
-  } = video;
+const VideoCard = ({ videoData }) => {
+  const { thumbnail, title, video, duration, views, description, owner } =
+    videoData;
 
   return (
     <div className="max-w-md mx-auto group shadow-md hover:shadow-2xl transition-shadow duration-300 rounded overflow-hidden">

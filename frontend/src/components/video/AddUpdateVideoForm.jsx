@@ -51,7 +51,7 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
 
     if (action.fulfilled.match(result)) {
       toast.success(result.payload.message);
-      navigate("/videos");
+      navigate("/");
     } else {
       toast.error(result.payload);
     }

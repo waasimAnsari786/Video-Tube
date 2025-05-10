@@ -10,7 +10,7 @@ export default function HomePage() {
 
   useEffect(() => {
     dispatch(getAllVideosThunk({ url: "/videos" }));
-  }, [dispatch]);
+  }, []);
 
   console.log("all video response ", videosArr);
 
@@ -21,9 +21,9 @@ export default function HomePage() {
       {videosArr && <p>videos: {videosArr.totalDocs}</p>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {videosArr?.docs?.map((video, idx) => (
+        {/* {videosArr?.docs?.map((video, idx) => (
           <VideoCard key={idx} video={video} />
-        ))}
+        ))} */}
       </div>
     </div>
   );

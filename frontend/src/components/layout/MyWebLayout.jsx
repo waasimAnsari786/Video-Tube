@@ -29,14 +29,11 @@ const MyWebLayout = () => {
     const scheduleRefresh = async () => {
       try {
         await apiRequestService.post_req("/users/refresh-token", {}, {});
-
         timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
       } catch (err) {
         toast.error(err.response?.data?.message || "Refresh failed");
       }
     };
-
-    scheduleRefresh();
 
     (async () => {
       const currentUser = await dispatch(
@@ -69,23 +66,15 @@ const MyWebLayout = () => {
     };
   }, []);
 
-  return (
+  return loading ? (
+    <h1>Loading...</h1>
+  ) : (
     <>
       <Header />
       <Outlet />
       <Footer />
     </>
   );
-
-  // return loading ? (
-  //   <h1>Loading...</h1>
-  // ) : (
-  //   <>
-  //     <Header />
-  //     <Outlet />
-  //     <Footer />
-  //   </>
-  // );
 };
 
 export default MyWebLayout;
