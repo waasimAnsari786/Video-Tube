@@ -174,10 +174,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
       duration: uploadedVideo.duration,
     });
 
-    if (!createdVideo) {
-      throw new ApiError(500, "Internal server error while creating video");
-    }
-
     return res
       .status(200)
       .json(
@@ -279,10 +275,6 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
   const updatedVideo = await videoDoc.save();
 
-  if (!updatedVideo) {
-    throw new ApiError(500, "Internal server error while updating video");
-  }
-
   return res
     .status(200)
     .json(
@@ -351,18 +343,11 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
       videoDoc.duration = uploadedFile.duration;
     }
 
-    const updatedVideo = await videoDoc.save();
-
-    if (!updatedVideo) {
-      throw new ApiError(
-        500,
-        "Internal server error while updating video after file uploading"
-      );
-    }
+    await videoDoc.save();
 
     // previous file deletion
     if (prevFile?.secureURL) {
-      await deleteFromCloudinary(prevFile?.publicId, prevFile?.resourceType);
+      await deleteFromCloudinary([prevFile?.publicId], prevFile?.resourceType);
     }
 
     return res
@@ -396,11 +381,11 @@ const deleteVideo = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Video doesn't exist");
     }
 
-    await deleteFromCloudinary(video.publicId, video.resourceType);
+    await deleteFromCloudinary([video.publicId], video.resourceType);
 
     // check if thumbnail exists, and it's object must not be null then delete it
     if (thumbnail && Object.keys(thumbnail).length > 0) {
-      await deleteFromCloudinary(thumbnail.publicId, thumbnail.resourceType);
+      await deleteFromCloudinary([thumbnail.publicId], thumbnail.resourceType);
     }
 
     return res
@@ -442,13 +427,6 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     videoDoc.videoStatus = normalizedStatus;
 
     const updatedVideo = await videoDoc.save();
-
-    if (!updatedVideo) {
-      throw new ApiError(
-        500,
-        "Internal server error while updating video status"
-      );
-    }
 
     return res
       .status(200)
@@ -503,11 +481,11 @@ const incrementView = asyncHandler(async (req, res) => {
   await VideoView.create({ ...query });
 
   // Increment video views count
-  await Video.findByIdAndUpdate(video._id, { $inc: { views: 1 } });
+  await Video.findByIdAndUpdate(video._id, { $inc: { views: 1 } }).lean();
 
   return res
     .status(200)
-    .json(new ApiResponse(200, null, "View counted successfully"));
+    .json(new ApiResponse(200, {}, "View counted successfully"));
 });
 
 export {

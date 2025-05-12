@@ -11,14 +11,15 @@ import {
   updateVideoAndThumbnail,
   updateVideoDetails,
 } from "../controllers/video.controller.js";
-import videoOwnerCheck from "../middlewares/videoOwnerCheck.middleware.js";
+import ownershipCheck from "../middlewares/ownershipCheck.middleware.js";
+import Video from "../models/video.model.js";
 
 const videoRouter = Router();
 
 // Global auth check
 videoRouter.use(verifyAuthorization);
 
-// Routes that don't need videoOwnerCheck
+// Routes that don't need ownershipCheck
 videoRouter
   .route("/")
   .post(
@@ -31,10 +32,10 @@ videoRouter
   )
   .get(getAllVideos);
 
-// Apply videoOwnerCheck only on routes that have :videoId param
+// Apply ownershipCheck only on routes that have :videoId param
 videoRouter.use(
-  ["/video/:videoId", "/thumbnail/:videoId", "/details/:videoId"],
-  videoOwnerCheck
+  ["/video/:videoId", "/thumbnail/:videoId", "/details/:videoId", "/:videoId"],
+  ownershipCheck(Video, "videoId", "videoDoc", "Video not found")
 );
 
 // Routes that need ownership validation
@@ -48,10 +49,8 @@ videoRouter
 
 videoRouter.route("/details/:videoId").patch(updateVideoDetails);
 
-videoRouter
-  .route("/:videoId")
-  .get(getVideoById)
-  .delete(videoOwnerCheck, deleteVideo)
-  .patch(videoOwnerCheck, togglePublishStatus);
+videoRouter.route("/:videoId").delete(deleteVideo).patch(togglePublishStatus);
+
+videoRouter.route("/v/:videoId").get(getVideoById);
 
 export default videoRouter;

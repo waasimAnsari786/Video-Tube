@@ -45,6 +45,11 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         );
     }
 
+    // check - is requested user owner of the channel?
+    if (channelId === req.user._id) {
+      throw new ApiError(400, "You own this channel. You can't subscribe it.");
+    }
+
     const createdSubscription = await Subscription.create({
       channel: channelId,
       subscriber: req.user._id,
@@ -92,18 +97,105 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-  // extract  channelID
-  // check - is channel valid?
-  // check - does channel exist?
-  // get subscribers
-  // return response
-
+  // Extract channelID
   const { channelId } = req.params;
+
+  // Validate ObjectId
+  checkObjectID(channelId, "Channel id is invalid");
+
+  // Check if channel exists
+  const channel = await User.findById(channelId);
+  if (!channel) {
+    throw new ApiError(404, "Channel with the requested ID doesn't exist");
+  }
+
+  // Get subscribers using aggregation
+  const subscribers = await Subscription.aggregate([
+    {
+      $match: {
+        channel: new mongoose.Types.ObjectId(channelId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "subscriber",
+        foreignField: "_id",
+        as: "subscriberData",
+      },
+    },
+    {
+      $unwind: "$subscriberData",
+    },
+    {
+      $project: {
+        _id: 0,
+        userName: "$subscriberData.userName",
+        fullName: "$subscriberData.fullName",
+        avatarURL: "$subscriberData.avatar.secureURL",
+      },
+    },
+  ]);
+
+  // Send response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, subscribers, "Subscribers fetched successfully")
+    );
 });
 
-// controller to return channel list to which user has subscribed
+// Controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
+
+  // Validate ObjectId
+  checkObjectID(subscriberId, "Subscriber ID is invalid");
+
+  // Check if subscriber exists
+  const subscriber = await User.findById(subscriberId);
+  if (!subscriber) {
+    throw new ApiError(404, "Subscriber with the requested ID doesn't exist");
+  }
+
+  // Get subscribed channels using aggregation
+  const subscribedChannels = await Subscription.aggregate([
+    {
+      $match: {
+        subscriber: new mongoose.Types.ObjectId(subscriberId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "channel",
+        foreignField: "_id",
+        as: "channelData",
+      },
+    },
+    {
+      $unwind: "$channelData",
+    },
+    {
+      $project: {
+        _id: 0,
+        userName: "$channelData.userName",
+        fullName: "$channelData.fullName",
+        avatarURL: "$channelData.avatar.secureURL",
+      },
+    },
+  ]);
+
+  // Send response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        subscribedChannels,
+        "Subscribed channels fetched successfully"
+      )
+    );
 });
 
 export { toggleSubscription, getUserChannelSubscribers, getSubscribedChannels };

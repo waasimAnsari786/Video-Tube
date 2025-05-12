@@ -52,6 +52,12 @@ const errorHandler = (err, _, res, next) => {
   ) {
     console.log(err);
     return res.status(400).json(new ApiResponse(400, null, err.message));
+  } // --- Mongoose CastError Handling ---
+  else if (err.name === "CastError") {
+    console.log(err);
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, `Invalid ${err.path}: ${err.value}`));
   }
 
   // --- Fallback for Unknown Errors ---

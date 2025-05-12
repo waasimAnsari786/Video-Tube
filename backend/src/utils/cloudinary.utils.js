@@ -46,35 +46,23 @@ const uploadOnCloudinary = async (
   }
 };
 
-const deleteFromCloudinary = async (publicId, type) => {
-  // check, is publicIDs or file's resource-type present? If doesn't, throw error
-  // get each file details which publicID is provided in "publicIDs" param
-  // match provided resource type in "type" param with geted file's resource type of cloudinary
-  // if they don't match throw error else delete files from cloudinary
-  // return deleted result
-
+const deleteFromCloudinary = async (publicIds = [], resourceType = "image") => {
   try {
-    // "type" contains requested file's resourceType
-    if (!publicId || !type) {
-      console.error("File's public id or resource type is missing");
-      throw new ApiError(500, "Internal server error while deleting file");
+    if (!Array.isArray(publicIds) || publicIds.length === 0 || !resourceType) {
+      console.error("Missing public IDs or resource type for deletion");
+      throw new ApiError(500, "Internal server error while deleting files");
     }
 
-    const fileDetails = await cloudinary.api.resource(publicId, {
-      resource_type: type,
-    });
-
-    if (fileDetails.resource_type !== type) {
-      console.error("Provided resource-type of file is incorrect");
-      throw new ApiError(500, "Internal server error while deleting file");
-    }
-
-    const deletedResult = await cloudinary.uploader.destroy(publicId, {
-      resource_type: type,
+    const result = await cloudinary.api.delete_resources(publicIds, {
+      resource_type: resourceType,
       invalidate: true,
     });
 
-    return deletedResult.result === "ok" ? true : false;
+    // Check if all requested resources were deleted
+    const deletionResults = result?.deleted || {};
+    const allDeleted = publicIds.every(id => deletionResults[id] === "deleted");
+
+    return allDeleted;
   } catch (error) {
     throw error;
   }

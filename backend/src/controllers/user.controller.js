@@ -24,7 +24,9 @@ const registerUser = asyncHandler(async (req, res, _) => {
 
   const { userName, email, fullName, password } = req.body;
   try {
-    checkFields([userName, fullName, email, password]);
+    // checkFields([userName, fullName, email, password]);
+
+    console.log(req.body);
 
     const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
     if (existedUser) {
@@ -41,9 +43,9 @@ const registerUser = asyncHandler(async (req, res, _) => {
       refreshToken: "",
     });
 
-    const user = await User.findById(createdUser._id).select(
-      "-password -refreshToken"
-    );
+    const user = await User.findById(createdUser._id)
+      .select("-password -refreshToken")
+      .lean();
 
     if (!user) {
       throw new ApiError(500, "Internal server error while registering user");
@@ -51,7 +53,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, user, "User registered successfully"));
+      .json(new ApiResponse(200, {}, "User registered successfully"));
   } catch (error) {
     throw error;
   }
@@ -95,7 +97,7 @@ const generateAccessAndRefreshTokens = async user => {
     }
 
     updatedUser.accessToken = accessToken;
-    return { updatedUser, accessToken, refreshToken };
+    return updatedUser;
   } catch (error) {
     console.error("Token generation error:", error);
     throw error;
@@ -120,13 +122,12 @@ const loginUser = asyncHandler(async (req, res, _) => {
       throw new ApiError(400, "Provided password is incorrect");
     }
 
-    const { updatedUser, accessToken, refreshToken } =
-      await generateAccessAndRefreshTokens(existedUser);
+    const updatedUser = await generateAccessAndRefreshTokens(existedUser);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-      .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+      .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
+      .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
       .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
   } catch (error) {
     console.error("Login error:", error.message || error);
@@ -187,13 +188,12 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
       throw new ApiError(400, "Refresh token has been expired or invalid");
     }
 
-    const { updatedUser, accessToken, refreshToken } =
-      await generateAccessAndRefreshTokens(user);
+    const updatedUser = await generateAccessAndRefreshTokens(user);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-      .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+      .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
+      .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
       .json(new ApiResponse(200, updatedUser, "Token refreshed successfully"));
   } catch (error) {
     throw error;
@@ -225,10 +225,7 @@ const updatePassword = asyncHandler(async (req, res, _) => {
     }
 
     user.password = newPassword;
-    const updatedUser = await user.save();
-    if (!updatedUser) {
-      throw new ApiError(500, "Internal server Error while updating password");
-    }
+    await user.save();
 
     return res
       .status(200)
@@ -258,7 +255,9 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
         },
       },
       { new: true, runValidators: true }
-    ).select("-password -refreshToken");
+    )
+      .select("-password -refreshToken")
+      .lean();
 
     if (!updatedUser) {
       throw new ApiError(
@@ -321,7 +320,9 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
         },
       },
       { new: true }
-    ).select(`-password -refreshToken -${fieldName}`);
+    )
+      .select(`-password -refreshToken -${fieldName}`)
+      .lean();
 
     if (!updatedUser) {
       throw new ApiError(500, "Internal server error while updating user");
@@ -329,7 +330,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
 
     const prevFile = req.user[fieldName];
     if (prevFile?.secureURL) {
-      await deleteFromCloudinary(prevFile?.publicId, prevFile?.resourceType);
+      await deleteFromCloudinary([prevFile?.publicId], prevFile?.resourceType);
     }
 
     return res
@@ -401,7 +402,7 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     }
 
     await deleteFromCloudinary(
-      fileToBeDeleted.publicId,
+      [fileToBeDeleted.publicId],
       fileToBeDeleted.resourceType
     );
 
@@ -413,7 +414,9 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
         },
       },
       { new: true }
-    ).select(`-password -refreshToken -${fieldName}`);
+    )
+      .select(`-password -refreshToken -${fieldName}`)
+      .lean();
 
     if (!updatedUser) {
       throw new ApiError(
