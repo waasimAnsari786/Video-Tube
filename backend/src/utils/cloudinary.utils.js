@@ -17,14 +17,8 @@ const uploadOnCloudinary = async (
   transformationOptions = {}
 ) => {
   try {
-    if (
-      !localFilePath ||
-      !type ||
-      Object.keys(transformationOptions).length === 0
-    ) {
-      console.error(
-        "File path, file resource type and tranformation options of file are required"
-      );
+    if (!localFilePath || !type) {
+      console.error("File path, file resource type of file are required");
       throw new ApiError(500, "Internal server error while uploading file");
     }
 
@@ -62,7 +56,9 @@ const deleteFromCloudinary = async (publicIds = [], resourceType = "image") => {
     const deletionResults = result?.deleted || {};
     const allDeleted = publicIds.every(id => deletionResults[id] === "deleted");
 
-    return allDeleted;
+    if (!allDeleted) {
+      console.log("Failed to delete old media from Cloudinary");
+    }
   } catch (error) {
     throw error;
   }

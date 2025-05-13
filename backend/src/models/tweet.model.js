@@ -1,6 +1,5 @@
-import mongoose from "mongoose";
 import mediaSchema from "./media.model.js";
-const { Schema } = mongoose;
+import { Schema, model } from "mongoose";
 
 const tweetSchema = new Schema(
   {
@@ -26,4 +25,5 @@ const tweetSchema = new Schema(
 );
 
 // Export the model
-export const Tweet = mongoose.model("Tweet", tweetSchema);
+const Tweet = model("Tweet", tweetSchema);
+export default Tweet;

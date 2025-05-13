@@ -2,15 +2,15 @@ import pLimit from "p-limit";
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
-import {
-  IMAGE_EXTENTIONS,
-  VIDEO_EXTENTIONS,
-} from "../constants/fileExtensions.js";
-import uploadOnCloudinary from "../utils/uploadOnCloudinary.utils.js";
-import FileDetails from "../utils/FileDetails.utils.js";
+import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
+import FileDetails from "../utils/fileObject.utils.js";
 import Tweet from "../models/tweet.model.js";
-import { deleteFileFromLocalServer } from "../utils/deleteLocalFile.utils.js";
+import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.utils.js";
 
 const limit = pLimit(2); // Limit concurrency to 10
 
@@ -54,7 +54,7 @@ const createTweet = asyncHandler(async (req, res) => {
     let imgTransformParams = new CloudinaryTransform(600, 600);
 
     const uploadedImages = await Promise.all(
-      validImages.map(file =>
+      tweetImg.map(file =>
         limit(async () => {
           const uploaded = await uploadOnCloudinary(
             file.path,
@@ -71,7 +71,7 @@ const createTweet = asyncHandler(async (req, res) => {
     );
 
     const uploadedVideos = await Promise.all(
-      validVideos.map(file =>
+      tweetVideo.map(file =>
         limit(async () => {
           const uploaded = await uploadOnCloudinary(file.path, "video");
           return new FileDetails(
@@ -107,7 +107,30 @@ const createTweet = asyncHandler(async (req, res) => {
 
 const getTweets = asyncHandler(async (req, res) => {
   // Fetch all tweets
-  const tweets = await Tweet.find({}).sort({ createdAt: -1 }).lean();
+  const tweets = await Tweet.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+      },
+    },
+    { $unwind: "$owner" },
+    {
+      $addFields: {
+        avatarURL: "$owner.avatar.secureURL",
+      },
+    },
+    {
+      $project: {
+        textContent: 1,
+        tweetImg: 1,
+        tweetVideo: 1,
+        avatarURL: 1,
+      },
+    },
+  ]);
 
   return res
     .status(200)
@@ -136,40 +159,22 @@ const updateTweetMedia = asyncHandler(async (req, res) => {
   const { tweetDoc } = req;
 
   const files = req.files; // will always be an array in upload.array()
-  if (!files || files.length === 0) {
-    throw new ApiError(400, "No media files provided");
-  }
 
   const fieldName = files[0].fieldname;
-  const filesToBeUpdate = tweetDoc[fieldName];
+  const prevFiles = tweetDoc[fieldName];
 
-  if (!filesToBeUpdate) {
-    throw new ApiError(
-      404,
-      `Tweet has not any file with this fieldname "${fieldName}"`
-    );
-  }
+  const allowedExtensions =
+    fieldName === "tweetImg" ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
 
-  const allowedExtensions = isImage ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
-  const resourceType = isImage ? "image" : "video";
+  const resourceType = fieldName === "tweetImg" ? "image" : "video";
 
   validateFileExtensions(files, allowedExtensions, resourceType);
-
-  const oldMediaPublicIds =
-    tweetDoc[fieldName]?.map(item => item.publicId) || [];
-
-  const allDeleted = await deleteFromCloudinary(
-    oldMediaPublicIds,
-    resourceType
-  );
-  if (!allDeleted) {
-    throw new ApiError(500, "Failed to delete old media from Cloudinary");
-  }
 
   const uploadedMedia = await Promise.all(
     files.map(file =>
       limit(async () => {
-        const transformation = isImage ? new CloudinaryTransform(600, 600) : {};
+        const transformation =
+          fieldName === "tweetImg" ? new CloudinaryTransform(600, 600) : {};
         const uploaded = await uploadOnCloudinary(
           file.path,
           resourceType,
@@ -186,6 +191,11 @@ const updateTweetMedia = asyncHandler(async (req, res) => {
 
   tweetDoc[fieldName] = uploadedMedia;
   await tweetDoc.save();
+
+  const oldMediaPublicIds = prevFiles?.map(file => file.publicId) || [];
+
+  oldMediaPublicIds.length > 0 &&
+    (await deleteFromCloudinary(oldMediaPublicIds, resourceType));
 
   return res
     .status(200)
@@ -220,7 +230,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
     }
     // Delete all videos in one request
     if (videos.length > 0) {
-      const videoPublicIds = images.map(video => video.publicId);
+      const videoPublicIds = videos.map(video => video.publicId);
       await deleteFromCloudinary(videoPublicIds, "video");
     }
 
@@ -232,4 +242,10 @@ const deleteTweet = asyncHandler(async (req, res) => {
   }
 });
 
-export { createTweet, getTweets, updateTweetTextContent, deleteTweet };
+export {
+  createTweet,
+  getTweets,
+  updateTweetTextContent,
+  deleteTweet,
+  updateTweetMedia,
+};

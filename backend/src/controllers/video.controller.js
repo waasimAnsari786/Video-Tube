@@ -326,7 +326,14 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
     local-path and type*/
     let resourceType = fieldName === "thumbnail" ? "image" : "video";
 
-    const uploadedFile = await uploadOnCloudinary(req.file.path, resourceType);
+    const transformParams =
+      fieldName === "thumbnail" ? new CloudinaryTransform(400, 400) : {};
+
+    const uploadedFile = await uploadOnCloudinary(
+      req.file.path,
+      resourceType,
+      transformParams
+    );
 
     /*"fileDetails" is instance of "FileDetails" class, which has created for storing
     uploaded file details in a structured way so that it can be use for saving it in

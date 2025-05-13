@@ -4,6 +4,7 @@ import userRouter from "./routes/user.route.js";
 import videoRouter from "./routes/video.route.js";
 import errorHandler from "./middlewares/error-handling.middleware.js";
 import subscriptionRouter from "./routes/subscription.route.js";
+import tweetRouter from "./routes/tweet.route.js";
 
 // create app from express
 const app = express();
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/api/v1/tweets", tweetRouter);
 // Error Handling Middleware
 app.use(errorHandler);
 
