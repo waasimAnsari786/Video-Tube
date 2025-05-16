@@ -11,24 +11,9 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.utils.js";
+import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 
 const limit = pLimit(2); // Limit concurrency to 10
-
-const validateFileExtensions = (
-  filesArray = [],
-  validExtensions = [],
-  fieldType = "file"
-) => {
-  for (const file of filesArray) {
-    const ext = `.${file.realFileType}`;
-    if (!validExtensions.includes(ext)) {
-      throw new ApiError(
-        400,
-        `"${file.originalname}" is not a valid ${fieldType} file.`
-      );
-    }
-  }
-};
 
 const createTweet = asyncHandler(async (req, res) => {
   // [1] Extract text content and media files from request
@@ -48,40 +33,45 @@ const createTweet = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Tweet must have text or media content");
     }
 
-    validateFileExtensions(tweetImg, IMAGE_EXTENTIONS, "image");
-    validateFileExtensions(tweetVideo, VIDEO_EXTENTIONS, "video");
+    let uploadedImages = null;
+    let uploadedVideos = null;
 
-    let imgTransformParams = new CloudinaryTransform(600, 600);
+    if (tweetImg.length > 0) {
+      validateFileExtensions(tweetImg, IMAGE_EXTENTIONS);
+      const imgTransformParams = new CloudinaryTransform(600, 600);
+      uploadedImages = await Promise.all(
+        tweetImg.map(file =>
+          limit(async () => {
+            const uploaded = await uploadOnCloudinary(
+              file.path,
+              "image",
+              imgTransformParams
+            );
+            return new FileDetails(
+              uploaded.secure_url,
+              uploaded.resource_type,
+              uploaded.public_id
+            );
+          })
+        )
+      );
+    }
 
-    const uploadedImages = await Promise.all(
-      tweetImg.map(file =>
-        limit(async () => {
-          const uploaded = await uploadOnCloudinary(
-            file.path,
-            "image",
-            imgTransformParams
-          );
-          return new FileDetails(
-            uploaded.secure_url,
-            uploaded.resource_type,
-            uploaded.public_id
-          );
-        })
-      )
-    );
-
-    const uploadedVideos = await Promise.all(
-      tweetVideo.map(file =>
-        limit(async () => {
-          const uploaded = await uploadOnCloudinary(file.path, "video");
-          return new FileDetails(
-            uploaded.secure_url,
-            uploaded.resource_type,
-            uploaded.public_id
-          );
-        })
-      )
-    );
+    if (tweetVideo.length > 0) {
+      validateFileExtensions(tweetVideo, VIDEO_EXTENTIONS);
+      uploadedVideos = await Promise.all(
+        tweetVideo.map(file =>
+          limit(async () => {
+            const uploaded = await uploadOnCloudinary(file.path, "video");
+            return new FileDetails(
+              uploaded.secure_url,
+              uploaded.resource_type,
+              uploaded.public_id
+            );
+          })
+        )
+      );
+    }
 
     // --- Save to DB ---
     const tweet = await Tweet.create({
@@ -96,11 +86,7 @@ const createTweet = asyncHandler(async (req, res) => {
       .json(new ApiResponse(201, tweet, "Tweet created successfully"));
   } catch (error) {
     // Cleanup: delete all uploaded files from local server
-    Object.values(req.files)
-      .flat()
-      .forEach(file => {
-        deleteFileFromLocalServer(file.path);
-      });
+    deleteFileFromLocalServer(Object.values(req.files).flat());
     throw error;
   }
 });
@@ -156,56 +142,64 @@ const updateTweetTextContent = asyncHandler(async (req, res) => {
 });
 
 const updateTweetMedia = asyncHandler(async (req, res) => {
-  const { tweetDoc } = req;
+  try {
+    const { tweetDoc } = req;
 
-  const files = req.files; // will always be an array in upload.array()
+    if (req.files && req.files.length === 0) {
+      throw new ApiError(400, "No file uploaded");
+    }
 
-  const fieldName = files[0].fieldname;
-  const prevFiles = tweetDoc[fieldName];
+    const files = req.files; // will always be an array in upload.array()
 
-  const allowedExtensions =
-    fieldName === "tweetImg" ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
+    const fieldName = files[0].fieldname;
+    const prevFiles = tweetDoc[fieldName];
 
-  const resourceType = fieldName === "tweetImg" ? "image" : "video";
+    const allowedExtensions =
+      fieldName === "tweetImg" ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
 
-  validateFileExtensions(files, allowedExtensions, resourceType);
+    const resourceType = fieldName === "tweetImg" ? "image" : "video";
 
-  const uploadedMedia = await Promise.all(
-    files.map(file =>
-      limit(async () => {
-        const transformation =
-          fieldName === "tweetImg" ? new CloudinaryTransform(600, 600) : {};
-        const uploaded = await uploadOnCloudinary(
-          file.path,
-          resourceType,
-          transformation
-        );
-        return new FileDetails(
-          uploaded.secure_url,
-          uploaded.resource_type,
-          uploaded.public_id
-        );
-      })
-    )
-  );
+    validateFileExtensions(files, allowedExtensions);
 
-  tweetDoc[fieldName] = uploadedMedia;
-  await tweetDoc.save();
-
-  const oldMediaPublicIds = prevFiles?.map(file => file.publicId) || [];
-
-  oldMediaPublicIds.length > 0 &&
-    (await deleteFromCloudinary(oldMediaPublicIds, resourceType));
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        tweetDoc,
-        `Tweet ${resourceType}s updated successfully`
+    const uploadedMedia = await Promise.all(
+      files.map(file =>
+        limit(async () => {
+          const transformation =
+            fieldName === "tweetImg" ? new CloudinaryTransform(600, 600) : {};
+          const uploaded = await uploadOnCloudinary(
+            file.path,
+            resourceType,
+            transformation
+          );
+          return new FileDetails(
+            uploaded.secure_url,
+            uploaded.resource_type,
+            uploaded.public_id
+          );
+        })
       )
     );
+
+    tweetDoc[fieldName] = uploadedMedia;
+    await tweetDoc.save();
+
+    const oldMediaPublicIds = prevFiles?.map(file => file.publicId) || [];
+
+    oldMediaPublicIds.length > 0 &&
+      (await deleteFromCloudinary(oldMediaPublicIds, resourceType));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          tweetDoc,
+          `Tweet ${resourceType}s updated successfully`
+        )
+      );
+  } catch (error) {
+    deleteFileFromLocalServer(req.files);
+  }
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {

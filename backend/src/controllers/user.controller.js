@@ -13,6 +13,7 @@ import FileDetails from "../utils/fileObject.utils.js";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
+import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // get auth data from req.body
@@ -282,12 +283,11 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
 
 const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   try {
-    if (!IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)) {
-      throw new ApiError(
-        400,
-        `Invalid file type "${req.file.realFileType}" of requested file: Allowed ${IMAGE_EXTENTIONS.join(", ")}`
-      );
+    if (req.file && Object.keys(req.file).length === 0) {
+      throw new ApiError(400, "No file uploaded");
     }
+
+    validateFileExtensions([req.file], IMAGE_EXTENTIONS);
 
     const fieldName = req.file.fieldname;
 
@@ -343,7 +343,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer(req.file.path);
+    deleteFileFromLocalServer([req.file?.path]);
     throw error;
   }
 });

@@ -13,6 +13,7 @@ import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
+import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   try {
@@ -86,6 +87,10 @@ const publishAVideo = asyncHandler(async (req, res) => {
   // return response
 
   try {
+    if (req.files && Object.keys(req.files).length === 0) {
+      throw new ApiError(400, "No file uploaded");
+    }
+
     const { title, description, videoStatus } = req.body;
     const { video, thumbnail } = req.files;
 
@@ -107,24 +112,13 @@ const publishAVideo = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Video is required");
     }
 
-    if (!VIDEO_EXTENTIONS.includes(`.${video[0].realFileType}`)) {
-      throw new ApiError(400, "Video field must contain video file");
+    validateFileExtensions(video, VIDEO_EXTENTIONS);
+
+    if (thumbnail) {
+      validateFileExtensions(thumbnail, IMAGE_EXTENTIONS);
     }
 
-    if (
-      thumbnail &&
-      !IMAGE_EXTENTIONS.includes(`.${thumbnail?.[0]?.realFileType}`)
-    ) {
-      throw new ApiError(400, "Thumbnail field must contain image file");
-    }
-
-    let videoTransformParams = new CloudinaryTransform(600, 800);
-
-    const uploadedVideo = await uploadOnCloudinary(
-      videoLocalPath,
-      "video",
-      videoTransformParams
-    );
+    const uploadedVideo = await uploadOnCloudinary(videoLocalPath, "video");
 
     // initialize this variable for storing uploaded result of thumbnail
     let uploadedThumbnail = null;
@@ -180,9 +174,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         new ApiResponse(200, createdVideo, "Video has created succesfully")
       );
   } catch (error) {
-    for (const file in req.files) {
-      deleteFileFromLocalServer(req.files[file][0].path);
-    }
+    deleteFileFromLocalServer(Object.values(req.files).flat());
     throw error;
   }
 });
@@ -294,26 +286,17 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   // return response
 
   try {
+    if (req.file && Object.keys(req.file).length === 0) {
+      throw new ApiError(400, "No file uploaded");
+    }
     /* initialize variable for using requested file's field name in the form in frontend because
     form's fieldname matches with my DB's fieldname */
     const fieldName = req.file.fieldname;
 
-    if (
-      fieldName === "thumbnail" &&
-      !IMAGE_EXTENTIONS.includes(`.${req.file.realFileType}`)
-    ) {
-      throw new ApiError(
-        400,
-        `Invalid file type "${req.file.realFileType}" of requested file ${fieldName}: Allowed ${IMAGE_EXTENTIONS.join(", ")}`
-      );
-    } else if (
-      fieldName === "video" &&
-      !VIDEO_EXTENTIONS.includes(`.${req.file.realFileType}`)
-    ) {
-      throw new ApiError(
-        400,
-        `Invalid file type "${req.file.realFileType}" of requested file ${fieldName}: Allowed ${VIDEO_EXTENTIONS.join(", ")}`
-      );
+    if (fieldName === "thumbnail") {
+      validateFileExtensions([req.file], IMAGE_EXTENTIONS);
+    } else if (fieldName === "video") {
+      validateFileExtensions([req.file], VIDEO_EXTENTIONS);
     }
 
     const { videoDoc } = req;
@@ -367,7 +350,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer(req.file.path);
+    deleteFileFromLocalServer([req.file?.path]);
     throw error;
   }
 });

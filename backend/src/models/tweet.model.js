@@ -11,6 +11,7 @@ const tweetSchema = new Schema(
     textContent: {
       type: String,
       trim: true,
+      default: "",
     },
     tweetImg: {
       type: [mediaSchema], // Array of media

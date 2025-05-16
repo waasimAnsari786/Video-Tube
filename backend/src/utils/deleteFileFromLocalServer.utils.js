@@ -1,9 +1,15 @@
 import fs from "fs";
-// utility function for deleting files from local server
-const deleteFileFromLocalServer = localFilePath => {
-  if (fs.existsSync(localFilePath)) {
-    // Delete file from local server
-    fs.unlinkSync(localFilePath);
+
+//  Deletes all uploaded files (single/multiple) from the local server.
+
+const deleteFileFromLocalServer = files => {
+  if (Array.isArray(files)) {
+    for (const file of files) {
+      if (file?.path && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+    }
   }
 };
+
 export default deleteFileFromLocalServer;
