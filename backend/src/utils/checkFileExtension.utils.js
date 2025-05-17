@@ -1,3 +1,5 @@
+import ApiError from "./API_error.utils.js";
+
 const validateFileExtensions = (filesArray = [], validExtensions = []) => {
   for (const file of filesArray) {
     const ext = `.${file.realFileType}`;

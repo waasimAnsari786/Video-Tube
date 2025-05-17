@@ -283,7 +283,7 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
 
 const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
   try {
-    if (req.file && Object.keys(req.file).length === 0) {
+    if (!req.file || Object.keys(req.file).length === 0) {
       throw new ApiError(400, "No file uploaded");
     }
 
@@ -343,7 +343,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer([req.file?.path]);
+    deleteFileFromLocalServer([req.file]);
     throw error;
   }
 });

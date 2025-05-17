@@ -14,6 +14,7 @@ const commentSchema = new Schema(
     },
     parentComment: {
       type: Schema.Types.ObjectId, // reply to which comment
+      ref: "Comment",
       default: null,
     },
     targetId: {

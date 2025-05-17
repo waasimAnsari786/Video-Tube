@@ -12,6 +12,7 @@ import {
   uploadOnCloudinary,
 } from "../utils/cloudinary.utils.js";
 import validateFileExtensions from "../utils/checkFileExtension.utils.js";
+import { checkFields } from "../utils/checkFields.utils.js";
 
 const limit = pLimit(2); // Limit concurrency to 10
 
@@ -26,12 +27,16 @@ const createTweet = asyncHandler(async (req, res) => {
   // [8] Handle errors and cleanup local files
   try {
     const { textContent } = req.body;
-    const { tweetImg = [], tweetVideo = [] } = req.files;
 
     // Optional: validate textContent
-    if (!textContent && tweetImg.length === 0 && tweetVideo.length === 0) {
+    if (
+      (!textContent || !textContent.trim()) &&
+      (!req.files || Object.keys(req.files).length === 0)
+    ) {
       throw new ApiError(400, "Tweet must have text or media content");
     }
+
+    const { tweetImg = [], tweetVideo = [] } = req.files;
 
     let uploadedImages = null;
     let uploadedVideos = null;
@@ -86,7 +91,7 @@ const createTweet = asyncHandler(async (req, res) => {
       .json(new ApiResponse(201, tweet, "Tweet created successfully"));
   } catch (error) {
     // Cleanup: delete all uploaded files from local server
-    deleteFileFromLocalServer(Object.values(req.files).flat());
+    deleteFileFromLocalServer(Object.values(req.files || {}).flat());
     throw error;
   }
 });
@@ -114,6 +119,8 @@ const getTweets = asyncHandler(async (req, res) => {
         tweetImg: 1,
         tweetVideo: 1,
         avatarURL: 1,
+        userName: 1,
+        fullName: 1,
       },
     },
   ]);
@@ -127,9 +134,7 @@ const updateTweetTextContent = asyncHandler(async (req, res) => {
   const { tweetDoc } = req; // available after ownership middleware
   const { textContent } = req.body;
 
-  if (!textContent?.trim()) {
-    throw new ApiError(400, "Text content cannot be empty");
-  }
+  checkFields([textContent], "Text content cannot be empty");
 
   tweetDoc.textContent = textContent;
   await tweetDoc.save();
@@ -145,7 +150,7 @@ const updateTweetMedia = asyncHandler(async (req, res) => {
   try {
     const { tweetDoc } = req;
 
-    if (req.files && req.files.length === 0) {
+    if (!req.files && req.files.length === 0) {
       throw new ApiError(400, "No file uploaded");
     }
 
@@ -198,7 +203,7 @@ const updateTweetMedia = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer(req.files);
+    deleteFileFromLocalServer(req.files || []);
   }
 });
 

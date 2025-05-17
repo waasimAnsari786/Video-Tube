@@ -85,9 +85,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
   // upload files on cloudinary
   // save files and text data in video collection
   // return response
-
   try {
-    if (req.files && Object.keys(req.files).length === 0) {
+    if (!req.files || Object.keys(req.files).length === 0) {
       throw new ApiError(400, "No file uploaded");
     }
 
@@ -174,7 +173,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         new ApiResponse(200, createdVideo, "Video has created succesfully")
       );
   } catch (error) {
-    deleteFileFromLocalServer(Object.values(req.files).flat());
+    deleteFileFromLocalServer(Object.values(req.files || {}).flat());
     throw error;
   }
 });
@@ -286,18 +285,17 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
   // return response
 
   try {
-    if (req.file && Object.keys(req.file).length === 0) {
+    if (!req.file || Object.keys(req.file).length === 0) {
       throw new ApiError(400, "No file uploaded");
     }
     /* initialize variable for using requested file's field name in the form in frontend because
     form's fieldname matches with my DB's fieldname */
     const fieldName = req.file.fieldname;
 
-    if (fieldName === "thumbnail") {
-      validateFileExtensions([req.file], IMAGE_EXTENTIONS);
-    } else if (fieldName === "video") {
-      validateFileExtensions([req.file], VIDEO_EXTENTIONS);
-    }
+    const validExtensions =
+      fieldName === "thumbnail" ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
+
+    validateFileExtensions([req.file], validExtensions);
 
     const { videoDoc } = req;
 
@@ -350,7 +348,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer([req.file?.path]);
+    deleteFileFromLocalServer([req.file]);
     throw error;
   }
 });
