@@ -13,9 +13,8 @@ const commentSchema = new Schema(
       required: true,
     },
     parentComment: {
-      type: Schema.Types.ObjectId, // reply to which comment
-      ref: "Comment",
-      default: null,
+      type: String, // reply to which comment
+      default: "",
     },
     targetId: {
       type: String,
@@ -25,7 +24,6 @@ const commentSchema = new Schema(
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }

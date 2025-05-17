@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.utils.js";
 import ApiError from "../utils/API_error.utils.js";
 import ApiResponse from "../utils/API_response.utils.js";
-import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../constants.js";
+import { IMAGE_EXTENTIONS } from "../constants.js";
 import FileDetails from "../utils/fileObject.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
@@ -10,11 +10,11 @@ import {
   uploadOnCloudinary,
 } from "../utils/cloudinary.utils.js";
 import validateFileExtensions from "../utils/checkFileExtension.utils.js";
-import checkFields, { checkObjectID } from "../utils/checkFields.utils.js";
+import { checkFields, checkObjectID } from "../utils/checkFields.utils.js";
 import Comment from "../models/comment.model.js";
 
-const commentValidation = data => {
-  const { comment, status, targetId, parentComment } = data;
+const commentValidation = req => {
+  const { comment, status, targetId, parentComment } = req.body;
 
   if (
     (!comment || !comment.trim()) &&
@@ -51,11 +51,11 @@ const createComment = asyncHandler(async (req, res) => {
   try {
     const { comment, status, targetId, parentComment } = req.body;
 
-    commentValidation({ comment, status, targetId, parentComment });
+    commentValidation(req);
 
     let uploadedImage = {};
 
-    if (Object.keys(req.file).length > 0) {
+    if (req.file && Object.keys(req.file).length > 0) {
       validateFileExtensions([req.file], IMAGE_EXTENTIONS);
       const imgTransformParams = new CloudinaryTransform(200, 200);
       const uploaded = await uploadOnCloudinary(
@@ -92,95 +92,65 @@ const createComment = asyncHandler(async (req, res) => {
 });
 
 const updateComment = asyncHandler(async (req, res) => {
-  const { commentDoc } = req; // available after ownership middleware
-
-  const { comment, status, targetId, parentComment } = req.body;
-
-  commentValidation({ comment, status, targetId, parentComment });
-
-  if (status !== commentDoc.status) {
-    throw new ApiError(400, "You can not change or upadate the comment status");
-  }
-
-  if (targetId !== commentDoc.targetId) {
-    throw new ApiError(
-      400,
-      "You can not change or upadate the comment targetId"
-    );
-  }
-
-  if (status === "reply" && parentComment !== commentDoc.parentComment) {
-    throw new ApiError(400, "You can not change or upadate the parent comment");
-  }
-
-  commentDoc.comment = comment;
-  await commentDoc.save();
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, commentDoc, "Comment has been updated successfully")
-    );
-});
-
-const updateTweetMedia = asyncHandler(async (req, res) => {
   try {
-    const { tweetDoc } = req;
+    const { commentDoc } = req; // available after ownership middleware
 
-    if (!req.files && req.files.length === 0) {
-      throw new ApiError(400, "No file uploaded");
+    const prevFile = commentDoc?.commentImg;
+
+    const { comment, status, targetId, parentComment } = req.body;
+
+    commentValidation(req);
+
+    if (status !== commentDoc.status) {
+      throw new ApiError(
+        400,
+        "You can not change or upadate the comment status"
+      );
     }
 
-    const files = req.files; // will always be an array in upload.array()
+    if (targetId !== commentDoc.targetId) {
+      throw new ApiError(
+        400,
+        "You can not change or upadate the comment targetId"
+      );
+    }
 
-    const fieldName = files[0].fieldname;
-    const prevFiles = tweetDoc[fieldName];
+    if (status === "reply" && parentComment !== commentDoc.parentComment) {
+      throw new ApiError(
+        400,
+        "You can not change or upadate the parent comment"
+      );
+    }
 
-    const allowedExtensions =
-      fieldName === "tweetImg" ? IMAGE_EXTENTIONS : VIDEO_EXTENTIONS;
+    if (Object.keys(req.file).length > 0) {
+      validateFileExtensions([req.file], IMAGE_EXTENTIONS);
+      const uploadedImg = await uploadOnCloudinary(req.file.path, "image");
+      const uploadedImgDetails = new FileDetails(
+        uploadedImg.secure_url,
+        uploadedImg.resource_type,
+        uploadedImg.public_id
+      );
+      commentDoc.commentImg = uploadedImgDetails;
+    }
 
-    const resourceType = fieldName === "tweetImg" ? "image" : "video";
+    commentDoc.comment = comment;
+    await commentDoc.save();
 
-    validateFileExtensions(files, allowedExtensions);
-
-    const uploadedMedia = await Promise.all(
-      files.map(file =>
-        limit(async () => {
-          const transformation =
-            fieldName === "tweetImg" ? new CloudinaryTransform(600, 600) : {};
-          const uploaded = await uploadOnCloudinary(
-            file.path,
-            resourceType,
-            transformation
-          );
-          return new FileDetails(
-            uploaded.secure_url,
-            uploaded.resource_type,
-            uploaded.public_id
-          );
-        })
-      )
-    );
-
-    tweetDoc[fieldName] = uploadedMedia;
-    await tweetDoc.save();
-
-    const oldMediaPublicIds = prevFiles?.map(file => file.publicId) || [];
-
-    oldMediaPublicIds.length > 0 &&
-      (await deleteFromCloudinary(oldMediaPublicIds, resourceType));
+    prevFile?.secureURL &&
+      (await deleteFromCloudinary([prevFile.publicId], prevFile.resourceType));
 
     return res
       .status(200)
       .json(
         new ApiResponse(
           200,
-          tweetDoc,
-          `Tweet ${resourceType}s updated successfully`
+          commentDoc,
+          "Comment has been updated successfully"
         )
       );
   } catch (error) {
-    deleteFileFromLocalServer(req.files);
+    deleteFileFromLocalServer([req.file]);
+    throw error;
   }
 });
 
@@ -210,10 +180,4 @@ const deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
-export {
-  createComment,
-  getTweets,
-  updateTweetTextContent,
-  deleteComment,
-  updateTweetMedia,
-};
+export { createComment, deleteComment, updateComment };
