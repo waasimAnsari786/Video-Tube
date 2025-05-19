@@ -13,30 +13,6 @@ import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 import { checkFields, checkObjectID } from "../utils/checkFields.utils.js";
 import Comment from "../models/comment.model.js";
 
-const commentValidation = req => {
-  const { comment, status, targetId, parentComment } = req.body;
-
-  if (
-    (!comment || !comment.trim()) &&
-    (!req.file || Object.keys(req.file).length === 0)
-  ) {
-    throw new ApiError(400, "Comment must have text or media content");
-  }
-
-  checkFields([status, targetId], "Comment status and target id are required");
-
-  if (!["comment", "reply"].includes(status)) {
-    throw new ApiError(400, "Invalid comment status");
-  }
-
-  checkObjectID(targetId, "Comment target id is invalid");
-
-  if (status === "reply") {
-    checkFields([parentComment], "Parent comment id is required for replies");
-    checkObjectID(parentComment, "Parent comment id is invalid");
-  }
-};
-
 const createComment = asyncHandler(async (req, res) => {
   // [1] Extract necessary data from request
   // [2] Validate that the comment contains at least text or media file
@@ -51,7 +27,27 @@ const createComment = asyncHandler(async (req, res) => {
   try {
     const { comment, status, targetId, parentComment } = req.body;
 
-    commentValidation(req);
+    if (
+      (!comment || !comment.trim()) &&
+      (!req.file || Object.keys(req.file).length === 0)
+    ) {
+      throw new ApiError(400, "Comment must have text or media content");
+    }
+
+    checkFields(
+      [status, targetId],
+      "Comment status and target id are required"
+    );
+
+    if (!["comment", "reply"].includes(status)) {
+      throw new ApiError(400, "Invalid comment status");
+    }
+
+    checkObjectID(targetId, "Comment target id is invalid");
+
+    if (status === "reply") {
+      checkObjectID(parentComment, "Parent comment id is invalid");
+    }
 
     let uploadedImage = {};
 
@@ -97,35 +93,24 @@ const updateComment = asyncHandler(async (req, res) => {
 
     const prevFile = commentDoc?.commentImg;
 
-    const { comment, status, targetId, parentComment } = req.body;
+    const { comment } = req.body;
 
-    commentValidation(req);
-
-    if (status !== commentDoc.status) {
-      throw new ApiError(
-        400,
-        "You can not change or upadate the comment status"
-      );
+    if (
+      (!comment || !comment.trim()) &&
+      (!req.file || Object.keys(req.file).length === 0)
+    ) {
+      throw new ApiError(400, "Comment must have text or media content");
     }
 
-    if (targetId !== commentDoc.targetId) {
-      throw new ApiError(
-        400,
-        "You can not change or upadate the comment targetId"
-      );
-    }
-
-    if (status === "reply" && parentComment !== commentDoc.parentComment) {
-      throw new ApiError(
-        400,
-        "You can not change or upadate the parent comment"
-      );
-    }
-
-    if (Object.keys(req.file).length > 0) {
+    if (req.file && Object.keys(req.file).length > 0) {
       validateFileExtensions([req.file], IMAGE_EXTENTIONS);
-      const uploadedImg = await uploadOnCloudinary(req.file.path, "image");
-      const uploadedImgDetails = new FileDetails(
+      const imgTransformParams = new CloudinaryTransform(200, 200);
+      const uploadedImg = await uploadOnCloudinary(
+        req.file.path,
+        "image",
+        imgTransformParams
+      );
+      let uploadedImgDetails = new FileDetails(
         uploadedImg.secure_url,
         uploadedImg.resource_type,
         uploadedImg.public_id
@@ -133,7 +118,8 @@ const updateComment = asyncHandler(async (req, res) => {
       commentDoc.commentImg = uploadedImgDetails;
     }
 
-    commentDoc.comment = comment;
+    if (comment) commentDoc.comment = comment;
+
     await commentDoc.save();
 
     prevFile?.secureURL &&

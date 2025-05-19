@@ -5,7 +5,7 @@ const commentSchema = new Schema(
   {
     comment: {
       type: String,
-      required: true,
+      trim: true,
     },
     status: {
       type: String,

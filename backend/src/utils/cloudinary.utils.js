@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import { v2 as cloudinary } from "cloudinary";
 import ApiError from "./API_error.utils.js";
-import deleteFileFromLocalServer from "./deleteFileFromLocalServer.utils.js";
+import fs from "fs";
 
 // Configuration
 cloudinary.config({

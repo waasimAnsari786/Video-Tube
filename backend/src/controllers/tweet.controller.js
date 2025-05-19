@@ -81,14 +81,14 @@ const createTweet = asyncHandler(async (req, res) => {
     // --- Save to DB ---
     const tweet = await Tweet.create({
       owner: req.user._id,
-      textContent,
+      textContent: textContent || "",
       tweetImg: uploadedImages,
       tweetVideo: uploadedVideos,
     });
 
     return res
-      .status(201)
-      .json(new ApiResponse(201, tweet, "Tweet created successfully"));
+      .status(200)
+      .json(new ApiResponse(200, tweet, "Tweet created successfully"));
   } catch (error) {
     // Cleanup: delete all uploaded files from local server
     deleteFileFromLocalServer(Object.values(req.files || {}).flat());

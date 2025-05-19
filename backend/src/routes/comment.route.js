@@ -16,7 +16,7 @@ const commentRouter = Router();
 commentRouter.use(verifyAuthorization);
 commentRouter
   .route("/")
-  .post(upload.single("commentImg"), validateFileType, createComment); // Assuming you already handle media inside controller
+  .post(upload.single("commentImg"), validateFileType, createComment);
 
 // Ownership check applied for routes with :commentId
 commentRouter.use(
@@ -27,6 +27,6 @@ commentRouter.use(
 commentRouter
   .route("/:commentId")
   .delete(deleteComment)
-  .patch(upload.single("commentImg"), validateFileType, updateComment); // Assuming you already handle media inside controller;
+  .patch(upload.single("commentImg"), validateFileType, updateComment);
 
 export default commentRouter;
