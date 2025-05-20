@@ -24,6 +24,7 @@ const commentSchema = new Schema(
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

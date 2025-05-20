@@ -12,21 +12,13 @@ import {
 import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 import { checkFields, checkObjectID } from "../utils/checkFields.utils.js";
 import Comment from "../models/comment.model.js";
+import { getModelByName } from "../utils/getModel.utils.js";
 
 const createComment = asyncHandler(async (req, res) => {
-  // [1] Extract necessary data from request
-  // [2] Validate that the comment contains at least text or media file
-  // [3] check - comment status and target are present?
-  // [4] check - status has valid value?
-  // [5] check- is target id valid objectID?
-  // [6] check - has status field value "reply",is parentComment id present and valid ObjectId
-  // [7] check - does req.file hold any file, upload it to cloudinary and then extract necessary data from response
-  // [8] create comment in DB
-  // [9] return response
-  // [10] if any error occurs, delete all media files from local server
   try {
-    const { comment, status, targetId, parentComment } = req.body;
+    const { comment, status, targetId, parentComment, modelName } = req.body;
 
+    // [2] Must have text or media
     if (
       (!comment || !comment.trim()) &&
       (!req.file || Object.keys(req.file).length === 0)
@@ -34,23 +26,43 @@ const createComment = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Comment must have text or media content");
     }
 
+    // [3] Check required fields
     checkFields(
       [status, targetId],
       "Comment status and target id are required"
     );
 
+    // [4] Check valid status
     if (!["comment", "reply"].includes(status)) {
       throw new ApiError(400, "Invalid comment status");
     }
 
+    // [5] Check valid ObjectId
     checkObjectID(targetId, "Comment target id is invalid");
 
-    if (status === "reply") {
-      checkObjectID(parentComment, "Parent comment id is invalid");
+    const TargetModel = getModelByName(modelName);
+    if (!TargetModel) {
+      throw new ApiError(400, "Invalid model type provided");
     }
 
-    let uploadedImage = {};
+    // [5.1] Check if target document exists using dynamic ref
+    const targetDoc = await TargetModel.findById(targetId);
+    if (!targetDoc) {
+      throw new ApiError(404, "Target document not found");
+    }
 
+    // [6] If status is reply, check parent comment validity and existence
+    if (status === "reply") {
+      checkObjectID(parentComment, "Parent comment id is invalid");
+
+      const parentCommentDoc = await Comment.findById(parentComment);
+      if (!parentCommentDoc) {
+        throw new ApiError(404, "Parent comment does not exist");
+      }
+    }
+
+    // [7] Upload image if provided
+    let uploadedImage = {};
     if (req.file && Object.keys(req.file).length > 0) {
       validateFileExtensions([req.file], IMAGE_EXTENTIONS);
       const imgTransformParams = new CloudinaryTransform(200, 200);
@@ -66,7 +78,7 @@ const createComment = asyncHandler(async (req, res) => {
       );
     }
 
-    // --- Save to DB ---
+    // [8] Create comment
     const createdComment = await Comment.create({
       owner: req.user._id,
       comment,
@@ -74,14 +86,17 @@ const createComment = asyncHandler(async (req, res) => {
       status,
       parentComment,
       targetId,
+      onModel: req.body.onModel, // required for refPath
     });
 
+    // [9] Response
     return res
       .status(200)
       .json(
         new ApiResponse(200, createdComment, "Comment created successfully")
       );
   } catch (error) {
+    // [10] Cleanup
     deleteFileFromLocalServer([req.file]);
     throw error;
   }
