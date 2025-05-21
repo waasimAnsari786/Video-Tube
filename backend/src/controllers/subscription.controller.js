@@ -26,6 +26,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Channel with the requested id doesn't exist");
   }
 
+  // check - is requested user owner of the channel?
+  if (channelId === req.user._id) {
+    throw new ApiError(
+      400,
+      "You own this channel. You can't subscribe or unsubscribe it."
+    );
+  }
+
   const subscription = await Subscription.findOne({
     $and: [
       {
@@ -43,11 +51,6 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         .json(
           new ApiResponse(409, { isSubscribed: true }, "Already subscribed")
         );
-    }
-
-    // check - is requested user owner of the channel?
-    if (channelId === req.user._id) {
-      throw new ApiError(400, "You own this channel. You can't subscribe it.");
     }
 
     const createdSubscription = await Subscription.create({

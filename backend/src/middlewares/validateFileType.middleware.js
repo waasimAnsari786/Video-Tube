@@ -16,8 +16,7 @@ const validateFileType = asyncHandler(async (req, res, next) => {
   • Otherwise, treated req.files as a direct array (upload.array()).
 - Ensured the final `files` array always contains valid file objects for validation.
 - Used file-type package to detect actual file type of each uploaded file.
-- Compared detected file type with both:
-  • Allowed extensions list from ALLOWED_EXTENTIONS.
+- Compared detected file type with:
   • File extension written in original filename to catch mismatches.
 - Attached the real file type as `file.realFileType` to each valid file object.
 - If validation failed, deleted all uploaded files using helper function.
@@ -41,16 +40,8 @@ const validateFileType = asyncHandler(async (req, res, next) => {
     if (files.length > 0) {
       for (const file of files) {
         const realFileType = await fileTypeFromFile(file.path);
-        if (!realFileType) {
+        if (!realFileType || !realFileType?.ext) {
           throw new ApiError(400, `Invalid file: ${file.originalname} `);
-        }
-        if (
-          !ALLOWED_EXTENTIONS.includes(`.${realFileType.ext.toLowerCase()}`)
-        ) {
-          throw new ApiError(
-            400,
-            `Invalid file type: "${realFileType.ext}" of file "${file.originalname}". Allowed: ${ALLOWED_EXTENTIONS.join(", ")}`
-          );
         }
 
         if (

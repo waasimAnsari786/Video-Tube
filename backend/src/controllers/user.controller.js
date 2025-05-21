@@ -6,7 +6,11 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.utils.js";
 import User from "../models/user.model.js";
-import { COOKIE_OPTIONS, IMAGE_EXTENTIONS } from "../constants.js";
+import {
+  COOKIE_OPTIONS,
+  IMAGE_EXTENTIONS,
+  USER_EXCLUDED_FIELDS,
+} from "../constants.js";
 import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
 import FileDetails from "../utils/fileObject.utils.js";
@@ -22,12 +26,12 @@ const registerUser = asyncHandler(async (req, res, _) => {
   // create user in DB
   // remove password and refresh-token fields
   // return response
-
   const { userName, email, fullName, password } = req.body;
   try {
-    // checkFields([userName, fullName, email, password]);
-
-    console.log(req.body);
+    checkFields(
+      [userName, fullName, email, password],
+      "All fields are required"
+    );
 
     const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
     if (existedUser) {
@@ -39,16 +43,9 @@ const registerUser = asyncHandler(async (req, res, _) => {
       fullName,
       email,
       password,
-      avatar: {},
-      coverImage: {},
-      refreshToken: "",
     });
 
-    const user = await User.findById(createdUser._id)
-      .select("-password -refreshToken")
-      .lean();
-
-    if (!user) {
+    if (!createdUser) {
       throw new ApiError(500, "Internal server error while registering user");
     }
 
@@ -62,33 +59,39 @@ const registerUser = asyncHandler(async (req, res, _) => {
 
 const generateAccessAndRefreshTokens = async user => {
   try {
+    // Step 1: Check if user is provided
     if (!user) {
       console.error("User is missing for generating tokens");
       throw new ApiError(500, "Internal server error while generating tokens");
     }
 
+    // Step 2: Generate access token using the user method
     const accessToken = user.generateAccessToken();
     if (!accessToken) {
       console.error("Error while generating access-token");
       throw new ApiError(500, "Internal server error while generating tokens");
     }
 
+    // Step 3: Generate refresh token using the user method
     const refreshToken = user.generateRefreshToken();
     if (!refreshToken) {
       console.error("Error while generating refresh-token");
       throw new ApiError(500, "Internal server error while generating tokens");
     }
 
+    // Step 4: Save the generated refresh token in the database using $set
+    // Step 5: Exclude unnecessary fields (like image publicId/resourceType and password) from the returned document
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       {
         $set: { refreshToken },
       },
-      { new: true }
+      { new: true } // return the updated document
     )
-      .select("-password")
-      .lean();
+      .select(USER_EXCLUDED_FIELDS)
+      .lean(); // convert Mongoose document to a plain JS object
 
+    // Step 6: Handle case where user update failed
     if (!updatedUser) {
       console.error("Error while updating user after creating tokens");
       throw new ApiError(
@@ -97,9 +100,13 @@ const generateAccessAndRefreshTokens = async user => {
       );
     }
 
+    // Step 7: Attach the newly generated access token to the updated user object
     updatedUser.accessToken = accessToken;
+
+    // Step 8: Return the user object with access token
     return updatedUser;
   } catch (error) {
+    // Step 9: Log and rethrow any caught errors
     console.error("Token generation error:", error);
     throw error;
   }
@@ -117,7 +124,9 @@ const loginUser = asyncHandler(async (req, res, _) => {
       throw new ApiError(404, "User doesn't exist");
     }
 
-    const isPasswordCorrect = await existedUser.comparePassword(password);
+    const isPasswordCorrect = await existedUser.comparePassword(
+      password.trim()
+    );
 
     if (!isPasswordCorrect) {
       throw new ApiError(400, "Provided password is incorrect");
@@ -137,17 +146,8 @@ const loginUser = asyncHandler(async (req, res, _) => {
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
-  const loggedOutUser = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: { refreshToken: "" },
-    },
-    { new: true }
-  );
-
-  if (!loggedOutUser) {
-    throw new ApiError(500, "Internal server error while logging out user");
-  }
+  req.user.refreshToken = "";
+  await req.user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
@@ -157,9 +157,13 @@ const logoutUser = asyncHandler(async (req, res, _) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res, _) => {
+  const user = await User.findById(req.user._id)
+    .select(USER_EXCLUDED_FIELDS)
+    .lean();
+
   return res
     .status(200)
-    .json(new ApiResponse(200, req.user, "User fetched successfully"));
+    .json(new ApiResponse(200, user, "User fetched successfully"));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res, _) => {
@@ -257,7 +261,7 @@ const updateAccountDetails = asyncHandler(async (req, res, _) => {
       },
       { new: true, runValidators: true }
     )
-      .select("-password -refreshToken")
+      .select(`${USER_EXCLUDED_FIELDS} -refreshToken`)
       .lean();
 
     if (!updatedUser) {
@@ -321,7 +325,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       },
       { new: true }
     )
-      .select(`-password -refreshToken -${fieldName}`)
+      .select(`${fieldName}.secureURL`)
       .lean();
 
     if (!updatedUser) {
@@ -338,7 +342,7 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       .json(
         new ApiResponse(
           200,
-          fileDetails,
+          updatedUser,
           `${fieldName} has updated successfully`
         )
       );
@@ -349,38 +353,19 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
 });
 
 const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
-  // extract file's publicId and field's name from req.body
-  // check is fieldName valid?
-  // check - does user send correct field name to the correct endpoint
-  // check if user have already avatar or coverImage
-  // match - both received and saved publicIds.
-  // if they'll be matched, delete file
-  // return response
-
   try {
-    const { fieldName, filePublicId } = req.body;
-
-    if (!filePublicId) {
-      throw new ApiError(400, "File's public Id is missing");
-    }
-
-    if (!["avatar", "coverImage"].includes(fieldName)) {
-      throw new ApiError(400, "Invalid fieldName provided");
-    }
-
     // Extract the last part of the URL path (either 'avatar' or 'cover')
+    // create a variable for storing the field name
+    // extract field from user object
+    // check - does user have file associated with the extracted field name
+    // delte file from cloudinary
+    // update user in DB
+    // return response
     const pathSegment = req.originalUrl.split("/").pop(); // 'avatar' or 'cover'
 
     const expectedField = pathSegment === "avatar" ? "avatar" : "coverImage";
 
-    if (fieldName !== expectedField) {
-      throw new ApiError(
-        400,
-        `You are trying to delete '${fieldName}' via '${expectedField}' route. Please use the correct endpoint.`
-      );
-    }
-
-    const fileToBeDeleted = req.user[fieldName];
+    const fileToBeDeleted = req.user[expectedField];
 
     /* this check is for cheking, does user have any previous avatar or coverImage by checking 
     that is "fileToBeDeleted" null object or if it has its values, are these values undefined?
@@ -391,14 +376,7 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       !fileToBeDeleted ||
       Object.values(fileToBeDeleted).every(val => val === undefined)
     ) {
-      throw new ApiError(400, `User doesn't have ${fieldName}`);
-    }
-
-    if (filePublicId !== fileToBeDeleted.publicId) {
-      throw new ApiError(
-        404,
-        `${fieldName} with the requested publicId doesn't exist`
-      );
+      throw new ApiError(400, `User doesn't have ${expectedField}`);
     }
 
     await deleteFromCloudinary(
@@ -410,12 +388,12 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       req.user._id,
       {
         $unset: {
-          [fieldName]: 1,
+          [expectedField]: 1,
         },
       },
       { new: true }
     )
-      .select(`-password -refreshToken -${fieldName}`)
+      .select(`-password -refreshToken -${expectedField}`)
       .lean();
 
     if (!updatedUser) {
@@ -428,7 +406,11 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     res
       .status(200)
       .json(
-        new ApiResponse(200, {}, `${fieldName} has been deleted successfully`)
+        new ApiResponse(
+          200,
+          {},
+          `${expectedField} has been deleted successfully`
+        )
       );
   } catch (error) {
     throw error;
@@ -436,20 +418,6 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
 });
 
 const getUserChannelDetails = asyncHandler(async (req, res) => {
-  // extract userName
-  // check - is userName valid?
-  // find user with the same userName
-  // get subscribers and channels subcsribed by userName
-  /*
-  * add fields for subcriber and subscribed channels count, is current user subscribed this channel,
-  in the user object
-  */
-  /**
-   * check is current user is the owner of the channel? If yes don't add isSubcribed field meanwhile
-   * add isOwner field in the user object
-   */
-  // return response
-
   const { userName } = req.params;
 
   checkFields([userName], "Username is required");

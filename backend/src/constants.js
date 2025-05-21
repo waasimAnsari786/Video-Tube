@@ -11,6 +11,9 @@ const COOKIE_OPTIONS = {
 const IMAGE_EXTENTIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
 const VIDEO_EXTENTIONS = [".mp4", ".mov", ".avi", ".mkv"];
 const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
+// user excluded properties/fields
+const USER_EXCLUDED_FIELDS =
+  "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password";
 
 export {
   DB_NAME,
@@ -19,4 +22,5 @@ export {
   IMAGE_EXTENTIONS,
   VIDEO_EXTENTIONS,
   ALLOWED_EXTENTIONS,
+  USER_EXCLUDED_FIELDS,
 };

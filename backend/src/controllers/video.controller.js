@@ -157,7 +157,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
       above where i'm checking if "uploadedThumbanil" variable will contain details of
       uploaded thumbnail then "uploadedeThumbnailDetails" variable will store details of it otherwise
       it will be "null"*/
-    const createdVideo = await Video.create({
+    await Video.create({
       title,
       description,
       normalizedStatus,
@@ -169,9 +169,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, createdVideo, "Video has created succesfully")
-      );
+      .json(new ApiResponse(200, {}, "Video has created succesfully"));
   } catch (error) {
     deleteFileFromLocalServer(Object.values(req.files || {}).flat());
     throw error;
@@ -264,13 +262,11 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     videoDoc.description = description;
   }
 
-  const updatedVideo = await videoDoc.save();
+  await videoDoc.save();
 
   return res
     .status(200)
-    .json(
-      new ApiResponse(200, updatedVideo, "Video has been updated successfully")
-    );
+    .json(new ApiResponse(200, {}, "Video has been updated successfully"));
 });
 
 const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
@@ -340,13 +336,7 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 
     return res
       .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          fileDetails,
-          `${fieldName} has updated successfully`
-        )
-      );
+      .json(new ApiResponse(200, {}, `${fieldName} has updated successfully`));
   } catch (error) {
     deleteFileFromLocalServer([req.file]);
     throw error;
@@ -354,20 +344,15 @@ const updateVideoAndThumbnail = asyncHandler(async (req, res, _) => {
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
-  // get video from videoId
-  // if video exists, delete it
-  // if video will be deleted successfully, delete video and thumbnail file from cloudinary too.
+  // get "videoDoc" from "req"
+  // delete it. If it has successfully deleted, delte video and thumbnail files from cloudinary
   // return response
   try {
     const { videoDoc } = req;
 
     const { video, thumbnail } = videoDoc;
 
-    const deletedVideo = await videoDoc.deleteOne();
-
-    if (deletedVideo.deletedCount === 0) {
-      throw new ApiError(404, "Video doesn't exist");
-    }
+    await videoDoc.deleteOne();
 
     await deleteFromCloudinary([video.publicId], video.resourceType);
 
@@ -379,6 +364,34 @@ const deleteVideo = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(new ApiResponse(200, {}, "Video has been deleted successfully"));
+  } catch (error) {
+    throw error;
+  }
+});
+
+const deleteThumbnail = asyncHandler(async (req, res) => {
+  // get "videoDoc" from "req"
+  // check - if thumbnail exists, delete it from cloudinary
+  // update vidoe in DB
+  // return response
+  try {
+    const { videoDoc } = req;
+
+    const { thumbnail } = videoDoc;
+
+    // check if thumbnail exists, and it's object must not be null then delete it
+    if (thumbnail && Object.keys(thumbnail).length > 0) {
+      await deleteFromCloudinary([thumbnail.publicId], thumbnail.resourceType);
+    }
+
+    videoDoc.thumbnail = {};
+    await videoDoc.save();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, {}, "Thumbnail has been deleted successfully")
+      );
   } catch (error) {
     throw error;
   }
@@ -414,16 +427,12 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     videoDoc.videoStatus = normalizedStatus;
 
-    const updatedVideo = await videoDoc.save();
+    await videoDoc.save();
 
     return res
       .status(200)
       .json(
-        new ApiResponse(
-          200,
-          updatedVideo,
-          "Video status has been updated successfully"
-        )
+        new ApiResponse(200, {}, "Video status has been updated successfully")
       );
   } catch (error) {
     throw error;
@@ -485,4 +494,5 @@ export {
   deleteVideo,
   togglePublishStatus,
   incrementView,
+  deleteThumbnail,
 };

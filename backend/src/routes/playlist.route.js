@@ -6,8 +6,6 @@ import Playlist from "../models/playlist.model.js";
 import {
   createPlaylist,
   deletePlaylist,
-  getAllPlaylists,
-  getSinglePlaylist,
   updatePlaylist,
   addVideoToPlaylist,
   removeVideoFromPlaylist,
@@ -19,9 +17,7 @@ const playlistRouter = Router();
 playlistRouter.use(verifyAuthorization);
 
 // 🔄 Routes that don’t need ownership check
-playlistRouter.route("/").post(createPlaylist).get(getAllPlaylists);
-
-playlistRouter.route("/:playlistId").get(getSinglePlaylist);
+playlistRouter.route("/").post(createPlaylist);
 
 // 🛡️ Ownership check for routes that need protection
 playlistRouter.use(

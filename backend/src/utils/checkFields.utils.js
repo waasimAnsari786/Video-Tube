@@ -8,14 +8,18 @@ import mongoose from "mongoose";
 import ApiError from "./API_error.utils.js";
 
 const checkFields = (fields, message, requireAll = true) => {
-  let isEmpty = null;
+  let isValid = null;
   if (requireAll) {
-    isEmpty = fields.some(field => !field || !field.trim());
+    isValid = fields.every(
+      field => field && typeof field === "string" && field.trim()
+    );
   } else {
-    isEmpty = fields.every(field => !field || !field.trim());
+    isValid = fields.some(
+      field => field && typeof field === "string" && field.trim()
+    );
   }
 
-  if (isEmpty) {
+  if (!isValid) {
     throw new ApiError(400, message || "All fields are required");
   }
 };

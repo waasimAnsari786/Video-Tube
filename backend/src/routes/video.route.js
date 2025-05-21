@@ -3,6 +3,7 @@ import upload from "../middlewares/multer.middleware.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
 import {
+  deleteThumbnail,
   deleteVideo,
   getAllVideos,
   getVideoById,
@@ -45,7 +46,8 @@ videoRouter
 
 videoRouter
   .route("/thumbnail/:videoId")
-  .patch(upload.single("thumbnail"), validateFileType, updateVideoAndThumbnail);
+  .patch(upload.single("thumbnail"), validateFileType, updateVideoAndThumbnail)
+  .delete(deleteThumbnail);
 
 videoRouter.route("/details/:videoId").patch(updateVideoDetails);
 
