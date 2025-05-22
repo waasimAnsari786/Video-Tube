@@ -1,7 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { Header, Footer } from "../../index";
+import { Header, Footer, LoginForm } from "../../index";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentUserThunk,
   refreshAccessTokenThunk,
@@ -14,6 +14,7 @@ const MyWebLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  // const authStatus = useSelector((state) => state.auth.authStatus);
 
   /**
    * this useEffect call an asyncThunk of "authSlice.js" which gets current user.
@@ -25,6 +26,7 @@ const MyWebLayout = () => {
    */
   useEffect(() => {
     let timeoutId;
+    console.log("my web layout use effect executed");
 
     const scheduleRefresh = async () => {
       try {
@@ -66,8 +68,8 @@ const MyWebLayout = () => {
     };
   }, []);
 
-  return loading ? (
-    <h1>Loading...</h1>
+  return !loading ? (
+    <LoginForm />
   ) : (
     <>
       <Header />

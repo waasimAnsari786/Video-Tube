@@ -1,6 +1,7 @@
 import React from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import "../css/auth.css";
 
 const FormButton = ({
   label = "Update",
@@ -8,11 +9,12 @@ const FormButton = ({
   ...props
 }) => {
   const loading = useSelector((state) => state.auth.loading);
+
   return (
     <button
       type="submit"
       disabled={loading}
-      className={`w-full py-4 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold uppercase rounded-md tracking-wider transition duration-300 flex items-center justify-center gap-2 ${
+      className={`btn-liquid liquid flex items-center justify-center gap-2 mx-auto ${
         loading ? "opacity-75 cursor-not-allowed" : ""
       }`}
       {...props}

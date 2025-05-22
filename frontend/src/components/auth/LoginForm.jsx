@@ -43,7 +43,7 @@ const LoginForm = () => {
 
   return (
     <Container childElemClass="h-screen flex items-center flex-col justify-center">
-      <Logo src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" />
+      <Logo src="/images/logo.png" />
 
       <form
         onSubmit={handleSubmit(handleLogin, (formErrors) =>
@@ -52,7 +52,6 @@ const LoginForm = () => {
         className="bg-white shadow-2xl rounded-xl p-10 text-center w-1/2"
       >
         <FormHeading title="Login" />
-        <FormText text="Enter your details below" />
         <div className="space-y-5 mb-5">
           <InputContainer
             type="email"

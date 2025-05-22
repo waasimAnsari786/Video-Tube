@@ -19,28 +19,28 @@ import { store } from "./store/store";
 const App = () => {
   const router = createBrowserRouter([
     {
+      path: "/login",
+      element: (
+        <AuthProtectedLayout authentication={false}>
+          <LoginForm />
+        </AuthProtectedLayout>
+      ),
+    },
+    {
+      path: "/register",
+      element: (
+        <AuthProtectedLayout authentication={false}>
+          <RegisterForm />
+        </AuthProtectedLayout>
+      ),
+    },
+    {
       path: "/",
       element: <MyWebLayout />,
       children: [
         {
           path: "",
           element: <HomePage />,
-        },
-        {
-          path: "/login",
-          element: (
-            <AuthProtectedLayout authentication={false}>
-              <LoginForm />
-            </AuthProtectedLayout>
-          ),
-        },
-        {
-          path: "/register",
-          element: (
-            <AuthProtectedLayout authentication={false}>
-              <RegisterForm />
-            </AuthProtectedLayout>
-          ),
         },
         {
           path: "/profile",

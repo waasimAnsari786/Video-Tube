@@ -2,3 +2,14 @@
 @plugin "daisyui" {
   themes: all;
 }
+
+:root {
+  --my-blue: #132977;
+}
+
+.my-custom-bg {
+  background-color: var(--my-blue);
+}
+.my-custom-clr {
+  color: var(--my-blue);
+}

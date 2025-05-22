@@ -78,10 +78,15 @@ const createTweet = asyncHandler(async (req, res) => {
       );
     }
 
+    let validTextContent = null;
+    if (textContent && typeof textContent === "string" && textContent.trim()) {
+      validTextContent = textContent;
+    }
+
     // --- Save to DB ---
     const tweet = await Tweet.create({
       owner: req.user._id,
-      textContent: textContent || "",
+      textContent: validTextContent,
       tweetImg: uploadedImages,
       tweetVideo: uploadedVideos,
     });
@@ -150,7 +155,7 @@ const updateTweetMedia = asyncHandler(async (req, res) => {
   try {
     const { tweetDoc } = req;
 
-    if (!req.files && req.files.length === 0) {
+    if (!req.files || req.files.length === 0) {
       throw new ApiError(400, "No file uploaded");
     }
 
