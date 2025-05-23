@@ -4,27 +4,30 @@ import { getAllVideosThunk } from "../../features/videoSlice";
 import { VideoCard } from "../../index";
 
 export default function HomePage() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  const videosArr = useSelector((state) => state.video.videosArr); // adjust if your slice name differs
+  // const videosArr = useSelector((state) => state.video.videosArr); // adjust if your slice name differs
 
-  useEffect(() => {
-    dispatch(getAllVideosThunk({ url: "/videos" }));
-  }, []);
+  // useEffect(() => {
+  //   if (videosArr.length === 0) {
+  //     dispatch(getAllVideosThunk({ url: "/videos" }));
+  //   }
+  // }, []);
 
-  console.log("all video response ", videosArr);
+  // console.log("all video response ", videosArr);
 
   return (
-    <div className="p-4 bg-gray-900 min-h-screen text-white">
-      <h1 className="text-2xl font-semibold mb-4">All Videos</h1>
+    <h1>This is home page</h1>
+    // <div className="p-4 bg-gray-900 min-h-screen text-white">
+    //   <h1 className="text-2xl font-semibold mb-4">All Videos</h1>
 
-      {videosArr && <p>videos: {videosArr.totalDocs}</p>}
+    //   {videosArr && <p>videos: {videosArr.totalDocs}</p>}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* {videosArr?.docs?.map((video, idx) => (
-          <VideoCard key={idx} video={video} />
-        ))} */}
-      </div>
-    </div>
+    //   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    //     {videosArr?.docs?.map((video, idx) => (
+    //       <VideoCard key={idx} video={video} />
+    //     ))}
+    //   </div>
+    // </div>
   );
 }

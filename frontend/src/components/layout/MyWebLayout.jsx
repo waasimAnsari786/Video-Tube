@@ -1,5 +1,5 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { Header, Footer, LoginForm } from "../../index";
+import { Outlet } from "react-router-dom";
+import { Header, Footer } from "../../index";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,9 +12,8 @@ import apiRequestService from "../../services/apiRequestService";
 
 const MyWebLayout = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const authStatus = useSelector((state) => state.auth.authStatus);
   const [loading, setLoading] = useState(true);
-  // const authStatus = useSelector((state) => state.auth.authStatus);
 
   /**
    * this useEffect call an asyncThunk of "authSlice.js" which gets current user.
@@ -26,7 +25,8 @@ const MyWebLayout = () => {
    */
   useEffect(() => {
     let timeoutId;
-    console.log("my web layout use effect executed");
+    const controller = new AbortController();
+    const signal = controller.signal;
 
     const scheduleRefresh = async () => {
       try {
@@ -38,39 +38,39 @@ const MyWebLayout = () => {
     };
 
     (async () => {
-      const currentUser = await dispatch(
-        getCurrentUserThunk({
-          url: "/users/me",
-          config: {},
-        })
-      );
-      if (!getCurrentUserThunk.fulfilled.match(currentUser)) {
-        const refreshedToken = await dispatch(
-          refreshAccessTokenThunk({
-            url: "/users/refresh-token",
-            payload: {},
-            config: {},
+      if (!authStatus) {
+        const currentUser = await dispatch(
+          getCurrentUserThunk({
+            url: "/users/me",
+            config: { signal },
           })
         );
-        if (!refreshAccessTokenThunk.fulfilled.match(refreshedToken)) {
-          navigate("/login");
-          setLoading(false);
-          return;
+        if (!getCurrentUserThunk.fulfilled.match(currentUser)) {
+          const refreshedToken = await dispatch(
+            refreshAccessTokenThunk({
+              url: "/users/refresh-token",
+              payload: {},
+              config: {},
+            })
+          );
+          if (!refreshAccessTokenThunk.fulfilled.match(refreshedToken)) {
+            setLoading(false);
+            return;
+          }
         }
-      }
 
-      setLoading(false);
-      timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
+        timeoutId = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
+        setLoading(false);
+      }
     })();
 
     return () => {
       clearTimeout(timeoutId);
+      controller.abort();
     };
   }, []);
 
-  return !loading ? (
-    <LoginForm />
-  ) : (
+  return loading && !authStatus ? null : (
     <>
       <Header />
       <Outlet />

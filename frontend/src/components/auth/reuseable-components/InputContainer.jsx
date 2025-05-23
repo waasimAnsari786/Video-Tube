@@ -17,6 +17,7 @@ const InputContainer = ({
   icon,
   isPassword,
   customClass = "",
+  customInpClass = "py-4",
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +51,12 @@ const InputContainer = ({
           onClick={isPassword ? togglePasswordVisibility : undefined}
         />
       )}
-      <FormInput type={inputType} placeholder={placeholder} {...props} />
+      <FormInput
+        type={inputType}
+        placeholder={placeholder}
+        customInpClass={customInpClass}
+        {...props}
+      />
     </div>
   );
 };

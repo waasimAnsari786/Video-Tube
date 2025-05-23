@@ -1,13 +1,10 @@
 /* Liquid Button Custom Styles */
 .btn-liquid {
   position: relative;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
   font-weight: 600;
   color: var(--my-blue);
   background: none;
   border: 2px solid var(--my-blue);
-  border-radius: 8px;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.3s ease;

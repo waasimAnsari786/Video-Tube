@@ -10,7 +10,7 @@ class AsyncThunk {
   getThunk() {
     return async (data, { rejectWithValue }) => {
       try {
-        const { url, config } = data;
+        const { url, config = {} } = data;
         const response = await apiRequestService.get_req(url, config);
         return response.data;
       } catch (err) {

@@ -36,6 +36,7 @@ import AddUpdateVideoForm from "./components/video/AddUpdateVideoForm";
 import UploadVideoPage from "./components/pages/UploadVideoPage";
 import UpdateVideoPage from "./components/pages/UpdateVideoPage";
 import VideoCard from "./components/video/VideoCard";
+import Button from "./components/resuseable-components/Button";
 
 export {
   FormButton,
@@ -75,4 +76,5 @@ export {
   UploadVideoPage,
   UpdateVideoPage,
   VideoCard,
+  Button,
 };
