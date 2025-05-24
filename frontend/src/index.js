@@ -1,10 +1,10 @@
 // it's a main file for importing and exporting all components throught out the app.
-import FormButton from "./components/auth/reuseable-components/FormButton";
-import FormHeading from "./components/auth/reuseable-components/FormHeading";
-import FormInput from "./components/auth/reuseable-components/FormInput";
-import FormText from "./components/auth/reuseable-components/FormText";
-import InputContainer from "./components/auth/reuseable-components/InputContainer";
-import Logo from "./components/auth/reuseable-components/Logo";
+import FormButton from "./components/auth/auth reuseable components/FormButton";
+import FormHeading from "./components/auth/auth reuseable components/FormHeading";
+import FormInput from "./components/auth/auth reuseable components/FormInput";
+import FormText from "./components/auth/auth reuseable components/FormText";
+import InputContainer from "./components/auth/auth reuseable components/InputContainer";
+import Logo from "./components/auth/auth reuseable components/Logo";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 import UpdatePasswordForm from "./components/auth/UpdatePasswordForm";
@@ -25,8 +25,7 @@ import Email from "./components/profile/Email";
 import Username from "./components/profile/Username";
 import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
 import Container from "./components/resuseable-components/Container";
-import ImagePreview from "./components/auth/reuseable-components/ImagePreview";
-import FileInputContainer from "./components/auth/reuseable-components/FileInputContainer";
+import FileInputContainer from "./components/auth/auth reuseable components/FileInputContainer";
 import ChannelDetails from "./components/profile/ChannelDetails";
 import SubscribeButton from "./components/profile/SubscribeButton";
 import SubscribedToCount from "./components/profile/SubscribedToCount";
@@ -37,6 +36,12 @@ import UploadVideoPage from "./components/pages/UploadVideoPage";
 import UpdateVideoPage from "./components/pages/UpdateVideoPage";
 import VideoCard from "./components/video/VideoCard";
 import Button from "./components/resuseable-components/Button";
+import PopUp from "./components/resuseable-components/PopUp";
+import { getProfileAvatarContent } from "./data/PopUpData";
+import UpdateMedia from "./components/profile/profile reuseable components/UpdateMedia";
+import EditMediaButton from "./components/profile/profile reuseable components/EditMediaButton";
+import ImagePreview from "./components/profile/profile reuseable components/ImagePreview";
+import MediaInput from "./components/profile/profile reuseable components/MediaInput";
 
 export {
   FormButton,
@@ -77,4 +82,9 @@ export {
   UpdateVideoPage,
   VideoCard,
   Button,
+  PopUp,
+  getProfileAvatarContent,
+  UpdateMedia,
+  EditMediaButton,
+  MediaInput,
 };

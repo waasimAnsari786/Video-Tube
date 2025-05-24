@@ -30,19 +30,15 @@ export default function NavbarEnd() {
   };
 
   return (
-    <div className="dropdown dropdown-end text-gray-400">
-      <div
-        tabIndex={0}
-        role="button"
-        className="btn btn-ghost btn-circle avatar"
-      >
+    <div className="dropdown dropdown-top">
+      <div tabIndex={0} role="button" className="cursor-pointer">
         <Avatar
           avatar={avatar?.secureURL || "./src/assets/man vector avatar.jpg"}
         />
       </div>
       <ul
         tabIndex={0}
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
+        className="menu menu-md dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-xl"
       >
         <li className="rounded hover:bg-blue-900 hover:text-white">
           <NavLink to={"/profile"} className="justify-between ">
@@ -51,13 +47,13 @@ export default function NavbarEnd() {
             </span>
           </NavLink>
         </li>
-        {/* <li className="rounded hover:bg-blue-900 hover:text-white">
+        <li className="rounded hover:bg-blue-900 hover:text-white">
           <NavLink to={`/${userName}`} className="justify-between">
             <span className="flex items-center gap-2">
               <FaYoutube /> Channel
             </span>
           </NavLink>
-        </li> */}
+        </li>
         <li className="rounded hover:bg-blue-900 hover:text-white">
           <NavLink to={"/update-profile"}>
             <span className="flex items-center gap-2">
@@ -65,13 +61,13 @@ export default function NavbarEnd() {
             </span>
           </NavLink>
         </li>
-        {/* <li className="rounded hover:bg-blue-900 hover:text-white">
+        <li className="rounded hover:bg-blue-900 hover:text-white">
           <button onClick={handleLogout}>
             <span className="flex items-center gap-2">
               <FaSignOutAlt /> Logout
             </span>
           </button>
-        </li> */}
+        </li>
       </ul>
     </div>
   );

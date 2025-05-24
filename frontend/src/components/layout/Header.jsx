@@ -65,11 +65,15 @@ export default function Header() {
         </div>
 
         <div className="navbar-end">
-          {authStatus ? (
+          <NavbarEnd />
+
+          <Button btnText="Login" onClick={() => navigate("/login")} />
+
+          {/* {authStatus ? (
             <NavbarEnd />
           ) : (
             <Button btnText="Login" onClick={() => navigate("/login")} />
-          )}
+          )} */}
         </div>
       </div>
     </Container>

@@ -45,9 +45,11 @@ const App = () => {
         {
           path: "/profile",
           element: (
-            <AuthProtectedLayout>
-              <ProfileSection />
-            </AuthProtectedLayout>
+            // <AuthProtectedLayout>
+            //   <ProfileSection />
+            // </AuthProtectedLayout>
+
+            <ProfileSection />
           ),
         },
         {

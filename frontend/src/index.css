@@ -3,8 +3,22 @@
   themes: all;
 }
 
+@layer theme {
+  :root {
+    --my-blue: oklch(37.84% 0.125 278.61);
+    --my-font: "Montserrat", sans-serif;
+    --my-white: oklch(100% 0 0);
+  }
+}
+
 :root {
   --my-blue: #132977;
+  --my-font: "Montserrat", sans-serif;
+}
+
+* {
+  font-family: var(--my-font);
+  font-weight: 600;
 }
 
 .my-custom-bg {
