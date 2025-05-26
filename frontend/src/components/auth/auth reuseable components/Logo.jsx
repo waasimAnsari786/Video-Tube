@@ -1,10 +1,11 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Logo = ({ src, logoClass }) => {
   return (
-    <div className="mb-5">
+    <NavLink to={"/"}>
       <img src={src} alt="Logo" className={logoClass} />
-    </div>
+    </NavLink>
   );
 };
 

@@ -10,7 +10,7 @@ import RegisterForm from "./components/auth/RegisterForm";
 import UpdatePasswordForm from "./components/auth/UpdatePasswordForm";
 import UpdateUserDetailsForm from "./components/auth/UpdateUserDetailsForm";
 import Footer from "./components/layout/Footer";
-import Header from "./components/layout/Header";
+import Header from "./components/Header/Header";
 import MyWebLayout from "./components/layout/MyWebLayout";
 import AuthProtectedLayout from "./components/resuseable-components/AuthProtectedLayout";
 import Icon from "./components/resuseable-components/Icon";
@@ -42,6 +42,10 @@ import UpdateMedia from "./components/profile/profile reuseable components/Updat
 import EditMediaButton from "./components/profile/profile reuseable components/EditMediaButton";
 import ImagePreview from "./components/profile/profile reuseable components/ImagePreview";
 import MediaInput from "./components/profile/profile reuseable components/MediaInput";
+import Row from "./components/resuseable-components/Row";
+import Column from "./components/resuseable-components/Column";
+import SearchForm from "./components/Header/header reuseable components/SearchForm";
+import useShowHideSearchForm from "./hooks/useShowHideSearchForm";
 
 export {
   FormButton,
@@ -87,4 +91,8 @@ export {
   UpdateMedia,
   EditMediaButton,
   MediaInput,
+  Row,
+  Column,
+  SearchForm,
+  useShowHideSearchForm,
 };

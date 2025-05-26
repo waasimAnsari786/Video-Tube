@@ -8,7 +8,7 @@
  * type and selecting an icon to display.
  */
 import React, { useState } from "react";
-import { Icon, FormInput } from "../../../index";
+import { Icon, FormInput, Row, Column } from "../../../index";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const InputContainer = ({
@@ -18,6 +18,7 @@ const InputContainer = ({
   isPassword,
   customClass = "",
   customInpClass = "py-4",
+  iconOnClick = undefined,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,28 +37,26 @@ const InputContainer = ({
     icon
   );
 
-  const iconClasses =
-    "absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400";
-  const finalIconClasses = isPassword
-    ? `${iconClasses} cursor-pointer`
-    : iconClasses;
-
   return (
-    <div className={`relative ${customClass}`}>
-      {icon && (
+    <Row
+      customRowClass={`relative px-2 border border-gray-200 rounded-lg ${customClass} focus-within:ring-2 focus-within:ring-gray-300`}
+    >
+      <Column customColClass="col-span-1 flex justify-center items-center">
         <Icon
           icon={displayIcon}
-          className={finalIconClasses}
-          onClick={isPassword ? togglePasswordVisibility : undefined}
+          className={"text-gray-400"}
+          onClick={iconOnClick}
         />
-      )}
-      <FormInput
-        type={inputType}
-        placeholder={placeholder}
-        customInpClass={customInpClass}
-        {...props}
-      />
-    </div>
+      </Column>
+      <Column customColClass="col-span-11">
+        <FormInput
+          type={inputType}
+          placeholder={placeholder}
+          customInpClass={customInpClass}
+          {...props}
+        />
+      </Column>
+    </Row>
   );
 };
 
