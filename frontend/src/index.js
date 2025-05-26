@@ -45,7 +45,7 @@ import MediaInput from "./components/profile/profile reuseable components/MediaI
 import Row from "./components/resuseable-components/Row";
 import Column from "./components/resuseable-components/Column";
 import SearchForm from "./components/Header/header reuseable components/SearchForm";
-import useShowHideSearchForm from "./hooks/useShowHideSearchForm";
+import useToggle from "./hooks/useToggle";
 
 export {
   FormButton,
@@ -94,5 +94,5 @@ export {
   Row,
   Column,
   SearchForm,
-  useShowHideSearchForm,
+  useToggle,
 };

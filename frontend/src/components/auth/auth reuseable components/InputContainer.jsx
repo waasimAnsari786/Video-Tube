@@ -41,12 +41,11 @@ const InputContainer = ({
     <Row
       customRowClass={`relative px-2 border border-gray-200 rounded-lg ${customClass} focus-within:ring-2 focus-within:ring-gray-300`}
     >
-      <Column customColClass="col-span-1 flex justify-center items-center">
-        <Icon
-          icon={displayIcon}
-          className={"text-gray-400"}
-          onClick={iconOnClick}
-        />
+      <Column
+        customColClass="col-span-1 flex justify-center items-center cursor-pointer"
+        onClick={iconOnClick}
+      >
+        <Icon icon={displayIcon} className={"text-gray-400"} />
       </Column>
       <Column customColClass="col-span-11">
         <FormInput

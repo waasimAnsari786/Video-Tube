@@ -1,7 +1,11 @@
 import React from "react";
 
-const Column = ({ children, customColClass = "" }) => {
-  return <div className={customColClass}>{children}</div>;
+const Column = ({ children, customColClass = "", ...props }) => {
+  return (
+    <div className={customColClass} {...props}>
+      {children}
+    </div>
+  );
 };
 
 export default Column;

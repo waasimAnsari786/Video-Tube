@@ -1,15 +1,18 @@
 import React from "react";
 import { InputContainer } from "../../../index";
 
-export default function SearchForm({ icon, iconOnClick }) {
+export default function SearchForm({
+  icon,
+  customClass,
+  iconOnClick = undefined,
+}) {
   return (
-    <form>
+    <form className={customClass}>
       <InputContainer
-        name="search"
         type="text"
         placeholder="Search..."
         icon={icon}
-        customInpClass="py-2 hidden lg:block"
+        customInpClass="py-2"
         iconOnClick={iconOnClick}
       />
     </form>
