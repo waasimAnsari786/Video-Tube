@@ -39,7 +39,7 @@ const InputContainer = ({
 
   return (
     <Row
-      customRowClass={`relative px-2 border border-gray-200 rounded-lg ${customClass} focus-within:ring-2 focus-within:ring-gray-300`}
+      customRowClass={`relative px-2 rounded-lg ${customClass} my-border-light focus-within:ring-2 focus-within:ring-(--my-border-dark)`}
     >
       <Column
         customColClass="col-span-1 flex justify-center items-center cursor-pointer"

@@ -8,12 +8,16 @@
     --my-blue: oklch(37.84% 0.125 278.61);
     --my-font: "Montserrat", sans-serif;
     --my-white: oklch(100% 0 0);
+    --my-border-dark: oklch(0.857 0.006 255); /* for #d1d5dc */
+    --my-border-light: oklch(0.922 0.009 259); /* for gray-200 */
   }
 }
 
 :root {
   --my-blue: #132977;
   --my-font: "Montserrat", sans-serif;
+  --my-border-dark: #d1d5dc;
+  --my-border-light: #e5e7eb;
 }
 
 * {
@@ -24,6 +28,15 @@
 .my-custom-bg {
   background-color: var(--my-blue);
 }
+
 .my-custom-clr {
   color: var(--my-blue);
+}
+
+.my-border-dark {
+  border: 1px solid var(--my-border-dark);
+}
+
+.my-border-light {
+  border: 1px solid var(--my-border-light);
 }

@@ -55,9 +55,11 @@ const App = () => {
         {
           path: "/update-profile",
           element: (
-            <AuthProtectedLayout>
-              <UpdateProfileSection />
-            </AuthProtectedLayout>
+            <UpdateProfileSection />
+
+            // <AuthProtectedLayout>
+            //   <UpdateProfileSection />
+            // </AuthProtectedLayout>
           ),
         },
         {

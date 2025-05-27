@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
-import { Container, NavbarEnd, Header } from "../../index";
+import { Container, Header, SideBarAvatar } from "../../index";
 
 export default function MyWebLayout() {
   return (
@@ -10,7 +10,7 @@ export default function MyWebLayout() {
       {/* Main content */}
       <div className="drawer-content flex flex-col">
         <Container parentElemClass={"bg-base-100 shadow-md"}>
-          <Header /> {/* Reusable, optimized header */}
+          <Header />
         </Container>
 
         {/* Page Content */}
@@ -32,7 +32,7 @@ export default function MyWebLayout() {
             </li>
           </div>
           <div>
-            <NavbarEnd />
+            <SideBarAvatar />
           </div>
         </ul>
       </div>

@@ -3,13 +3,13 @@ import React from "react";
 export default function PopUp({ button, content = [], position = "start" }) {
   return (
     <div className={`dropdown dropdown-${position}`}>
-      <div tabIndex={0} role="button">
+      <div tabIndex={0} role="button" className="cursor-pointer">
         {button}
       </div>
 
       <ul
         tabIndex={0}
-        className="menu menu-md dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-xl border-[1px] border-gray-200"
+        className="menu menu-md dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-xl my-border-light"
       >
         {content.map((item, index) => (
           <li

@@ -1,9 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { Container, UpdateMedia } from "../../index";
-import { getProfileAvatarContent } from "../../data/PopUpData";
-import useFileUpload from "../../hooks/useFileUpload";
+import {
+  Container,
+  UpdateMedia,
+  getProfileAvatarContent,
+  useFileUpload,
+} from "../../index";
 
 const ProfileSection = () => {
   const { register, handleSubmit } = useForm();
@@ -29,12 +32,10 @@ const ProfileSection = () => {
             previewSrc={
               avatar?.secureURL || "/src/assets/man vector avatar.jpg"
             }
-            previewClass="w-30 h-30 rounded-full"
+            previewClass="rounded-xl h-30 w-40 "
             registerName={register("avatar")}
-            popupContent={getProfileAvatarContent({
-              onUpload: () => inputRef.current?.click(),
-              onDelete: () => console.log("Delete triggered"),
-            })}
+            popupContent={content}
+            inputRef={fileInputRef}
           />
         </form>
       </Container>

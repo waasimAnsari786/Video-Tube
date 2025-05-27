@@ -37,7 +37,10 @@ import UpdateVideoPage from "./components/pages/UpdateVideoPage";
 import VideoCard from "./components/video/VideoCard";
 import Button from "./components/resuseable-components/Button";
 import PopUp from "./components/resuseable-components/PopUp";
-import { getProfileAvatarContent } from "./data/PopUpData";
+import {
+  getProfileAvatarContent,
+  getSidebarAvatarContent,
+} from "./data/PopUpData";
 import UpdateMedia from "./components/profile/profile reuseable components/UpdateMedia";
 import EditMediaButton from "./components/profile/profile reuseable components/EditMediaButton";
 import ImagePreview from "./components/profile/profile reuseable components/ImagePreview";
@@ -46,6 +49,11 @@ import Row from "./components/resuseable-components/Row";
 import Column from "./components/resuseable-components/Column";
 import SearchForm from "./components/Header/header reuseable components/SearchForm";
 import useToggle from "./hooks/useToggle";
+import SidebarToggle from "./components/Header/header reuseable components/SidebarToggle";
+import SideBarAvatar from "./components/layout/layout reuseable components/SideBarAvatar";
+import useRoute from "./hooks/useRoute";
+import SidebarAvatarButton from "./components/layout/layout reuseable components/SidebarAvatarButton";
+import useFileUpload from "./hooks/useFileUpload";
 
 export {
   FormButton,
@@ -88,6 +96,7 @@ export {
   Button,
   PopUp,
   getProfileAvatarContent,
+  getSidebarAvatarContent,
   UpdateMedia,
   EditMediaButton,
   MediaInput,
@@ -95,4 +104,9 @@ export {
   Column,
   SearchForm,
   useToggle,
+  SidebarToggle,
+  SideBarAvatar,
+  useRoute,
+  SidebarAvatarButton,
+  useFileUpload,
 };
