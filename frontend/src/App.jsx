@@ -6,7 +6,6 @@ import {
   HomePage,
   AuthProtectedLayout,
   ProfileSection,
-  UpdateProfileSection,
   ChannelDetails,
   UploadVideoPage,
   UpdateVideoPage,
@@ -50,16 +49,6 @@ const App = () => {
             // </AuthProtectedLayout>
 
             <ProfileSection />
-          ),
-        },
-        {
-          path: "/update-profile",
-          element: (
-            <UpdateProfileSection />
-
-            // <AuthProtectedLayout>
-            //   <UpdateProfileSection />
-            // </AuthProtectedLayout>
           ),
         },
         {

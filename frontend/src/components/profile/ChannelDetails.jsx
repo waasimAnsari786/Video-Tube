@@ -44,7 +44,7 @@ const ChannelDetails = () => {
   } = channelData || {};
 
   return (
-    <Container>
+    <>
       {/* Cover Image */}
       <div className="relative">
         <CoverImage coverImage={coverImage?.secureURL} />
@@ -71,7 +71,7 @@ const ChannelDetails = () => {
           </div>
         )}
       </div>
-    </Container>
+    </>
   );
 };
 

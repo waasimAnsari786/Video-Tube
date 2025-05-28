@@ -1,7 +1,11 @@
 import React from "react";
 
-export default function ImagePreview({ preview, className = "" }) {
+export default function ImagePreview({ preview, customClass = "" }) {
   return (
-    <img src={preview} className={`object-cover ${className}`} alt="Preview" />
+    <img
+      src={preview}
+      className={`object-cover w-full ${customClass}`}
+      alt="Preview"
+    />
   );
 }

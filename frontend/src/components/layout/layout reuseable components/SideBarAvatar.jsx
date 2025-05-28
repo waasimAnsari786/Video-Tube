@@ -32,8 +32,7 @@ export default function SideBarAvatar() {
 
   const content = getSidebarAvatarContent({
     profileRoute: "/profile",
-    channelRoute: `/${userName}`,
-    settingRoute: "/update-profile",
+    channelRoute: `/${userName || "waasim"}`,
     onLogout: handleLogout,
     handleRoute,
   });

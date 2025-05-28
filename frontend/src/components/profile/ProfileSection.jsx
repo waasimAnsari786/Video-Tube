@@ -1,45 +1,32 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
-import {
-  Container,
-  UpdateMedia,
-  getProfileAvatarContent,
-  useFileUpload,
-} from "../../index";
+import { Button, ProfileTitle, UpdateMedia } from "../../index";
 
 const ProfileSection = () => {
   const { register, handleSubmit } = useForm();
-  const avatar = useSelector((state) => state.auth.avatar);
 
-  const { fileInputRef, handleUpload } = useFileUpload();
-
-  const onSubmit = (data) => {
+  const handleProfileUpdate = (data) => {
     console.log("Form submitted with data:", data);
   };
 
-  const content = getProfileAvatarContent({
-    onUpload: handleUpload,
-    onDelete: () => {},
-  });
-
   return (
-    <>
-      <Container>
-        <form onSubmit={handleSubmit(onSubmit)} className="relative">
-          <UpdateMedia
-            title="Avatar"
-            previewSrc={
-              avatar?.secureURL || "/src/assets/man vector avatar.jpg"
-            }
-            previewClass="rounded-xl h-30 w-40 "
-            registerName={register("avatar")}
-            popupContent={content}
-            inputRef={fileInputRef}
-          />
-        </form>
-      </Container>
-    </>
+    <form onSubmit={handleSubmit(handleProfileUpdate)}>
+      <Button btnText="Update" />
+      <ProfileTitle title={"Avatar"} />
+      <UpdateMedia
+        title="avatar"
+        previewClass="rounded-xl h-30"
+        registerName={register("avatar")}
+        previewColClass="col-span-2"
+      />
+      <ProfileTitle title={"Cover Image"} />
+      <UpdateMedia
+        title="cover"
+        previewClass="rounded-xl h-40"
+        registerName={register("coverImage")}
+        previewColClass="col-span-4"
+      />
+    </form>
   );
 };
 

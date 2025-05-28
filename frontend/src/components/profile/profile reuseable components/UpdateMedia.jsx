@@ -6,30 +6,47 @@ import {
   Row,
   Column,
   Button,
+  useFileUpload,
+  getProfileAvatarContent,
+  useImagePreview,
 } from "../../../index";
 import { FaEdit } from "react-icons/fa";
 
 export default function UpdateMedia({
   title,
-  previewSrc,
   previewClass = "",
+  previewColClass = "",
   registerName,
-  popupContent,
-  inputRef,
 }) {
-  return (
-    <div className="relative">
-      <h2 className="text-xl font-bold mb-4">{title}</h2>
+  const { fileInputRef, handleUpload } = useFileUpload();
 
-      <Row>
+  const { handleImagePreview, imgPreview, getPreview } = useImagePreview();
+
+  let finalPreview = getPreview(title);
+
+  const content = getProfileAvatarContent({
+    onUpload: handleUpload,
+    onDelete: () => {},
+  });
+
+  return (
+    <>
+      <Row customRowClass="border-b-[1px] border-(--my-border-dark) pb-5">
         {/* Image preview and hidden input */}
-        <Column customColClass="col-span-2">
-          <ImagePreview preview={previewSrc} className={previewClass} />
-          <MediaInput registerName={registerName} inputRef={inputRef} />
+        <Column customColClass={previewColClass}>
+          <MediaInput
+            registerName={registerName}
+            ref={fileInputRef}
+            onChange={handleImagePreview}
+          />
+          <ImagePreview
+            preview={imgPreview || finalPreview}
+            customClass={previewClass}
+          />
         </Column>
 
         {/* Edit popup beside the preview */}
-        <Column customColClass="col-span-2 flex items-end">
+        <Column customColClass="col-span-1 flex items-end">
           <PopUp
             button={
               <Button
@@ -40,10 +57,10 @@ export default function UpdateMedia({
                 }
               />
             }
-            content={popupContent}
+            content={content}
           />
         </Column>
       </Row>
-    </div>
+    </>
   );
 }

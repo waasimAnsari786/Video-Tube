@@ -16,7 +16,6 @@ import AuthProtectedLayout from "./components/resuseable-components/AuthProtecte
 import Icon from "./components/resuseable-components/Icon";
 import HomePage from "./components/pages/HomePage";
 import ProfileSection from "./components/profile/ProfileSection";
-import UpdateProfileSection from "./components/profile/UpdateProfileSection";
 import NavbarEnd from "./components/Navbar/NavbarEnd";
 import Avatar from "./components/profile/Avatar";
 import CoverImage from "./components/profile/CoverImage";
@@ -42,7 +41,6 @@ import {
   getSidebarAvatarContent,
 } from "./data/PopUpData";
 import UpdateMedia from "./components/profile/profile reuseable components/UpdateMedia";
-import EditMediaButton from "./components/profile/profile reuseable components/EditMediaButton";
 import ImagePreview from "./components/profile/profile reuseable components/ImagePreview";
 import MediaInput from "./components/profile/profile reuseable components/MediaInput";
 import Row from "./components/resuseable-components/Row";
@@ -54,6 +52,8 @@ import SideBarAvatar from "./components/layout/layout reuseable components/SideB
 import useRoute from "./hooks/useRoute";
 import SidebarAvatarButton from "./components/layout/layout reuseable components/SidebarAvatarButton";
 import useFileUpload from "./hooks/useFileUpload";
+import useImagePreview from "./hooks/useImagePreview";
+import ProfileTitle from "./components/profile/profile reuseable components/ProfileTitle";
 
 export {
   FormButton,
@@ -75,7 +75,6 @@ export {
   ProfileSection,
   NavbarEnd,
   Avatar,
-  UpdateProfileSection,
   CoverImage,
   FullName,
   Email,
@@ -98,7 +97,6 @@ export {
   getProfileAvatarContent,
   getSidebarAvatarContent,
   UpdateMedia,
-  EditMediaButton,
   MediaInput,
   Row,
   Column,
@@ -109,4 +107,6 @@ export {
   useRoute,
   SidebarAvatarButton,
   useFileUpload,
+  useImagePreview,
+  ProfileTitle,
 };

@@ -9,7 +9,7 @@ import {
 
 // each function has written for returning the data of pop-up component
 
-// Return data of avatar's edit button's pop-up component in profile sectin or component
+// Return data of avatar's edit button's pop-up component in ProfileSectin.jsx
 const getProfileAvatarContent = ({ onUpload, onDelete }) => [
   {
     icon: <FaUpload />,
@@ -27,7 +27,6 @@ const getProfileAvatarContent = ({ onUpload, onDelete }) => [
 const getSidebarAvatarContent = ({
   profileRoute,
   channelRoute,
-  settingRoute,
   onLogout,
   handleRoute,
 }) => [
@@ -40,11 +39,6 @@ const getSidebarAvatarContent = ({
     icon: <FaYoutube />,
     text: "Channel",
     onClick: () => handleRoute(channelRoute),
-  },
-  {
-    icon: <FaCog />,
-    text: "Setting",
-    onClick: () => handleRoute(settingRoute),
   },
   {
     icon: <FaSignOutAlt />,
