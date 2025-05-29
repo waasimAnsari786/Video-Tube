@@ -54,6 +54,7 @@ import SidebarAvatarButton from "./components/layout/layout reuseable components
 import useFileUpload from "./hooks/useFileUpload";
 import useImagePreview from "./hooks/useImagePreview";
 import ProfileTitle from "./components/profile/profile reuseable components/ProfileTitle";
+import CustomModal from "./components/resuseable-components/CustomModal";
 
 export {
   FormButton,
@@ -109,4 +110,5 @@ export {
   useFileUpload,
   useImagePreview,
   ProfileTitle,
+  CustomModal,
 };
