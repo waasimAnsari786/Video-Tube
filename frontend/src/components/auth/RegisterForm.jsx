@@ -8,6 +8,8 @@ import {
   InputContainer,
   FormButton,
   Container,
+  PasswordInputContainer,
+  useToggle,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -49,7 +51,7 @@ const RegisterForm = () => {
         onSubmit={handleSubmit(handleRegister, (formErrors) =>
           showFormErrors(formErrors)
         )}
-        className="bg-white shadow-2xl rounded-xl p-10 text-center w-1/2"
+        className="bg-white shadow-2xl rounded-xl p-5 md:p-10 text-center w-full md:w-1/2"
       >
         <FormHeading title="Register" />
 
@@ -95,11 +97,8 @@ const RegisterForm = () => {
             })}
           />
           {/* Password Field */}
-          <InputContainer
-            type="password"
+          <PasswordInputContainer
             placeholder="Password"
-            icon={<FaLock />}
-            isPassword
             {...register("password", {
               required: "Password is required",
               pattern: {

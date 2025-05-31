@@ -55,6 +55,11 @@ import useFileUpload from "./hooks/useFileUpload";
 import useImagePreview from "./hooks/useImagePreview";
 import ProfileTitle from "./components/profile/profile reuseable components/ProfileTitle";
 import CustomModal from "./components/resuseable-components/CustomModal";
+import { ProfileMediaPopupContent } from "./classes/popupContent";
+import openCloseModal from "./utils/openModel";
+import { ProfileDeleteMediaModalContent } from "./classes/ModalContent.class";
+import PasswordInputContainer from "./components/auth/auth reuseable components/PasswordInputContainer";
+import Tabs from "./components/resuseable-components/Tabs";
 
 export {
   FormButton,
@@ -111,4 +116,9 @@ export {
   useImagePreview,
   ProfileTitle,
   CustomModal,
+  ProfileMediaPopupContent, //it's a class,
+  openCloseModal, //it's a utility func
+  ProfileDeleteMediaModalContent, //its a class
+  PasswordInputContainer,
+  Tabs,
 };

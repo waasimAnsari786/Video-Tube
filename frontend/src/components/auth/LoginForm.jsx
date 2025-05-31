@@ -49,7 +49,7 @@ const LoginForm = () => {
         onSubmit={handleSubmit(handleLogin, (formErrors) =>
           showFormErrors(formErrors)
         )}
-        className="bg-white shadow-2xl rounded-xl p-10 text-center w-1/2"
+        className="bg-white shadow-2xl rounded-xl p-5 md:p-10 text-center w-full md:w-1/2"
       >
         <FormHeading title="Login" />
         <div className="space-y-5 mb-5">

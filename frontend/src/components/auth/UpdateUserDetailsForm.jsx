@@ -67,7 +67,7 @@ const UpdateUserDetailsForm = () => {
         />
       </div>
 
-      <div className="text-center">
+      <div className="text-center mx-auto w-1/2 mt-5">
         <FormButton
           label={"Update Details"}
           loadingLabel="Updaitng Details..."

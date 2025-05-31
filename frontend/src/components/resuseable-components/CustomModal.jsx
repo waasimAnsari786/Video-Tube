@@ -1,40 +1,37 @@
 import React from "react";
 
-export default function CustomModal({
-  id = "custom_modal",
-  openBtnText = "Open Modal",
-  modalTitle = "Hello!",
-  children,
-  closeBtnText = "Close",
-}) {
-  const closeModal = () => {
-    document.getElementById(id)?.close();
-  };
+export default function CustomModal({ id = "custom_modal", modalContent }) {
+  const { title, body, cancelText, confirmText, onConfirm, onCancel } =
+    modalContent;
 
   return (
-    <>
-      {/* Optional open button (can be reused elsewhere) */}
-      {openBtnText && (
-        <button
-          className="btn"
-          onClick={() => document.getElementById(id)?.showModal()}
-        >
-          {openBtnText}
-        </button>
-      )}
+    <dialog id={id} className="modal modal-bottom sm:modal-middle">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg">{title}</h3>
 
-      <dialog id={id} className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">{modalTitle}</h3>
-          <div className="py-4">{children}</div>
-          <div className="modal-action">
-            {/* No nested <form> to avoid conflict */}
-            <button className="btn" onClick={closeModal}>
-              {closeBtnText}
-            </button>
-          </div>
+        <div className="py-4 text-sm">{body}</div>
+
+        <div className="modal-action">
+          <li
+            className="btn btn-outline btn-sm"
+            onClick={() => {
+              onCancel?.();
+              document.getElementById(id)?.close();
+            }}
+          >
+            {cancelText || "Cancel"}
+          </li>
+          <li
+            className="btn btn-error btn-sm"
+            onClick={() => {
+              onConfirm?.();
+              document.getElementById(id)?.close();
+            }}
+          >
+            {confirmText || "Confirm"}
+          </li>
         </div>
-      </dialog>
-    </>
+      </div>
+    </dialog>
   );
 }

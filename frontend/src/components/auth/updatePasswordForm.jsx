@@ -5,7 +5,11 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { updatePasswordThunk } from "../../features/authSlice";
 import showFormErrors from "../../utils/showFormError";
-import { InputContainer, FormButton } from "../../index";
+import {
+  InputContainer,
+  FormButton,
+  PasswordInputContainer,
+} from "../../index";
 import { useNavigate } from "react-router-dom";
 
 const UpdatePasswordForm = () => {
@@ -38,21 +42,15 @@ const UpdatePasswordForm = () => {
       )}
       className="bg-white shadow-2xl rounded-xl p-10 text-center"
     >
-      <div className="grid grid-cols-2 mb-2 gap-2">
-        <InputContainer
-          type="password"
+      <div className="grid grid-cols-3 mb-2 gap-2">
+        <PasswordInputContainer
           placeholder="Old Password"
-          icon={<FaLock />}
-          isPassword
           {...register("oldPassword", {
             required: "Old password is required",
           })}
         />
-        <InputContainer
-          type="password"
+        <PasswordInputContainer
           placeholder="New Password"
-          icon={<FaLock />}
-          isPassword
           {...register("newPassword", {
             required: "New password is required",
             pattern: {
@@ -63,12 +61,8 @@ const UpdatePasswordForm = () => {
             },
           })}
         />
-        <InputContainer
-          type="password"
+        <PasswordInputContainer
           placeholder="Confirm Password"
-          icon={<FaLock />}
-          isPassword
-          customClass={"col-span-2"}
           {...register("confirmPassword", {
             validate: (value) =>
               value === watch("newPassword") || "Passwords do not match",
@@ -76,10 +70,12 @@ const UpdatePasswordForm = () => {
         />
       </div>
 
-      <FormButton
-        label={"Update Password"}
-        loadingLabel="Updating Password..."
-      />
+      <div className="text-center mx-auto w-1/2 mt-5">
+        <FormButton
+          label={"Update Password"}
+          loadingLabel="Updating Password..."
+        />
+      </div>
     </form>
   );
 };
