@@ -7,8 +7,8 @@ import InputContainer from "./components/auth/auth reuseable components/InputCon
 import Logo from "./components/auth/auth reuseable components/Logo";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
-import UpdatePasswordForm from "./components/auth/UpdatePasswordForm";
-import UpdateUserDetailsForm from "./components/auth/UpdateUserDetailsForm";
+import UpdatePasswordForm from "./components/profile/updatePasswordForm";
+import UpdateUserDetailsForm from "./components/profile/UpdateUserDetailsForm";
 import Footer from "./components/layout/Footer";
 import Header from "./components/Header/Header";
 import MyWebLayout from "./components/layout/MyWebLayout";
@@ -22,7 +22,7 @@ import CoverImage from "./components/profile/CoverImage";
 import FullName from "./components/profile/FullName";
 import Email from "./components/profile/Email";
 import Username from "./components/profile/Username";
-import UpdateUserMediaForm from "./components/auth/UpdateUserMediaForm";
+import UpdateUserMediaForm from "./components/profile/UpdateUserMediaForm";
 import Container from "./components/resuseable-components/Container";
 import FileInputContainer from "./components/auth/auth reuseable components/FileInputContainer";
 import ChannelDetails from "./components/profile/ChannelDetails";
@@ -60,6 +60,7 @@ import openCloseModal from "./utils/openModel";
 import { ProfileDeleteMediaModalContent } from "./classes/ModalContent.class";
 import PasswordInputContainer from "./components/auth/auth reuseable components/PasswordInputContainer";
 import Tabs from "./components/resuseable-components/Tabs";
+import UpdateMediaForm from "./components/profile/UpdateMediaForm";
 
 export {
   FormButton,
@@ -121,4 +122,5 @@ export {
   ProfileDeleteMediaModalContent, //its a class
   PasswordInputContainer,
   Tabs,
+  UpdateMediaForm,
 };

@@ -14,7 +14,7 @@ export default function MyWebLayout() {
         </Container>
 
         {/* Page Content */}
-        <Container>
+        <Container childElemClass="pt-8">
           <Outlet />
         </Container>
       </div>

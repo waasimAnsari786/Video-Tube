@@ -1,5 +1,5 @@
 import React from "react";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
   Logo,

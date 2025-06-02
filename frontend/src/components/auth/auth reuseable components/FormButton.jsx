@@ -6,6 +6,7 @@ import "../css/auth.css";
 const FormButton = ({
   label = "Update",
   loadingLabel = "Updating...",
+  customClasss = "py-3 w-full rounded-lg",
   ...props
 }) => {
   const loading = useSelector((state) => state.auth.loading);
@@ -14,9 +15,9 @@ const FormButton = ({
     <button
       type="submit"
       disabled={loading}
-      className={`btn-liquid liquid flex items-center justify-center gap-2 py-3 rounded-lg text-sm w-full ${
+      className={`btn-liquid liquid flex items-center justify-center gap-2 text-sm ${
         loading ? "opacity-75 cursor-not-allowed" : ""
-      }`}
+      } ${customClasss}`}
       {...props}
     >
       {loading && <FaSpinner className="animate-spin" />}

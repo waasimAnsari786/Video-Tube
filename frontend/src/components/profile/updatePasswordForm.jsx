@@ -4,7 +4,13 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { updatePasswordThunk } from "../../features/authSlice";
 import showFormErrors from "../../utils/showFormError";
-import { PasswordInputContainer, Row, Column } from "../../index";
+import {
+  PasswordInputContainer,
+  Row,
+  Column,
+  FormButton,
+  ProfileTitle,
+} from "../../index";
 import { useNavigate } from "react-router-dom";
 
 const UpdatePasswordForm = () => {
@@ -37,6 +43,13 @@ const UpdatePasswordForm = () => {
       )}
     >
       <Row customRowClass="border-b-[1px] border-(--my-border-dark) pb-5">
+        <Column customColClass="flex justify-between items-center col-span-12">
+          <ProfileTitle title="Password" />
+          <FormButton
+            label="Update Password"
+            customClasss="sm:p-2 p-1.5 rounded-sm"
+          />
+        </Column>
         <Column customColClass={"md:col-span-4 col-span-12"}>
           <PasswordInputContainer
             placeholder="Old Password"

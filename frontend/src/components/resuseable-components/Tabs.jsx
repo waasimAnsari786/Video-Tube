@@ -7,7 +7,7 @@ export default function Tabs({ tabs = [], children }) {
     <>
       <div
         role="tablist"
-        className="tabs bg-(--my-border-light) tabs-lift text-(--my-blue) font-semibold gap-x-2 mb-6"
+        className="tabs bg-(--my-border-light) tabs-lift text-(--my-blue) font-semibold gap-x-2 mb-3"
       >
         {tabs.map((tab) => (
           <a

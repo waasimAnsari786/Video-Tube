@@ -29,36 +29,39 @@ export default function UpdateMedia({
 
   const modalIds = { avatar: "avatar-modal", cover: "cover-modal" };
 
-  const editAvatarPopupCotent = [
-    new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
-    new ProfileMediaPopupContent(<FaTrash />, "Delete Avatar", () => {
-      openCloseModal(modalIds[title], "open");
-    }),
-  ];
+  const editMediaPopupCotent = {
+    avatar: [
+      new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
+      new ProfileMediaPopupContent(<FaTrash />, "Delete Avatar", () => {
+        openCloseModal(modalIds[title], "open");
+      }),
+    ],
+    cover: [
+      new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
+      new ProfileMediaPopupContent(<FaTrash />, "Delete Cover Image", () => {
+        openCloseModal(modalIds[title], "open");
+      }),
+    ],
+  };
 
-  const editCoverPopupCotent = [
-    new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
-    new ProfileMediaPopupContent(<FaTrash />, "Delete Cover Image", () => {
-      openCloseModal(modalIds[title], "open");
+  const deleteMediaModalContent = {
+    avatar: new ProfileDeleteMediaModalContent({
+      id: modalIds[title],
+      body: "Are you sure to delete avatar?",
+      confirmText: "Delete",
+      onCancel: () => openCloseModal(modalIds[title], "close"),
+      onConfirm: () => openCloseModal(modalIds[title], "close"),
+      title: "Delete Avatar!",
     }),
-  ];
-
-  const deleteAvatarModalContent = new ProfileDeleteMediaModalContent({
-    id: modalIds[title],
-    body: "Are you sure to delete avatar?",
-    confirmText: "Delete",
-    onCancel: () => openCloseModal(modalIds[title], "close"),
-    onConfirm: () => openCloseModal(modalIds[title], "close"),
-    title: "Delete Avatar!",
-  });
-  const deleteCoverModalContent = new ProfileDeleteMediaModalContent({
-    id: modalIds[title],
-    body: "Are you sure to delete cover image?",
-    confirmText: "Delete",
-    onCancel: () => openCloseModal(modalIds[title], "close"),
-    onConfirm: () => openCloseModal(modalIds[title], "close"),
-    title: "Delete Cover Image!",
-  });
+    cover: new ProfileDeleteMediaModalContent({
+      id: modalIds[title],
+      body: "Are you sure to delete cover image?",
+      confirmText: "Delete",
+      onCancel: () => openCloseModal(modalIds[title], "close"),
+      onConfirm: () => openCloseModal(modalIds[title], "close"),
+      title: "Delete Cover Image!",
+    }),
+  };
 
   return (
     <>
@@ -87,10 +90,8 @@ export default function UpdateMedia({
                 }
               />
             }
-            content={
-              title === "avatar" ? editAvatarPopupCotent : editCoverPopupCotent
-            }
-            position="md:dropdown-top dropdown-top"
+            content={editMediaPopupCotent[title]}
+            position="top"
           />
         </Column>
       </Row>
@@ -98,11 +99,7 @@ export default function UpdateMedia({
       {/* Include modal once at bottom */}
       <CustomModal
         id={modalIds[title]}
-        modalContent={
-          title === "avatar"
-            ? deleteAvatarModalContent
-            : deleteCoverModalContent
-        }
+        modalContent={deleteMediaModalContent[title]}
       />
     </>
   );

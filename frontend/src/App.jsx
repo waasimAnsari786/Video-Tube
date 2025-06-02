@@ -54,9 +54,11 @@ const App = () => {
         {
           path: "/:channelName",
           element: (
-            <AuthProtectedLayout>
-              <ChannelDetails />
-            </AuthProtectedLayout>
+            <ChannelDetails />
+
+            // <AuthProtectedLayout>
+            //   <ChannelDetails />
+            // </AuthProtectedLayout>
           ),
         },
         {

@@ -1,7 +1,13 @@
 import React from "react";
 import { FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { InputContainer, Row, Column } from "../../index";
+import {
+  InputContainer,
+  Row,
+  Column,
+  FormButton,
+  ProfileTitle,
+} from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { updateUserDetailsThunk } from "../../features/authSlice";
@@ -45,6 +51,13 @@ const UpdateUserDetailsForm = () => {
       )}
     >
       <Row customRowClass="border-b-[1px] border-(--my-border-dark) pb-5">
+        <Column customColClass="flex justify-between items-center col-span-12">
+          <ProfileTitle title="Name & Email" />
+          <FormButton
+            label="Update Details"
+            customClasss="sm:p-2 p-1.5 rounded-sm"
+          />
+        </Column>
         <Column customColClass={"md:col-span-6 col-span-12"}>
           <InputContainer
             type="text"
