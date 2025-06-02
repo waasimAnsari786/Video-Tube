@@ -1,7 +1,7 @@
 import React from "react";
 import { FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { InputContainer, FormButton } from "../../index";
+import { InputContainer, Row, Column } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { updateUserDetailsThunk } from "../../features/authSlice";
@@ -43,36 +43,31 @@ const UpdateUserDetailsForm = () => {
       onSubmit={handleSubmit(handleUpdateDetails, (formErrors) =>
         showFormErrors(formErrors)
       )}
-      className="bg-white shadow-2xl rounded-xl p-5 sm:p-10"
     >
-      <div className="grid md:grid-cols-2 mb-2 gap-2">
-        <InputContainer
-          type="text"
-          placeholder="Full Name"
-          icon={<FaUser />}
-          {...register("fullName")}
-        />
-
-        <InputContainer
-          type="email"
-          placeholder="Email Address"
-          icon={<FaEnvelope />}
-          {...register("email", {
-            pattern: {
-              value:
-                /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
-              message: "Enter a valid email address",
-            },
-          })}
-        />
-      </div>
-
-      <div className="text-center mx-auto w-1/2 mt-5">
-        <FormButton
-          label={"Update Details"}
-          loadingLabel="Updaitng Details..."
-        />
-      </div>
+      <Row customRowClass="border-b-[1px] border-(--my-border-dark) pb-5">
+        <Column customColClass={"md:col-span-6 col-span-12"}>
+          <InputContainer
+            type="text"
+            placeholder="Full Name"
+            icon={<FaUser />}
+            {...register("fullName")}
+          />
+        </Column>
+        <Column customColClass={"md:col-span-6 col-span-12"}>
+          <InputContainer
+            type="email"
+            placeholder="Email Address"
+            icon={<FaEnvelope />}
+            {...register("email", {
+              pattern: {
+                value:
+                  /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
+                message: "Enter a valid email address",
+              },
+            })}
+          />
+        </Column>
+      </Row>
     </form>
   );
 };

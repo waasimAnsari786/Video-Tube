@@ -15,7 +15,7 @@ const InputContainer = ({
   placeholder,
   icon,
   customClass = "",
-  customInpClass = "py-4",
+  customInpClass = "py-3 sm:py-4",
   iconOnClick = undefined,
   ...props
 }) => {

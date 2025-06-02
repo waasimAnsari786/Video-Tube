@@ -8,6 +8,7 @@ import {
   InputContainer,
   FormButton,
   Container,
+  PasswordInputContainer,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -67,11 +68,8 @@ const LoginForm = () => {
             })}
           />
 
-          <InputContainer
-            type="password"
+          <PasswordInputContainer
             placeholder="Password"
-            isPassword
-            icon={<FaLock />}
             {...register("password", {
               required: "Password is required",
               pattern: {

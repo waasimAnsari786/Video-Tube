@@ -38,6 +38,10 @@ export default function SideBarAvatar() {
   });
 
   return (
-    <PopUp button={<SidebarAvatarButton />} content={content} position="top" />
+    <PopUp
+      button={<SidebarAvatarButton />}
+      content={content}
+      position="dropdown-top"
+    />
   );
 }

@@ -24,16 +24,16 @@ const ProfileSection = () => {
           <ProfileTitle title="Avatar" />
           <UpdateMedia
             title="avatar"
-            previewClass="rounded-xl h-30"
+            previewClass="rounded-xl h-25 sm:h-30"
             registerName={register("avatar")}
-            previewColClass="col-span-2"
+            previewColClass="md:col-span-2 sm:col-span-3 col-span-4"
           />
           <ProfileTitle title="Cover Image" />
           <UpdateMedia
             title="cover"
-            previewClass="rounded-xl h-40"
+            previewClass="rounded-xl sm:h-40 h-35"
             registerName={register("coverImage")}
-            previewColClass="col-span-4"
+            previewColClass="md:col-span-4 sm:col-span-6 col-span-12"
           />
         </div>
 

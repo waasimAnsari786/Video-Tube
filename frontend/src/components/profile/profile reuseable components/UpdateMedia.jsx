@@ -90,6 +90,7 @@ export default function UpdateMedia({
             content={
               title === "avatar" ? editAvatarPopupCotent : editCoverPopupCotent
             }
+            position="md:dropdown-top dropdown-top"
           />
         </Column>
       </Row>

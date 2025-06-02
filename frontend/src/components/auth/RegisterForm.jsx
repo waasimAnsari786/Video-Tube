@@ -9,7 +9,6 @@ import {
   FormButton,
   Container,
   PasswordInputContainer,
-  useToggle,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -35,7 +34,7 @@ const RegisterForm = () => {
   const handleRegister = async (data) => {
     const result = await dispatch(registerUserThunk(data));
     if (registerUserThunk.fulfilled.match(result)) {
-      toast.success("User registerede successfully");
+      toast.success("User registered successfully");
       navigate("/");
     } else {
       toast.error(result.payload || "Registration failed");
