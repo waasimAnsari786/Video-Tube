@@ -15,7 +15,9 @@ const InputContainer = ({
   placeholder,
   icon,
   customClass = "",
-  customInpClass = "py-3 sm:py-4",
+  customInpClass = "",
+  inpPadding = "py-3 sm:py-4",
+  inpMargin = "my-3",
   iconOnClick = undefined,
   ...props
 }) => {
@@ -27,6 +29,8 @@ const InputContainer = ({
       icon={icon}
       customClass={customClass}
       customInpClass={customInpClass}
+      padding={inpPadding}
+      margin={inpMargin}
       {...props}
     />
   );

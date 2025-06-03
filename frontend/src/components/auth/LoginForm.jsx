@@ -53,42 +53,40 @@ const LoginForm = () => {
         className="bg-white shadow-2xl rounded-xl p-5 md:p-10 text-center w-full md:w-1/2"
       >
         <FormHeading title="Login" />
-        <div className="space-y-5 mb-5">
-          <InputContainer
-            type="email"
-            placeholder="Email Address"
-            icon={<FaEnvelope />}
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value:
-                  /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
-                message: "Enter a valid email address",
-              },
-            })}
-          />
 
-          <PasswordInputContainer
-            placeholder="Password"
-            {...register("password", {
-              required: "Password is required",
-              pattern: {
-                value:
-                  /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
-                message:
-                  "Password must be at least 8 characters, contain uppercase, lowercase, digit, special character, and no repeating chars.",
-              },
-            })}
-          />
-        </div>
-        <div className="text-center">
-          <FormButton label="Sign In" loadingLabel="Signing in..." />
-          <FormText
-            text="Don't have an account?"
-            linkText="Register"
-            linkTo="/register"
-          />
-        </div>
+        <InputContainer
+          type="email"
+          placeholder="Email Address"
+          icon={<FaEnvelope />}
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value:
+                /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
+              message: "Enter a valid email address",
+            },
+          })}
+        />
+
+        <PasswordInputContainer
+          placeholder="Password"
+          {...register("password", {
+            required: "Password is required",
+            pattern: {
+              value:
+                /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
+              message:
+                "Password must be at least 8 characters, contain uppercase, lowercase, digit, special character, and no repeating chars.",
+            },
+          })}
+        />
+
+        <FormButton label="Sign In" loadingLabel="Signing in..." />
+        <FormText
+          text="Don't have an account?"
+          linkText="Register"
+          linkTo="/register"
+        />
       </form>
     </Container>
   );

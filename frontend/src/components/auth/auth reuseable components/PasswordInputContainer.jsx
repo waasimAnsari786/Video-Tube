@@ -5,8 +5,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 export default function PasswordInputContainer({
   placeholder,
   customClass = "",
-  customInpClass = "py-3 sm:py-4",
+  customInpClass = "",
   iconOnClick = undefined,
+  inpPadding = "py-3 sm:py-4",
+  inpMargin = "my-3",
   ...props
 }) {
   const { toggle, handleToggle } = useToggle();
@@ -19,6 +21,8 @@ export default function PasswordInputContainer({
       placeholder={placeholder}
       icon={!toggle ? <FaEye /> : <FaEyeSlash />}
       iconOnClick={handleToggle}
+      margin={inpMargin}
+      padding={inpPadding}
       {...props}
     />
   );

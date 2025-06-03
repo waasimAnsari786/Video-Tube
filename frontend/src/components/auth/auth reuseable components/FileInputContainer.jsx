@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FormInput, ImagePreview, Icon } from "../../../index";
+import { FormInput, ImagePreview } from "../../../index";
 import { FaFileImage } from "react-icons/fa";
 
 /**
@@ -30,10 +30,10 @@ const FileInputContainer = ({
   return (
     <>
       <div className={`relative ${customClass}`}>
-        <Icon
+        {/* <Icon
           icon={<FaFileImage />}
           className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400"
-        />
+        /> */}
         <FormInput
           type="file"
           {...props}

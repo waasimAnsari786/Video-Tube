@@ -54,70 +54,66 @@ const RegisterForm = () => {
       >
         <FormHeading title="Register" />
 
-        <div className="space-y-5 mb-5">
-          {/* fullname Field */}
-          <InputContainer
-            type="text"
-            placeholder="Full Name"
-            icon={<FaUser />}
-            {...register("fullName", {
-              required: "Full name is required",
-            })}
-          />
+        {/* fullname Field */}
+        <InputContainer
+          type="text"
+          placeholder="Full Name"
+          icon={<FaUser />}
+          {...register("fullName", {
+            required: "Full name is required",
+          })}
+        />
 
-          {/* Email Field */}
-          <InputContainer
-            type="email"
-            placeholder="Email Address"
-            icon={<FaEnvelope />}
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value:
-                  /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
-                message: "Enter a valid email address",
-              },
-            })}
-          />
+        {/* Email Field */}
+        <InputContainer
+          type="email"
+          placeholder="Email Address"
+          icon={<FaEnvelope />}
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value:
+                /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/,
+              message: "Enter a valid email address",
+            },
+          })}
+        />
 
-          {/* Username Field */}
-          <InputContainer
-            type="text"
-            placeholder="Username"
-            icon={<FaUser />}
-            {...register("userName", {
-              required: "Username is required",
-              pattern: {
-                value:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/,
-                message:
-                  "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
-              },
-            })}
-          />
-          {/* Password Field */}
-          <PasswordInputContainer
-            placeholder="Password"
-            {...register("password", {
-              required: "Password is required",
-              pattern: {
-                value:
-                  /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
-                message:
-                  "Password must be at least 8 characters, contain uppercase, lowercase, digit, special character, and no repeating chars.",
-              },
-            })}
-          />
-        </div>
+        {/* Username Field */}
+        <InputContainer
+          type="text"
+          placeholder="Username"
+          icon={<FaUser />}
+          {...register("userName", {
+            required: "Username is required",
+            pattern: {
+              value:
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/,
+              message:
+                "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
+            },
+          })}
+        />
+        {/* Password Field */}
+        <PasswordInputContainer
+          placeholder="Password"
+          {...register("password", {
+            required: "Password is required",
+            pattern: {
+              value:
+                /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/,
+              message:
+                "Password must be at least 8 characters, contain uppercase, lowercase, digit, special character, and no repeating chars.",
+            },
+          })}
+        />
 
-        <div className="text-center">
-          <FormButton label="Register" loadingLabel="Signing Up..." />
-          <FormText
-            text="Already have an account?"
-            linkText="Login"
-            linkTo="/login"
-          />
-        </div>
+        <FormButton label="Register" loadingLabel="Signing Up..." />
+        <FormText
+          text="Already have an account?"
+          linkText="Login"
+          linkTo="/login"
+        />
       </form>
     </Container>
   );

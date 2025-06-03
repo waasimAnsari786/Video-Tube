@@ -61,6 +61,7 @@ const UpdateUserDetailsForm = () => {
         <Column customColClass={"md:col-span-6 col-span-12"}>
           <InputContainer
             type="text"
+            inpMargin="my-0"
             placeholder="Full Name"
             icon={<FaUser />}
             {...register("fullName")}
@@ -69,6 +70,7 @@ const UpdateUserDetailsForm = () => {
         <Column customColClass={"md:col-span-6 col-span-12"}>
           <InputContainer
             type="email"
+            inpMargin="my-0"
             placeholder="Email Address"
             icon={<FaEnvelope />}
             {...register("email", {

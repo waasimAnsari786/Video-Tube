@@ -53,6 +53,7 @@ const UpdatePasswordForm = () => {
         <Column customColClass={"md:col-span-4 col-span-12"}>
           <PasswordInputContainer
             placeholder="Old Password"
+            inpMargin="my-0"
             {...register("oldPassword", {
               required: "Old password is required",
             })}
@@ -61,6 +62,7 @@ const UpdatePasswordForm = () => {
         <Column customColClass={"md:col-span-4 col-span-12"}>
           <PasswordInputContainer
             placeholder="New Password"
+            inpMargin="my-0"
             {...register("newPassword", {
               required: "New password is required",
               pattern: {
@@ -75,6 +77,7 @@ const UpdatePasswordForm = () => {
         <Column customColClass={"md:col-span-4 col-span-12"}>
           <PasswordInputContainer
             placeholder="Confirm Password"
+            inpMargin="my-0"
             {...register("confirmPassword", {
               validate: (value) =>
                 value === watch("newPassword") || "Passwords do not match",

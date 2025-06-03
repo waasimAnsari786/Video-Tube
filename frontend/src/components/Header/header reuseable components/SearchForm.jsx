@@ -14,6 +14,8 @@ export default function SearchForm({
         icon={icon}
         customInpClass="py-2"
         iconOnClick={iconOnClick}
+        inpPadding="py-0"
+        inpMargin="my-0"
       />
     </form>
   );

@@ -32,7 +32,7 @@ const CoverImage = ({ coverImage }) => {
     <img
       src={coverImage}
       alt="Banner"
-      className="w-full h-36 sm:h-44 md:h-56 lg:h-64 object-cover rounded-b-xl shadow-md"
+      className="w-full h-28 sm:h-32 md:h-44 lg:h-50 object-cover rounded-md sm:rounded-lg md:rounded-xl"
     />
   );
 };
