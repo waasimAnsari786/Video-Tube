@@ -23,7 +23,7 @@ export default function Header() {
         //First Row (default)
         <Row customRowClass="py-3">
           <Column customColClass="col-span-12 flex justify-between items-center">
-            <div className="flex lg:w-[15%] md:w-[30%] sm:w-[40%] w-[50%] items-center">
+            <div className="flex lg:w-[15%] md:w-[30%] sm:w-[40%] w-[50%] items-center gap-3">
               <SidebarToggle />
               <Logo src={"/images/logo.png"} />
             </div>
@@ -43,7 +43,7 @@ export default function Header() {
       ) : (
         // Second Row (Search visible on small screens)
         <Row customRowClass="py-3">
-          <Column customColClass="sm:col-span-1 col-span-2">
+          <Column customColClass="sm:col-span-1 col-span-2 flex items-center">
             <SidebarToggle />
           </Column>
           <Column customColClass="sm:col-span-11 col-span-10">

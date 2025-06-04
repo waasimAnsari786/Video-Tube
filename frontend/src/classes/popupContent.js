@@ -1,4 +1,4 @@
-class ProfileMediaPopupContent {
+class PopupContent {
   constructor(icon, text, onClick) {
     this.icon = icon; // This can be a JSX element like <FaUpload />
     this.text = text;
@@ -6,4 +6,4 @@ class ProfileMediaPopupContent {
   }
 }
 
-export { ProfileMediaPopupContent };
+export { PopupContent };

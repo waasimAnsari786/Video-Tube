@@ -28,10 +28,6 @@ import UpdateVideoPage from "./components/pages/UpdateVideoPage";
 import VideoCard from "./components/video/VideoCard";
 import Button from "./components/resuseable-components/Button";
 import PopUp from "./components/resuseable-components/PopUp";
-import {
-  getProfileAvatarContent,
-  getSidebarAvatarContent,
-} from "./data/PopUpData";
 import UpdateMedia from "./components/profile/profile reuseable components/UpdateMedia";
 import ImagePreview from "./components/profile/profile reuseable components/ImagePreview";
 import MediaInput from "./components/profile/profile reuseable components/MediaInput";
@@ -47,9 +43,9 @@ import useFileUpload from "./hooks/useFileUpload";
 import useImagePreview from "./hooks/useImagePreview";
 import ProfileTitle from "./components/profile/profile reuseable components/ProfileTitle";
 import CustomModal from "./components/resuseable-components/CustomModal";
-import { ProfileMediaPopupContent } from "./classes/popupContent";
+import { PopupContent } from "./classes/popupContent";
 import openCloseModal from "./utils/openModel";
-import { ProfileDeleteMediaModalContent } from "./classes/ModalContent.class";
+import { ModalContent } from "./classes/modalContent.class";
 import PasswordInputContainer from "./components/auth/auth reuseable components/PasswordInputContainer";
 import Tabs from "./components/resuseable-components/Tabs";
 import UpdateMediaForm from "./components/profile/UpdateMediaForm";
@@ -85,8 +81,6 @@ export {
   VideoCard,
   Button,
   PopUp,
-  getProfileAvatarContent,
-  getSidebarAvatarContent,
   UpdateMedia,
   MediaInput,
   Row,
@@ -101,9 +95,9 @@ export {
   useImagePreview,
   ProfileTitle,
   CustomModal,
-  ProfileMediaPopupContent, //it's a class,
+  PopupContent, //it's a class,
   openCloseModal, //it's a utility func
-  ProfileDeleteMediaModalContent, //its a class
+  ModalContent, //its a class
   PasswordInputContainer,
   Tabs,
   UpdateMediaForm,

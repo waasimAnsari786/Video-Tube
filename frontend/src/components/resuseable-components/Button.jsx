@@ -1,9 +1,16 @@
 import React from "react";
 
-export default function Button({ btnText = "", customClass = "", ...props }) {
+export default function Button({
+  btnText = "",
+  customClass = "",
+  padding = "px-2 py-1",
+  margin = "",
+  borderRadius = "rounded-sm",
+  ...props
+}) {
   return (
     <button
-      className={`btn-liquid liquid px-2 py-1 rounded-sm text-sm flex items-center gap-1 ${customClass}`}
+      className={`btn-liquid liquid text-sm ${borderRadius} ${padding} ${margin} ${customClass} flex items-center gap-1 justify-center`}
       {...props}
     >
       {btnText}

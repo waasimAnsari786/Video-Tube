@@ -1,13 +1,14 @@
 import React from "react";
 import {
   PopUp,
+  PopupContent,
   SidebarAvatarButton,
-  getSidebarAvatarContent,
   useRoute,
 } from "../../../index";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutThunk } from "../../../features/authSlice";
 import { toast } from "react-toastify";
+import { FaSignOutAlt, FaUser, FaYoutube } from "react-icons/fa";
 
 export default function SideBarAvatar() {
   const userName = useSelector((state) => state.auth.userName);
@@ -30,14 +31,19 @@ export default function SideBarAvatar() {
     }
   };
 
-  const content = getSidebarAvatarContent({
-    profileRoute: "/profile",
-    channelRoute: `/${userName || "waasim"}`,
-    onLogout: handleLogout,
-    handleRoute,
-  });
+  const sidebarAvatarPopupContent = [
+    new PopupContent(<FaUser />, "Profile", () => handleRoute("/profile")),
+    new PopupContent(<FaYoutube />, "Channel", () =>
+      handleRoute(`/${userName || "waasim"}`)
+    ),
+    new PopupContent(<FaSignOutAlt />, "Logout", () => handleLogout),
+  ];
 
   return (
-    <PopUp button={<SidebarAvatarButton />} content={content} position="top" />
+    <PopUp
+      button={<SidebarAvatarButton />}
+      content={sidebarAvatarPopupContent}
+      position="top"
+    />
   );
 }

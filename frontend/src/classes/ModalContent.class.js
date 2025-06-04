@@ -1,4 +1,4 @@
-class ProfileDeleteMediaModalContent {
+class ModalContent {
   constructor({
     id = "custom_modal",
     title = "Default Title",
@@ -18,4 +18,4 @@ class ProfileDeleteMediaModalContent {
   }
 }
 
-export { ProfileDeleteMediaModalContent };
+export { ModalContent };

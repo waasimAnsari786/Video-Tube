@@ -1,0 +1,49 @@
+@media (min-width: 768px) and (max-width: 1024px) {
+  .profile-avatar {
+    width: 160px;
+  }
+  .profile-user-info {
+    width: 360px;
+    margin-left: 2rem !important;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1090px) {
+  .profile-avatar {
+    width: 160px;
+  }
+  .profile-user-info {
+    width: 360px;
+    margin-left: 3rem !important;
+  }
+}
+
+@media (min-width: 1090px) and (max-width: 1170px) {
+  .profile-avatar {
+    width: 160px;
+  }
+  .profile-user-info {
+    width: 360px;
+    margin-left: 2rem !important;
+  }
+}
+
+@media (min-width: 1170px) and (max-width: 1280px) {
+  .profile-avatar {
+    width: 160px;
+  }
+  .profile-user-info {
+    width: 360px;
+    margin-left: 1rem;
+  }
+}
+
+@media (min-width: 440px) {
+  .sm_profile_user_info {
+    display: none;
+  }
+}
+@media (max-width: 440px) {
+  .lg_profile_user_info {
+    display: none;
+  }
+}

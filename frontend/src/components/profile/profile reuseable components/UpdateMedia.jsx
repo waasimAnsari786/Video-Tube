@@ -9,9 +9,9 @@ import {
   useFileUpload,
   useImagePreview,
   CustomModal,
-  ProfileMediaPopupContent,
+  PopupContent,
   openCloseModal,
-  ProfileDeleteMediaModalContent,
+  ModalContent,
 } from "../../../index";
 import { FaEdit, FaTrash, FaUpload } from "react-icons/fa";
 
@@ -31,21 +31,21 @@ export default function UpdateMedia({
 
   const editMediaPopupCotent = {
     avatar: [
-      new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
-      new ProfileMediaPopupContent(<FaTrash />, "Delete Avatar", () => {
+      new PopupContent(<FaUpload />, "Upload new", handleUpload),
+      new PopupContent(<FaTrash />, "Delete Avatar", () => {
         openCloseModal(modalIds[title], "open");
       }),
     ],
     cover: [
-      new ProfileMediaPopupContent(<FaUpload />, "Upload new", handleUpload),
-      new ProfileMediaPopupContent(<FaTrash />, "Delete Cover Image", () => {
+      new PopupContent(<FaUpload />, "Upload new", handleUpload),
+      new PopupContent(<FaTrash />, "Delete Cover Image", () => {
         openCloseModal(modalIds[title], "open");
       }),
     ],
   };
 
   const deleteMediaModalContent = {
-    avatar: new ProfileDeleteMediaModalContent({
+    avatar: new ModalContent({
       id: modalIds[title],
       body: "Are you sure to delete avatar?",
       confirmText: "Delete",
@@ -53,7 +53,7 @@ export default function UpdateMedia({
       onConfirm: () => openCloseModal(modalIds[title], "close"),
       title: "Delete Avatar!",
     }),
-    cover: new ProfileDeleteMediaModalContent({
+    cover: new ModalContent({
       id: modalIds[title],
       body: "Are you sure to delete cover image?",
       confirmText: "Delete",

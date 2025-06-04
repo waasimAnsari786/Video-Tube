@@ -2,10 +2,7 @@ import React from "react";
 
 export default function SidebarToggle() {
   return (
-    <label
-      htmlFor="main-drawer"
-      className="btn btn-ghost drawer-button lg:hidden"
-    >
+    <label htmlFor="main-drawer" className="drawer-button lg:hidden">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-5 w-5"

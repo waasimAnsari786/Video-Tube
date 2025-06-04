@@ -1,78 +1,69 @@
 import React from "react";
+import { FaPlay } from "react-icons/fa";
 
 const VideoCard = ({ videoData }) => {
-  const { thumbnail, title, video, duration, views, description, owner } =
-    videoData;
+  const {
+    thumbnail = "https://marketplace.canva.com/EAFSv6o6beQ/2/0/1600w/canva-red-bold-finance-youtube-thumbnail-vGSnQGShz3c.jpg",
+    title = "The Great Adventure",
+    video = "https://example.com/video.mp4",
+    duration = "2h 13m",
+    views = "1.2M views",
+    description = "An epic journey of courage and discovery that spans galaxies and tests the strength of friendship.",
+    uploaderAvatar = "https://via.placeholder.com/40x40.png?text=U",
+    channelName = "Adventure Time",
+    uploadedDate = "3 days ago",
+  } = videoData || {};
 
   return (
-    <div className="max-w-md mx-auto group shadow-md hover:shadow-2xl transition-shadow duration-300 rounded overflow-hidden">
+    <div className="group overflow-hidden rounded-lg bg-black text-white max-w-sm relative">
       {/* Thumbnail */}
-      <div className="relative w-full h-64 overflow-hidden">
+      <div className="relative h-64 overflow-hidden p-4">
         <img
           src={thumbnail}
           alt="Video Thumbnail"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+
+        {/* Duration */}
+        <span className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+          {duration}
+        </span>
+
         {/* Play Button */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <img
-            src="/images/play.png"
-            alt="Play"
-            className="w-16 h-16 transform scale-75 group-hover:scale-100 transition-transform duration-300"
-          />
+          <div className="bg-[--my-blue] w-16 h-16 flex items-center justify-center rounded-full">
+            <FaPlay className="text-white text-xl" />
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="bg-black text-white p-4 transition-shadow duration-300 shadow-md group-hover:shadow-lg group-hover:shadow-black">
-        {/* Title & Rating */}
-        <div className="mb-2">
-          <span className="inline-block bg-yellow-600 text-xs px-2 py-1 rounded mr-2">
-            IMDb {rating}
-          </span>
-          <h2 className="text-xl font-semibold leading-tight mt-2">{title}</h2>
-          <span className="text-sm font-bold uppercase text-gray-300">
-            {season}
-          </span>
+      {/* Uploader Info */}
+      <h2 className="text-lg font-semibold px-4 my-3 leading-tight">{title}</h2>
+      <div className="flex items-center px-4">
+        <img
+          src={uploaderAvatar}
+          alt="Avatar"
+          className="w-9 h-9 rounded-full mr-3"
+        />
+        <div>
+          <p className="text-sm font-semibold">{channelName}</p>
+          <p className="text-xs text-gray-400">
+            {views} • {uploadedDate}
+          </p>
         </div>
 
-        {/* Description */}
-        <p className="text-sm mt-2 text-gray-300">{description}</p>
+        {/* Slide-Up Section */}
+      </div>
+      <div className="translate-y-full absolute bottom-0 group-hover:translate-y-0 transition-all duration-300 ease-in-out p-4">
+        <p className="text-sm text-gray-300">{description}</p>
 
-        {/* Uploader Info */}
-        <div className="flex items-center mt-4">
-          <img
-            src={uploaderAvatar}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full mr-3"
-          />
-          <div>
-            <p className="text-sm font-semibold">{channelName}</p>
-            <p className="text-xs text-gray-400">{uploaderName}</p>
-          </div>
-        </div>
-
-        {/* Metadata */}
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-300">
-          <span className="bg-gray-700 px-2 py-1 rounded font-bold">
-            {year}
-          </span>
-          <span className="bg-gray-700 px-2 py-1 rounded font-bold">
-            {ageLimit}
-          </span>
-          <span className="bg-gray-700 px-2 py-1 rounded">{duration}</span>
-        </div>
-
-        {/* Watch Now Button */}
         <a
-          href="#"
+          href={video}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center mt-4 text-sm font-medium text-white hover:underline"
         >
-          <img
-            src="/images/play.png"
-            alt="play icon"
-            className="w-4 h-4 mr-2"
-          />
+          <FaPlay className="w-4 h-4 mr-2" />
           Watch now
         </a>
       </div>

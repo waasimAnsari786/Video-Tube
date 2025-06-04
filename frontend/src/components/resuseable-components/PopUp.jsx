@@ -9,7 +9,7 @@ export default function PopUp({ button, content = [], position = "start" }) {
 
       <ul
         tabIndex={0}
-        className="menu menu-md dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-xl my-border-light"
+        className="menu menu-md dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow-xl my-border-light my-2"
       >
         {content.map((item, index) => (
           <li
