@@ -1,7 +1,6 @@
 import React from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import "../css/auth.css";
 
 const FormButton = ({
   label = "Update",

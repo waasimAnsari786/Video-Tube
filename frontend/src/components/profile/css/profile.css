@@ -1,38 +1,35 @@
-@media (min-width: 768px) and (max-width: 1024px) {
+/* Shared avatar and user info width for medium to large screens */
+@media (min-width: 768px) and (max-width: 1280px) {
   .profile-avatar {
     width: 160px;
   }
+
   .profile-user-info {
     width: 360px;
+  }
+}
+
+/* Adjusting only margin-left based on sub-ranges */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .profile-user-info {
     margin-left: 2rem !important;
   }
 }
+
 @media (min-width: 1024px) and (max-width: 1090px) {
-  .profile-avatar {
-    width: 160px;
-  }
   .profile-user-info {
-    width: 360px;
     margin-left: 3rem !important;
   }
 }
 
 @media (min-width: 1090px) and (max-width: 1170px) {
-  .profile-avatar {
-    width: 160px;
-  }
   .profile-user-info {
-    width: 360px;
     margin-left: 2rem !important;
   }
 }
 
 @media (min-width: 1170px) and (max-width: 1280px) {
-  .profile-avatar {
-    width: 160px;
-  }
   .profile-user-info {
-    width: 360px;
     margin-left: 1rem;
   }
 }

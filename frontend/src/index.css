@@ -6,18 +6,28 @@
 @layer theme {
   :root {
     --my-blue: oklch(37.84% 0.125 278.61);
+    --my-blue-transparent: color-mix(in oklch, var(--my-blue) 10%, transparent);
     --my-font: "Montserrat", sans-serif;
     --my-white: oklch(100% 0 0);
     --my-border-dark: oklch(0.857 0.006 255); /* for #d1d5dc */
     --my-border-light: oklch(0.922 0.009 259); /* for gray-200 */
+    --hover-text: white;
   }
+}
+
+@theme {
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 100rem;
+  --breakpoint-3xl: 120rem;
 }
 
 :root {
   --my-blue: #132977;
+  --my-blue-transparent: rgba(19, 41, 119, 0.1);
   --my-font: "Montserrat", sans-serif;
   --my-border-dark: #d1d5dc;
   --my-border-light: #e5e7eb;
+  --hover-text: white;
 }
 
 * {
@@ -38,4 +48,29 @@
 
 .my-border-light {
   border: 1px solid var(--my-border-light);
+}
+
+/* Liquid Button Custom Styles */
+.btn-liquid {
+  position: relative;
+  font-weight: 600;
+  color: var(--my-blue);
+  background: none;
+  border: 2px solid var(--my-blue);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-liquid.liquid {
+  background: linear-gradient(var(--my-blue) 0 0) no-repeat
+    calc(200% - var(--p, 0%)) 100% / 200% var(--p, 0.2em);
+  transition: 0.3s var(--t, 0s),
+    background-position 0.3s calc(0.3s - var(--t, 0s));
+}
+
+.btn-liquid.liquid:hover {
+  --p: 100%;
+  --t: 0.3s;
+  color: var(--hover-text, white);
 }
