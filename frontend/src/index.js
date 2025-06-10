@@ -49,6 +49,7 @@ import { ModalContent } from "./classes/modalContent.class";
 import PasswordInputContainer from "./components/auth/auth reuseable components/PasswordInputContainer";
 import Tabs from "./components/resuseable-components/Tabs";
 import UpdateMediaForm from "./components/profile/UpdateMediaForm";
+import PlaylistCard from "./components/playlist/PlaylistCard";
 
 export {
   FormButton,
@@ -86,13 +87,13 @@ export {
   Row,
   Column,
   SearchForm,
-  useToggle,
+  useToggle, //it's a custom hook
   SidebarToggle,
   SideBarAvatar,
-  useRoute,
+  useRoute, //it's a custom hook
   SidebarAvatarButton,
-  useFileUpload,
-  useImagePreview,
+  useFileUpload, //it's a custom hook
+  useImagePreview, //it's a custom hook
   ProfileTitle,
   CustomModal,
   PopupContent, //it's a class,
@@ -101,4 +102,5 @@ export {
   PasswordInputContainer,
   Tabs,
   UpdateMediaForm,
+  PlaylistCard,
 };

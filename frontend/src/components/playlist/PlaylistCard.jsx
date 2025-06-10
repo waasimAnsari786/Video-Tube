@@ -2,36 +2,36 @@ import React from "react";
 import { FaPlay } from "react-icons/fa";
 import Button from "../resuseable-components/Button";
 
-const VideoCard = ({ videoData }) => {
+const PlaylistCard = ({ playlistData }) => {
   const {
     thumbnail = "https://marketplace.canva.com/EAFSv6o6beQ/2/0/1600w/canva-red-bold-finance-youtube-thumbnail-vGSnQGShz3c.jpg",
-    title = "The Great Adventure The Great Adventure The Great Adventure",
-    video = "https://example.com/video.mp4",
-    duration = "2h 13m",
-    views = "1.2M views",
-    description = "An epic journey of courage and discovery that spans galaxies and tests the strength of friendship.",
+    title = "Ultimate Coding Playlist for Beginners",
+    videoCount = "12 videos",
     uploaderAvatar = "https://plus.unsplash.com/premium_photo-1689539137236-b68e436248de?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWFuJTIwYXZhdGFyfGVufDB8fDB8fHww",
-    channelName = "Adventure Time",
-    uploadedDate = "3 days ago",
-  } = videoData || {};
+    channelName = "CodeWithDev",
+    uploadedDate = "1 week ago",
+    description = "A complete playlist to learn web development from scratch with hands-on projects.",
+  } = playlistData || {};
 
   return (
     <div className="group overflow-hidden rounded-xl relative bg-[var(--my-blue-transparent)] border border-[var(--my-blue)] p-3 transition-transform">
-      {/* Thumbnail */}
-      <div className="relative overflow-hidden aspect-video rounded-lg">
-        <img
-          src={thumbnail}
-          alt="Video Thumbnail"
-          className="w-full object-cover transition-transform duration-300 lg:group-hover:scale-105"
-        />
+      {/* Playlist Thumbnail with stacked effect */}
+      <div className="relative aspect-video rounded-lg">
+        {/* Stacked thumbnails */}
+        <div className="absolute -top-2 left-1.5 w-[95%] h-full bg-gray-300 rounded-xl z-0"></div>
+        <div className="absolute -top-1 left-1 w-[97%] h-full bg-gray-400 rounded-lg z-0"></div>
 
-        {/* Duration */}
-        <span className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-          {duration}
-        </span>
+        {/* Main Thumbnail */}
+        <div className="overflow-hidden rounded-lg z-0">
+          <img
+            src={thumbnail}
+            alt="Playlist Thumbnail"
+            className="relative w-full h-full object-cover rounded-lg transition-transform duration-300 lg:group-hover:scale-105"
+          />
+        </div>
       </div>
 
-      {/* Video Details */}
+      {/* Playlist Details */}
       <div className="text-[var(--my-blue)] py-3">
         <h2
           className="text-md font-bold leading-tight mb-2 line-clamp-2"
@@ -49,13 +49,13 @@ const VideoCard = ({ videoData }) => {
           <div>
             <p className="text-sm font-bold">{channelName}</p>
             <p className="text-xs font-semibold text-gray-600">
-              {views} • {uploadedDate}
+              {videoCount} • {uploadedDate}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Hover slide-up content (only on lg and above) */}
+      {/* Hover slide-up content (only lg and up) */}
       <div className="hidden lg:block absolute left-0 right-0 bottom-0 bg-[var(--my-blue)] translate-y-full group-hover:translate-y-1 transition-transform duration-300 ease-in-out px-4 py-3 h-34">
         <p className="text-sm text-gray-300 line-clamp-2">{description}</p>
 
@@ -75,7 +75,7 @@ const VideoCard = ({ videoData }) => {
         />
       </div>
 
-      {/* Static content for small screens (below lg) */}
+      {/* Static button on medium and small screens */}
       <div className="block lg:hidden mt-3">
         <Button
           btnText={
@@ -93,4 +93,4 @@ const VideoCard = ({ videoData }) => {
   );
 };
 
-export default VideoCard;
+export default PlaylistCard;

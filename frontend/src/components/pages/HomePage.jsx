@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllVideosThunk } from "../../features/videoSlice";
-import { Column, Row, VideoCard } from "../../index";
+import { Column, PlaylistCard, Row, VideoCard } from "../../index";
 
 export default function HomePage() {
   const dispatch = useDispatch();
@@ -43,38 +43,19 @@ export default function HomePage() {
   return (
     <>
       <Row>
-        <Column customColClass="col-span-12 lg:col-span-4">
+        <Column customColClass="col-span-12 sm570:col-span-6 lg:col-span-4">
+          <VideoCard />
+        </Column>
+        <Column customColClass="col-span-12 sm570:col-span-6 lg:col-span-4">
           <VideoCard />
         </Column>
         <Column customColClass="col-span-12 sm570:col-span-6 lg:col-span-4">
           <VideoCard />
         </Column>
         <Column customColClass="col-span-12 sm570:col-span-6 lg:col-span-4">
-          <VideoCard />
+          <PlaylistCard />
         </Column>
       </Row>
-
-      <div className="grid xs:grid-cols-4 3xl:grid-cols-6 gap-6">
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-        <div className="bg-red-500 p-6"></div>
-      </div>
     </>
-    // <Row>
-    //   <Column customColClass="lg:col-span-4 sm:col-span-6 col-span-6">
-    //     <VideoCard />
-    //   </Column>
-    //   <Column customColClass="lg:col-span-4 sm:col-span-6 col-span-6">
-    //     <VideoCard />
-    //   </Column>
-    //   <Column customColClass="lg:col-span-4 sm:col-span-6 col-span-6">
-    //     <VideoCard />
-    //   </Column>
-    // </Row>
   );
 }
