@@ -9,6 +9,7 @@ import {
   ChannelDetails,
   UploadVideoPage,
   UpdateVideoPage,
+  WatchPage,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,21 +45,21 @@ const App = () => {
         {
           path: "/profile",
           element: (
-            // <AuthProtectedLayout>
-            //   <ProfileSection />
-            // </AuthProtectedLayout>
+            <AuthProtectedLayout>
+              <ProfileSection />
+            </AuthProtectedLayout>
 
-            <ProfileSection />
+            // <ProfileSection />
           ),
         },
         {
           path: "/:channelName",
           element: (
-            <ChannelDetails />
+            // <ChannelDetails />
 
-            // <AuthProtectedLayout>
-            //   <ChannelDetails />
-            // </AuthProtectedLayout>
+            <AuthProtectedLayout>
+              <ChannelDetails />
+            </AuthProtectedLayout>
           ),
         },
         {
@@ -79,6 +80,7 @@ const App = () => {
         },
       ],
     },
+    { path: "/single", element: <WatchPage /> },
   ]);
 
   return (

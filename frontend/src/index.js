@@ -50,6 +50,10 @@ import PasswordInputContainer from "./components/auth/auth reuseable components/
 import Tabs from "./components/resuseable-components/Tabs";
 import UpdateMediaForm from "./components/profile/UpdateMediaForm";
 import PlaylistCard from "./components/playlist/PlaylistCard";
+import SingleVideoLayout from "./components/layout/single video layout/SingleVideoLayout";
+import RecommendedVideosSidebar from "./components/layout/single video layout/RecommendedVideoSidebar";
+import WatchPage from "./components/layout/single video layout/WatchPage";
+import RecommendedVideoCard from "./components/layout/single video layout/RecommendedVideoCard";
 
 export {
   FormButton,
@@ -103,4 +107,8 @@ export {
   Tabs,
   UpdateMediaForm,
   PlaylistCard,
+  SingleVideoLayout,
+  RecommendedVideosSidebar,
+  WatchPage,
+  RecommendedVideoCard,
 };
