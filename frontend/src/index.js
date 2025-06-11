@@ -54,6 +54,7 @@ import SingleVideoLayout from "./components/layout/single video layout/SingleVid
 import RecommendedVideosSidebar from "./components/layout/single video layout/RecommendedVideoSidebar";
 import WatchPage from "./components/layout/single video layout/WatchPage";
 import RecommendedVideoCard from "./components/layout/single video layout/RecommendedVideoCard";
+import CommentSection from "./components/layout/single video layout/CommentSection";
 
 export {
   FormButton,
@@ -111,4 +112,5 @@ export {
   RecommendedVideosSidebar,
   WatchPage,
   RecommendedVideoCard,
+  CommentSection,
 };

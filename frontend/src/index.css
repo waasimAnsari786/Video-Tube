@@ -32,6 +32,11 @@
   font-family: var(--my-font);
 }
 
+*::selection {
+  background-color: var(--my-blue);
+  color: white;
+}
+
 .my-custom-bg {
   background-color: var(--my-blue);
 }

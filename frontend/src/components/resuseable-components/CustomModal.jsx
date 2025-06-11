@@ -5,7 +5,13 @@ export default function CustomModal({ id = "custom_modal", modalContent }) {
     modalContent;
 
   return (
-    <dialog id={id} className="modal modal-bottom sm:modal-middle">
+    <dialog
+      id={id}
+      className="modal modal-bottom sm:modal-middle"
+      onClick={() => {
+        document.getElementById(id)?.close();
+      }}
+    >
       <div className="modal-box">
         <h3 className="font-bold text-lg">{title}</h3>
 

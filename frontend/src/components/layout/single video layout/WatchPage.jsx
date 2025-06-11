@@ -3,6 +3,7 @@ import {
   SingleVideoLayout,
   RecommendedVideosSidebar,
   Container,
+  CommentSection,
 } from "../../../index";
 
 const WatchPage = () => {
@@ -45,6 +46,7 @@ const WatchPage = () => {
     <Container childElemClass="flex flex-col lg:flex-row gap-2 pt-2">
       <div>
         <SingleVideoLayout videoData={mainVideoData} />
+        <CommentSection />
       </div>
 
       <RecommendedVideosSidebar videos={recommendedVideos} />

@@ -1,30 +1,62 @@
 import React from "react";
+import { Button } from "../../../index"; // adjust path if needed
+import { FaPlay } from "react-icons/fa";
 
 const RecommendedVideoCard = ({ video }) => {
+  const {
+    thumbnail = "https://img.youtube.com/vi/w7ejDZ8SWv8/hqdefault.jpg",
+    title = "React Crash Course for Beginners | Build a YouTube Clone",
+    channelName = "Codevolution",
+    views = "1.3M views",
+    uploadedDate = "4 days ago",
+  } = video || {};
+
   return (
-    <div className="flex gap-2 mb-4 cursor-pointer hover:bg-gray-100 rounded-lg">
+    <div className="flex lg:flex-row flex-col gap-2 group cursor-pointer p-2 rounded-xl bg-[var(--my-blue-transparent)] border border-[var(--my-blue)] transition-transform">
       {/* Thumbnail */}
-      <div className="relative w-40 h-24 flex-shrink-0">
+      <div className="w-full lg:w-40 overflow-hidden rounded-lg">
         <img
-          src={video.thumbnail}
-          alt={video.title}
-          className="w-full h-full object-cover rounded-lg"
+          src={thumbnail}
+          alt="video thumbnail"
+          className="aspect-video object-cover w-full group-hover:scale-105 transition-transform duration-300"
         />
-        <span className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
-          {video.duration}
-        </span>
       </div>
 
-      {/* Video Details */}
-      <div className="flex flex-col flex-grow">
-        <h3 className="font-medium text-sm line-clamp-2">{video.title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">
-          {video.channelName}
-        </p>
-        <div className="flex items-center text-gray-600 dark:text-gray-400 text-xs">
-          <span>{video.views}</span>
-          <span className="mx-1">•</span>
-          <span>{video.uploadedDate}</span>
+      {/* Details */}
+      <div className="flex flex-col justify-start">
+        <h3 className="lg:text-sm text-md lg:font-semibold font-bold leading-snug line-clamp-2 text-[var(--my-blue)]">
+          {title}
+        </h3>
+
+        {/* Combined Channel Info on small screens */}
+        <div className="text-xs text-gray-600 font-medium mt-1 lg:hidden">
+          {channelName} • {views} • {uploadedDate}
+        </div>
+
+        {/* Split Channel Info on md+ screens */}
+        <div className="hidden lg:block">
+          <span className="text-xs text-gray-600 font-medium">
+            {channelName}
+          </span>
+          <p className="text-xs text-gray-500 font-semibold">
+            {views} • {uploadedDate}
+          </p>
+        </div>
+
+        {/* Watch Now Button - only on md and below */}
+        <div className="block lg:hidden mt-3">
+          <Button
+            btnText={
+              <>
+                <FaPlay className="w-4 h-4 mr-2" />
+                Watch now
+              </>
+            }
+            customClass="w-full"
+            margin="mt-2"
+            borderRadius="rounded-full"
+            padding="py-2"
+          />
         </div>
       </div>
     </div>
