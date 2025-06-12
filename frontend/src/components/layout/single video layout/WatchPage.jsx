@@ -4,6 +4,8 @@ import {
   RecommendedVideosSidebar,
   Container,
   CommentSection,
+  Row,
+  Column,
 } from "../../../index";
 
 const WatchPage = () => {
@@ -39,17 +41,23 @@ const WatchPage = () => {
       uploaderAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
       channelName: "Traversy Media",
     },
-    // Add more objects
+    // Add more videos here
   ];
 
   return (
-    <Container childElemClass="flex flex-col lg:flex-row gap-2 pt-2">
-      <div>
-        <SingleVideoLayout videoData={mainVideoData} />
-        <CommentSection />
-      </div>
+    <Container childElemClass="pt-2">
+      <Row customRowClass="gap-3">
+        {/* Left: Main Video + Comments */}
+        <Column customColClass="col-span-12 xl:col-span-8">
+          <SingleVideoLayout videoData={mainVideoData} />
+          <CommentSection />
+        </Column>
 
-      <RecommendedVideosSidebar videos={recommendedVideos} />
+        {/* Right: Recommended Sidebar */}
+        <Column customColClass="col-span-12 xl:col-span-4">
+          <RecommendedVideosSidebar videos={recommendedVideos} />
+        </Column>
+      </Row>
     </Container>
   );
 };

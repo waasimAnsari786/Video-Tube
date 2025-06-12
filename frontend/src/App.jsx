@@ -78,9 +78,9 @@ const App = () => {
             </AuthProtectedLayout>
           ),
         },
+        { path: "/single", element: <WatchPage /> },
       ],
     },
-    { path: "/single", element: <WatchPage /> },
   ]);
 
   return (

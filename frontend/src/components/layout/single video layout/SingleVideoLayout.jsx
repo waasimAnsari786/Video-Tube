@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaBell,
   FaLink,
@@ -6,6 +6,9 @@ import {
   FaRegBell,
   FaRegBellSlash,
   FaUserTimes,
+  FaEllipsisV,
+  FaThumbsUp,
+  FaThumbsDown,
 } from "react-icons/fa";
 import {
   Button,
@@ -27,6 +30,40 @@ const SingleVideoLayout = ({ videoData }) => {
     channelName = "CodeMaster",
     subscriberCount = "1.2M subscribers",
   } = videoData || {};
+
+  // Like/Unlike State
+  const [likeCount, setLikeCount] = useState(1234);
+  const [unlikeCount, setUnlikeCount] = useState(45);
+  const [liked, setLiked] = useState(false);
+  const [unliked, setUnliked] = useState(false);
+
+  const handleLike = () => {
+    if (liked) {
+      setLikeCount((prev) => prev - 1);
+      setLiked(false);
+    } else {
+      setLikeCount((prev) => prev + 1);
+      setLiked(true);
+      if (unliked) {
+        setUnlikeCount((prev) => prev - 1);
+        setUnliked(false);
+      }
+    }
+  };
+
+  const handleUnlike = () => {
+    if (unliked) {
+      setUnlikeCount((prev) => prev - 1);
+      setUnliked(false);
+    } else {
+      setUnlikeCount((prev) => prev + 1);
+      setUnliked(true);
+      if (liked) {
+        setLikeCount((prev) => prev - 1);
+        setLiked(false);
+      }
+    }
+  };
 
   const modalContent = new ModalContent({
     id: "unsubscribe_modal",
@@ -51,6 +88,13 @@ const SingleVideoLayout = ({ videoData }) => {
     new PopupContent(<FaUserTimes />, "Unsubscribe", () =>
       openCloseModal(modalContent.id, "open")
     ),
+  ];
+
+  const moreOptions = [
+    new PopupContent(<FaLink />, "Copy Link", () => {
+      navigator.clipboard.writeText(videoUrl);
+      console.log("Link copied to clipboard");
+    }),
   ];
 
   return (
@@ -85,6 +129,8 @@ const SingleVideoLayout = ({ videoData }) => {
               {subscriberCount}
             </p>
           </div>
+
+          {/* Bell PopUp */}
           <PopUp
             button={
               <Button
@@ -94,26 +140,65 @@ const SingleVideoLayout = ({ videoData }) => {
               />
             }
             content={bellOptions}
-            position="end"
           />
         </div>
 
+        <Button
+          btnText="Subscribe"
+          borderRadius="rounded-full"
+          padding="px-4 py-2"
+          customClass="w-full block sm570:hidden"
+        />
+
+        {/* Buttons Row */}
         <div className="flex items-center gap-3">
+          <div className="flex items-center bg-[var(--my-blue-transparent)] rounded-full p-3 text-sm font-medium text-[var(--my-blue)]">
+            <button className="flex items-center gap-1 hover:opacity-70">
+              <FaThumbsUp />
+              <span>2.1K</span>
+            </button>
+            <span className="mx-2 text-gray-400">|</span>
+            <button className="flex items-center gap-1 hover:opacity-70">
+              <FaThumbsDown />
+              <span>56</span>
+            </button>
+          </div>
+
           <Button
             btnText="Subscribe"
             borderRadius="rounded-full"
             padding="px-4 py-2"
+            customClass="hidden sm570:block"
           />
-          <Button
-            btnText={
-              <>
-                <FaLink className="mr-2" />
-                Copy Link
-              </>
-            }
-            borderRadius="rounded-full"
-            padding="px-4 py-2"
-          />
+
+          {/* More Options */}
+          <div className="hidden xl:block">
+            <PopUp
+              button={
+                <Button
+                  btnText={<FaEllipsisV />}
+                  borderRadius="rounded-full"
+                  padding="p-2"
+                />
+              }
+              content={moreOptions}
+            />
+          </div>
+
+          {/* More Options for <xl */}
+          <div className="xl:hidden">
+            <PopUp
+              position="left"
+              button={
+                <Button
+                  btnText={<FaEllipsisV />}
+                  borderRadius="rounded-full"
+                  padding="p-2"
+                />
+              }
+              content={moreOptions}
+            />
+          </div>
         </div>
       </div>
 

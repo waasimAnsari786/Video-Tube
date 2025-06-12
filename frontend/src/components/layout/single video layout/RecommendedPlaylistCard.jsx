@@ -1,46 +1,52 @@
 import React from "react";
-import { Button, Row, Column } from "../../../index"; // adjust path if needed
+import { Button, Row, Column } from "../../../index"; // adjust the path if needed
 import { FaPlay } from "react-icons/fa";
 
-const RecommendedVideoCard = ({ video }) => {
+const RecommendedPlaylistCard = ({ playlist }) => {
   const {
     thumbnail = "https://img.youtube.com/vi/w7ejDZ8SWv8/hqdefault.jpg",
-    title = "React Crash Course for Beginners | Build a YouTube Clone",
+    title = "Full React Course",
     channelName = "Codevolution",
-    views = "1.3M views",
-    uploadedDate = "4 days ago",
-  } = video || {};
+    views = "845K views",
+    uploadedDate = "2 weeks ago",
+  } = playlist || {};
 
   return (
     <Row customRowClass="group cursor-pointer p-2 rounded-xl bg-[var(--my-blue-transparent)] border border-[var(--my-blue)] transition-transform">
-      {/* Thumbnail Column */}
+      {/* Thumbnail with stacked design */}
       <Column customColClass="col-span-12 xl:col-span-6">
-        <div className="relative overflow-hidden rounded-lg h-full w-full">
-          <img
-            src={thumbnail}
-            alt="video thumbnail"
-            className="object-cover aspect-video w-full h-full group-hover:scale-105 transition-transform duration-300"
-          />
-          {/* Video Duration */}
-          <span className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded font-semibold">
-            12 : 34
-          </span>
+        <div className="relative aspect-video w-full">
+          {/* Stacked effect */}
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[94%] h-full bg-gray-300 rounded-xl z-0"></div>
+          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-[97%] h-full bg-gray-400 rounded-lg z-0"></div>
+
+          {/* Main Thumbnail */}
+          <div className="relative overflow-hidden rounded-lg h-full w-full z-10">
+            <img
+              src={thumbnail}
+              alt="Playlist Thumbnail"
+              className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+            />
+            <span className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded font-semibold">
+              34 videos
+            </span>
+          </div>
         </div>
       </Column>
 
-      {/* Details Column */}
+      {/* Playlist Info */}
       <Column customColClass="col-span-12 xl:col-span-6 flex flex-col justify-between">
         <div className="flex flex-col justify-start h-full">
           <h3 className="lg:text-sm text-md font-bold leading-snug line-clamp-2 text-[var(--my-blue)]">
             {title}
           </h3>
 
-          {/* Combined info (visible on small) */}
+          {/* Small screen combined info */}
           <div className="text-xs text-gray-600 font-medium mt-1 lg:hidden">
             {channelName} • {views} • {uploadedDate}
           </div>
 
-          {/* Split info (visible on large) */}
+          {/* Large screen split info */}
           <div className="hidden lg:block mt-1">
             <span className="text-xs text-gray-600 font-medium">
               {channelName}
@@ -50,7 +56,7 @@ const RecommendedVideoCard = ({ video }) => {
             </p>
           </div>
 
-          {/* Watch Now Button (only on small screens) */}
+          {/* Button for small screens */}
           <div className="block lg:hidden mt-3">
             <Button
               btnText={
@@ -71,4 +77,4 @@ const RecommendedVideoCard = ({ video }) => {
   );
 };
 
-export default RecommendedVideoCard;
+export default RecommendedPlaylistCard;

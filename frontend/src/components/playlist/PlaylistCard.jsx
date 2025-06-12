@@ -18,8 +18,9 @@ const PlaylistCard = ({ playlistData }) => {
       {/* Playlist Thumbnail with stacked effect */}
       <div className="relative aspect-video rounded-lg">
         {/* Stacked thumbnails */}
-        <div className="absolute -top-2 left-1.5 w-[95%] h-full bg-gray-300 rounded-xl z-0"></div>
-        <div className="absolute -top-1 left-1 w-[97%] h-full bg-gray-400 rounded-lg z-0"></div>
+
+        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[96%] h-full bg-gray-300 rounded-xl z-0"></div>
+        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-[98%] h-full bg-gray-400 rounded-lg z-0"></div>
 
         {/* Main Thumbnail */}
         <div className="overflow-hidden rounded-lg z-0">
