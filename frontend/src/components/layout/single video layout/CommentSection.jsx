@@ -3,7 +3,7 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
 import { Avatar, useImagePreview } from "../../../index";
 
-const CommentSection = () => {
+const CommentSection = ({ customClass = "" }) => {
   const { getPreview } = useImagePreview();
   const avatar = getPreview("avatar");
 
@@ -43,12 +43,14 @@ const CommentSection = () => {
   };
 
   return (
-    <div className="bg-[var(--my-blue-transparent)] p-4 rounded-xl mt-4 mb-2">
+    <div
+      className={`bg-[var(--my-blue-transparent)] p-4 rounded-xl mt-4 mb-2 ${customClass}`}
+    >
       <h2 className="text-[var(--my-blue)] font-semibold text-lg mb-3">
         Comments
       </h2>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-10">
         <Avatar avatar={avatar} />
         <input
           value={input}
@@ -65,7 +67,7 @@ const CommentSection = () => {
         {comments.length === 0 ? (
           <p className="text-sm text-gray-500">No comments yet.</p>
         ) : (
-          comments.map(({ id, author, content, avatar, time }, index) => (
+          comments.map(({ id, author, content, avatar, time }) => (
             <div key={id}>
               <div className="flex items-start gap-2">
                 <div>{avatar}</div>
@@ -77,7 +79,6 @@ const CommentSection = () => {
                   <p className="text-sm text-gray-700">{content}</p>
                 </div>
               </div>
-
               <hr className="border-t border-gray-300 my-2" />
             </div>
           ))

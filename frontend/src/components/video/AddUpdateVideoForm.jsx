@@ -10,9 +10,11 @@ import {
   FormButton,
   FileInputContainer,
   InputContainer,
+  DragDropUploadFile,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { uploadVideoThunk, updateVideoThunk } from "../../features/videoSlice";
+import { IMAGE_EXTENTIONS } from "../../constant";
 
 const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
   const dispatch = useDispatch();
@@ -81,6 +83,11 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
             {...register("description", {
               required: "Description is required",
             })}
+          />
+
+          <DragDropUploadFile
+            allowedExtensions={IMAGE_EXTENTIONS}
+            maxFiles={2}
           />
 
           <FileInputContainer

@@ -1,8 +1,12 @@
 import React from "react";
 
-export default function PopUp({ button, content = [], position = "start" }) {
+export default function PopUp({
+  button,
+  content = [],
+  position = "dropdown-start",
+}) {
   return (
-    <div className={`dropdown dropdown-${position}`}>
+    <div className={`dropdown ${position}`}>
       <div tabIndex={0} role="button" className="cursor-pointer">
         {button}
       </div>

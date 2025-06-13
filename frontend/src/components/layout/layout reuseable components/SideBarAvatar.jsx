@@ -43,7 +43,7 @@ export default function SideBarAvatar() {
     <PopUp
       button={<SidebarAvatarButton />}
       content={sidebarAvatarPopupContent}
-      position="top"
+      position="dropdown-top"
     />
   );
 }

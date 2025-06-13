@@ -65,17 +65,21 @@ const App = () => {
         {
           path: "/video/publish",
           element: (
-            <AuthProtectedLayout>
-              <UploadVideoPage />
-            </AuthProtectedLayout>
+            <UploadVideoPage />
+
+            // <AuthProtectedLayout>
+            //   <UploadVideoPage />
+            // </AuthProtectedLayout>
           ),
         },
         {
           path: "/video/update/:videoId",
           element: (
-            <AuthProtectedLayout>
-              <UpdateVideoPage />
-            </AuthProtectedLayout>
+            <UpdateVideoPage />
+
+            // <AuthProtectedLayout>
+            //   <UpdateVideoPage />
+            // </AuthProtectedLayout>
           ),
         },
         { path: "/single", element: <WatchPage /> },

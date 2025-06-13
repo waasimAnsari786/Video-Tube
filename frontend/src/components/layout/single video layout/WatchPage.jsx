@@ -41,24 +41,22 @@ const WatchPage = () => {
       uploaderAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
       channelName: "Traversy Media",
     },
-    // Add more videos here
   ];
 
   return (
-    <Container childElemClass="pt-2">
-      <Row customRowClass="gap-3">
-        {/* Left: Main Video + Comments */}
-        <Column customColClass="col-span-12 xl:col-span-8">
-          <SingleVideoLayout videoData={mainVideoData} />
-          <CommentSection />
-        </Column>
+    <Row customRowClass="gap-3">
+      {/* Left: Main Video + Comments (visible on xl and up) */}
+      <Column customColClass="col-span-12 xl:col-span-8">
+        <SingleVideoLayout videoData={mainVideoData} />
+        <CommentSection customClass="hidden xl:block" />
+      </Column>
 
-        {/* Right: Recommended Sidebar */}
-        <Column customColClass="col-span-12 xl:col-span-4">
-          <RecommendedVideosSidebar videos={recommendedVideos} />
-        </Column>
-      </Row>
-    </Container>
+      {/* Right: Recommended Sidebar + Comments for small screens */}
+      <Column customColClass="col-span-12 xl:col-span-4">
+        <RecommendedVideosSidebar videos={recommendedVideos} />
+        <CommentSection customClass="block xl:hidden" />
+      </Column>
+    </Row>
   );
 };
 

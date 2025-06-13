@@ -115,13 +115,15 @@ const SingleVideoLayout = ({ videoData }) => {
 
       {/* Channel Info + Buttons */}
       <div className="flex flex-col sm570:flex-row sm570:items-center justify-between gap-4 mb-4">
-        <div className="flex items-center gap-4">
+        {/* Uploader Details */}
+        <div className="flex items-center gap-4 w-full sm570:w-auto">
+          {/* Avatar & Channel Name */}
           <img
             src={uploaderAvatar}
             alt="channel avatar"
             className="w-10 h-10 rounded-full"
           />
-          <div>
+          <div className="flex flex-col">
             <p className="text-[var(--my-blue)] font-semibold text-sm">
               {channelName}
             </p>
@@ -130,7 +132,7 @@ const SingleVideoLayout = ({ videoData }) => {
             </p>
           </div>
 
-          {/* Bell PopUp */}
+          {/* Bell Icon */}
           <PopUp
             button={
               <Button
@@ -141,37 +143,81 @@ const SingleVideoLayout = ({ videoData }) => {
             }
             content={bellOptions}
           />
+
+          {/* More Options Popup (Left-positioned for below xl) */}
+          <div className="sm570:hidden ml-auto">
+            <PopUp
+              position="dropdown-left"
+              button={
+                <Button
+                  btnText={<FaEllipsisV />}
+                  borderRadius="rounded-full"
+                  padding="p-2"
+                />
+              }
+              content={moreOptions}
+            />
+          </div>
         </div>
 
-        <Button
-          btnText="Subscribe"
-          borderRadius="rounded-full"
-          padding="px-4 py-2"
-          customClass="w-full block sm570:hidden"
-        />
-
-        {/* Buttons Row */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-[var(--my-blue-transparent)] rounded-full p-3 text-sm font-medium text-[var(--my-blue)]">
-            <button className="flex items-center gap-1 hover:opacity-70">
+        {/* Like/Unlike + Subscribe row (Visible only below sm570) */}
+        <div className="grid grid-cols-2 gap-4 w-full sm570:hidden">
+          {/* Like/Unlike */}
+          <div className="flex items-center justify-start bg-[var(--my-blue-transparent)] rounded-full p-3 text-sm font-medium text-[var(--my-blue)]">
+            <button
+              className="flex items-center gap-1 hover:opacity-70"
+              onClick={handleLike}
+            >
               <FaThumbsUp />
-              <span>2.1K</span>
+              <span>{likeCount}</span>
             </button>
             <span className="mx-2 text-gray-400">|</span>
-            <button className="flex items-center gap-1 hover:opacity-70">
+            <button
+              className="flex items-center gap-1 hover:opacity-70"
+              onClick={handleUnlike}
+            >
               <FaThumbsDown />
-              <span>56</span>
+              <span>{unlikeCount}</span>
             </button>
           </div>
 
+          {/* Subscribe Button */}
+          <Button
+            btnText="Subscribe"
+            borderRadius="rounded-full"
+            padding="w-full py-2"
+          />
+        </div>
+
+        {/* Like/Unlike + Subscribe for sm570 and up (inline) */}
+        <div className="hidden sm570:flex items-center gap-4">
+          {/* Like/Unlike */}
+          <div className="flex items-center bg-[var(--my-blue-transparent)] rounded-full p-3 text-sm font-medium text-[var(--my-blue)]">
+            <button
+              className="flex items-center gap-1 hover:opacity-70"
+              onClick={handleLike}
+            >
+              <FaThumbsUp />
+              <span>{likeCount}</span>
+            </button>
+            <span className="mx-2 text-gray-400">|</span>
+            <button
+              className="flex items-center gap-1 hover:opacity-70"
+              onClick={handleUnlike}
+            >
+              <FaThumbsDown />
+              <span>{unlikeCount}</span>
+            </button>
+          </div>
+
+          {/* Subscribe Button */}
           <Button
             btnText="Subscribe"
             borderRadius="rounded-full"
             padding="px-4 py-2"
-            customClass="hidden sm570:block"
           />
 
-          {/* More Options */}
+          {/* More Options Popup (Right-positioned for xl and up) */}
           <div className="hidden xl:block">
             <PopUp
               button={
@@ -184,11 +230,9 @@ const SingleVideoLayout = ({ videoData }) => {
               content={moreOptions}
             />
           </div>
-
-          {/* More Options for <xl */}
-          <div className="xl:hidden">
+          {/* More Options Popup (Right-positioned for below xl and equal to md) */}
+          <div className="hidden sm570:block xl:hidden">
             <PopUp
-              position="left"
               button={
                 <Button
                   btnText={<FaEllipsisV />}
@@ -197,6 +241,7 @@ const SingleVideoLayout = ({ videoData }) => {
                 />
               }
               content={moreOptions}
+              position="dropdown-left"
             />
           </div>
         </div>
