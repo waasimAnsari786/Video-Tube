@@ -85,10 +85,7 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
             })}
           />
 
-          <DragDropUploadFile
-            allowedExtensions={IMAGE_EXTENTIONS}
-            maxFiles={2}
-          />
+          <DragDropUploadFile allowedExtensions={IMAGE_EXTENTIONS} />
 
           <FileInputContainer
             accept=".mp4,.mov.avi.mkv"
