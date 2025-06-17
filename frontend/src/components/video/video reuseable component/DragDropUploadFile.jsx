@@ -1,55 +1,57 @@
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { ImagePreview, useImagePreview } from "../../../index";
+import { Column, ImagePreview, Row, useImagePreview } from "../../../index";
 
-const DragDropUploadFile = ({ allowedExtensions = [], maxFiles = 1 }) => {
+const DragDropUploadFile = ({
+  allowedExtensions = [],
+  maxFiles = 1,
+  acceptedMimeType = "image/*",
+}) => {
   const [showPreview, setShowPreview] = useState(false);
   const { imgPreview, handleImagePreview } = useImagePreview();
-
-  console.log("Drag drop re-render");
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     maxFiles,
     multiple: maxFiles > 1,
-    accept: allowedExtensions.reduce((acc, ext) => {
-      const mimeType =
-        ext === ".jpg" || ext === ".jpeg"
-          ? "image/jpeg"
-          : ext === ".png"
-          ? "image/png"
-          : ext === ".webp"
-          ? "image/webp"
-          : ext === ".avif"
-          ? "image/avif"
-          : ext === ".mp4"
-          ? "video/mp4"
-          : ext === ".mov"
-          ? "video/quicktime"
-          : ext === ".avi"
-          ? "video/x-msvideo"
-          : ext === ".mkv"
-          ? "video/x-matroska"
-          : "";
-      if (mimeType) acc[mimeType] = [];
-      return acc;
-    }, {}),
-    onDrop: (acceptedFiles) => {
-      console.log("✅ onDrop executed");
-      acceptedFiles.forEach((file) => {
-        console.log("Accepted file:", file);
-        const fakeEvent = { target: { files: [file] } };
-        handleImagePreview(fakeEvent);
-        setShowPreview(true);
-      });
+    accept: { [acceptedMimeType]: allowedExtensions },
+    validator: (file) => {
+      const originalName = file?.name || "";
+
+      const baseName = originalName.split("/").pop(); // just filename
+
+      // 3. Check safe filename
+      const safeFileNameRegex = /^[a-zA-Z0-9._-]+$/;
+
+      if (!safeFileNameRegex.test(baseName)) {
+        return {
+          code: "unsafe-filename",
+          message: `Unsafe filename: "${originalName}". Only letters, numbers, ".", "_", "-" allowed.`,
+        };
+      }
+
+      return null; // ✅ Valid file
     },
-    onDropRejected: (rejectedFiles) => {
-      console.log("❌ onDropRejected executed");
-      rejectedFiles.forEach((rejection) => {
-        console.warn(
-          `Rejected file: ${rejection.file.name}`,
-          rejection.errors.map((e) => e.message)
-        );
-      });
+
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      if (rejectedFiles.length > 0) {
+        console.warn("❌ Some files are invalid. Upload rejected.");
+
+        rejectedFiles.forEach(({ file, errors }) => {
+          errors.forEach((err) => {
+            console.error(`Rejected "${file.name}": ${err.message}`);
+          });
+        });
+
+        setShowPreview(false); // explicitly hide preview
+        return;
+      }
+
+      if (acceptedFiles.length === 0) return;
+
+      console.log("✅ All files accepted");
+      const fakeEvent = { target: { files: acceptedFiles } };
+      handleImagePreview(fakeEvent);
+      setShowPreview(true);
     },
   });
 
@@ -57,38 +59,37 @@ const DragDropUploadFile = ({ allowedExtensions = [], maxFiles = 1 }) => {
     setShowPreview(false);
   };
 
-  return (
+  return showPreview && acceptedMimeType === "image/*" ? (
     <>
-      {showPreview ? (
-        <div className="flex items-baseline gap-4">
-          <div className="w-32 h-32 rounded-lg overflow-hidden">
-            <ImagePreview
-              preview={imgPreview}
-              customClass="object-cover h-full"
-            />
-          </div>
-          <button
-            onClick={handleRemoveImage}
-            className="underline"
-            type="button"
+      <Row>
+        {imgPreview?.map((preview, i) => (
+          <Column
+            customColClass="col-span-2 rounded-lg border p-1 overflow-hidden border-[var(--my-border-dark)]"
+            key={i}
           >
-            Remove Image
-          </button>
-        </div>
-      ) : (
-        <div
-          {...getRootProps()}
-          className="rounded-lg py-8 border-2 border-dashed border-gray-300 p-5 text-center transition-colors duration-300 hover:bg-[var(--my-blue-transparent)]"
-        >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag 'n' drop files here, or click to select (Max {maxFiles})</p>
-          )}
-        </div>
-      )}
+            <ImagePreview
+              preview={preview}
+              customClass="object-cover rounded-md"
+            />
+          </Column>
+        ))}
+      </Row>
+      <button onClick={handleRemoveImage} className="underline" type="button">
+        Remove Image
+      </button>
     </>
+  ) : (
+    <div
+      {...getRootProps()}
+      className="rounded-lg py-8 border-2 border-dashed border-gray-300 p-5 text-center transition-colors duration-300 hover:bg-[var(--my-blue-transparent)]"
+    >
+      <input {...getInputProps()} />
+      {isDragActive ? (
+        <p>Drop the files here ...</p>
+      ) : (
+        <p>Drag 'n' drop files here, or click to select (Max {maxFiles})</p>
+      )}
+    </div>
   );
 };
 

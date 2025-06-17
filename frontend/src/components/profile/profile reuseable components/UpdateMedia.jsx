@@ -74,7 +74,7 @@ export default function UpdateMedia({
             onChange={handleImagePreview}
           />
           <ImagePreview
-            preview={imgPreview || finalPreview}
+            preview={imgPreview[0] || finalPreview}
             customClass={previewClass}
           />
         </Column>
