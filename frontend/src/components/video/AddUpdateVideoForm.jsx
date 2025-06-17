@@ -15,6 +15,7 @@ import {
 import showFormErrors from "../../utils/showFormError";
 import { uploadVideoThunk, updateVideoThunk } from "../../features/videoSlice";
 import { IMAGE_EXTENTIONS } from "../../constant";
+import { MdOutlineSubtitles, MdOutlineDescription } from "react-icons/md";
 
 const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
   const dispatch = useDispatch();
@@ -62,52 +63,40 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
   };
 
   return (
-    <Container childElemClass="py-10 flex justify-center">
-      <form
-        onSubmit={handleSubmit(handleVideoSubmit, showFormErrors)}
-        className="bg-white shadow-xl rounded-lg p-8 w-full max-w-3xl"
-      >
-        <FormHeading title={isEditing ? "Update Video" : "Add New Video"} />
-        <FormText text="Fill in the video details below" />
+    <form onSubmit={handleSubmit(handleVideoSubmit, showFormErrors)}>
+      <FormHeading title={isEditing ? "Update Video" : "Add New Video"} />
+      <FormText text="Fill in the video details below" />
 
-        <div className="space-y-5 mb-5">
-          <InputContainer
-            type="text"
-            placeholder="Video Title"
-            {...register("title", { required: "Title is required" })}
-          />
-
-          <InputContainer
-            type="text"
-            placeholder="Description"
-            {...register("description", {
-              required: "Description is required",
-            })}
-          />
-
-          <DragDropUploadFile allowedExtensions={IMAGE_EXTENTIONS} />
-
-          <FileInputContainer
-            accept=".mp4,.mov.avi.mkv"
-            {...register("video", {
-              required: !isEditing && "Video file is required",
-            })}
-          />
-
-          <FileInputContainer {...register("thumbnail")} />
-
-          <select {...register("videoStatus")} className="input w-full">
-            <option value="Public">Public</option>
-            <option value="Private">Private</option>
-          </select>
-        </div>
-
-        <FormButton
-          label={isEditing ? "Update Video" : "Upload Video"}
-          loadingLabel={loading ? "Uploading..." : null}
+      <div className="space-y-5 mb-5">
+        <InputContainer
+          type="text"
+          placeholder="Video Title"
+          icon={<MdOutlineSubtitles />}
+          {...register("title", { required: "Title is required" })}
         />
-      </form>
-    </Container>
+
+        <InputContainer
+          type="text"
+          placeholder="Description"
+          {...register("description", {
+            required: "Description is required",
+          })}
+          icon={<MdOutlineDescription />}
+        />
+
+        <DragDropUploadFile allowedExtensions={IMAGE_EXTENTIONS} maxFiles={2} />
+
+        <select {...register("videoStatus")} className="input w-full">
+          <option value="Public">Public</option>
+          <option value="Private">Private</option>
+        </select>
+      </div>
+
+      <FormButton
+        label={isEditing ? "Update Video" : "Upload Video"}
+        loadingLabel={loading ? "Uploading..." : null}
+      />
+    </form>
   );
 };
 

@@ -56,7 +56,7 @@ import WatchPage from "./components/layout/single video layout/WatchPage";
 import RecommendedVideoCard from "./components/layout/single video layout/RecommendedVideoCard";
 import CommentSection from "./components/layout/single video layout/CommentSection";
 import RecommendedPlaylistCard from "./components/layout/single video layout/RecommendedPlaylistCard";
-import DragDropUploadFile from "./components/video/DragDropUploadFile";
+import DragDropUploadFile from "./components/video/video reuseable component/DragDropUploadFile";
 
 export {
   FormButton,
