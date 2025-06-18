@@ -45,11 +45,11 @@ const App = () => {
         {
           path: "/profile",
           element: (
-            // <AuthProtectedLayout>
-            //   <ProfileSection />
-            // </AuthProtectedLayout>
+            <AuthProtectedLayout>
+              <ProfileSection />
+            </AuthProtectedLayout>
 
-            <ProfileSection />
+            // <ProfileSection />
           ),
         },
         {
@@ -65,21 +65,21 @@ const App = () => {
         {
           path: "/video/publish",
           element: (
-            <UploadVideoPage />
+            // <UploadVideoPage />
 
-            // <AuthProtectedLayout>
-            //   <UploadVideoPage />
-            // </AuthProtectedLayout>
+            <AuthProtectedLayout>
+              <UploadVideoPage />
+            </AuthProtectedLayout>
           ),
         },
         {
           path: "/video/update/:videoId",
           element: (
-            <UpdateVideoPage />
+            // <UpdateVideoPage />
 
-            // <AuthProtectedLayout>
-            //   <UpdateVideoPage />
-            // </AuthProtectedLayout>
+            <AuthProtectedLayout>
+              <UpdateVideoPage />
+            </AuthProtectedLayout>
           ),
         },
         { path: "/single", element: <WatchPage /> },

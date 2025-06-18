@@ -64,16 +64,17 @@ const DragDropUploadFile = ({
       <Row>
         {imgPreview?.map((preview, i) => (
           <Column
-            customColClass="col-span-2 rounded-lg border p-1 overflow-hidden border-[var(--my-border-dark)]"
+            customColClass="md:col-span-3 col-span-4 rounded-lg border p-1 h-20 border-[var(--my-border-dark)]"
             key={i}
           >
             <ImagePreview
               preview={preview}
-              customClass="object-cover rounded-md"
+              customClass="object-cover rounded-md h-full"
             />
           </Column>
         ))}
       </Row>
+
       <button onClick={handleRemoveImage} className="underline" type="button">
         Remove Image
       </button>
@@ -81,7 +82,7 @@ const DragDropUploadFile = ({
   ) : (
     <div
       {...getRootProps()}
-      className="rounded-lg py-8 border-2 border-dashed border-gray-300 p-5 text-center transition-colors duration-300 hover:bg-[var(--my-blue-transparent)]"
+      className={`rounded-lg p-8 border-2 border-dashed border-gray-300 text-center transition-colors duration-300 hover:bg-[var(--my-blue-transparent)]`}
     >
       <input {...getInputProps()} />
       {isDragActive ? (

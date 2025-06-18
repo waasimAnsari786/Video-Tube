@@ -4,8 +4,6 @@ import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  FormHeading,
-  FormText,
   FormButton,
   InputContainer,
   DragDropUploadFile,
@@ -66,7 +64,7 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
 
   return (
     <form onSubmit={handleSubmit(handleVideoSubmit, showFormErrors)}>
-      <Row customRowClass="mb-5">
+      <Row>
         <Column customColClass="flex justify-between items-center col-span-12">
           <ProfileTitle title={isEditing ? "Update Video" : "Add New Video"} />
 
@@ -76,46 +74,49 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
             customClasss="sm:p-2 p-1.5 rounded-sm"
           />
         </Column>
-        <Column customColClass="col-span-6">
+
+        <Column customColClass="md:col-span-6 col-span-12">
           <InputContainer
             type="text"
             placeholder="Video Title"
             icon={<MdOutlineSubtitles />}
             {...register("title", { required: "Title is required" })}
+            inpMargin="m-0"
           />
         </Column>
 
-        <Column customColClass="col-span-6">
+        <Column customColClass="md:col-span-6 col-span-12">
           <InputContainer
             type="text"
             placeholder="Description"
+            inpMargin="m-0"
             {...register("description", {
               required: "Description is required",
             })}
             icon={<MdOutlineDescription />}
           />
         </Column>
-
-        <Column customColClass="col-span-6">
+        <Column customColClass="md:col-span-6 col-span-12">
           <DragDropUploadFile
             allowedExtensions={IMAGE_EXTENTIONS}
             acceptedMimeType="image/*"
+            maxFiles={9}
           />
         </Column>
-        <Column customColClass="col-span-6">
+        <Column customColClass="md:col-span-6 col-span-12">
           <DragDropUploadFile
             allowedExtensions={VIDEO_EXTENTIONS}
             acceptedMimeType="video/*"
           />
         </Column>
+        <Column customColClass="md:col-span-6 col-span-12">
+          <RadioInputContainer
+            label="Video Status"
+            defaultChecked={initialData.videoStatus !== "Private"} // true = checked
+            onStatusChange={(value) => setValue("videoStatus", value)}
+          />
+        </Column>
       </Row>
-      <Column customColClass="mb-5">
-        <RadioInputContainer
-          label="Video Status"
-          defaultChecked={initialData.videoStatus !== "Private"} // true = checked
-          onStatusChange={(value) => setValue("videoStatus", value)}
-        />
-      </Column>
     </form>
   );
 };

@@ -14,7 +14,7 @@ export default function useImagePreview() {
 
     if (!files || files.length === 0) return;
 
-    const previews = Array.from(files).map((file) => URL.createObjectURL(file));
+    const previews = files.map((file) => URL.createObjectURL(file));
 
     setImgPreview(previews);
   };
