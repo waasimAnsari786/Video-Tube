@@ -12,6 +12,7 @@ import {
   Row,
   Column,
   ProfileTitle,
+  RadioInputContainer,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { uploadVideoThunk, updateVideoThunk } from "../../features/videoSlice";
@@ -23,7 +24,7 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
   const navigate = useNavigate();
   const loading = useSelector((state) => state.video.loading);
 
-  const { register, reset, handleSubmit } = useForm({
+  const { register, reset, handleSubmit, setValue } = useForm({
     defaultValues: initialData,
     mode: "onSubmit",
     reValidateMode: "onSubmit",
@@ -109,10 +110,11 @@ const AddUpdateVideoForm = ({ isEditing = false, initialData = {} }) => {
         </Column>
       </Row>
       <Column customColClass="mb-5">
-        <select {...register("videoStatus")} className="input w-full">
-          <option value="Public">Public</option>
-          <option value="Private">Private</option>
-        </select>
+        <RadioInputContainer
+          label="Video Status"
+          defaultChecked={initialData.videoStatus !== "Private"} // true = checked
+          onStatusChange={(value) => setValue("videoStatus", value)}
+        />
       </Column>
     </form>
   );

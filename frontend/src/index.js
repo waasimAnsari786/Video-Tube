@@ -57,6 +57,7 @@ import RecommendedVideoCard from "./components/layout/single video layout/Recomm
 import CommentSection from "./components/layout/single video layout/CommentSection";
 import RecommendedPlaylistCard from "./components/layout/single video layout/RecommendedPlaylistCard";
 import DragDropUploadFile from "./components/video/video reuseable component/DragDropUploadFile";
+import RadioInputContainer from "./components/resuseable-components/RadioInputContainer";
 
 export {
   FormButton,
@@ -117,4 +118,5 @@ export {
   CommentSection,
   RecommendedPlaylistCard,
   DragDropUploadFile,
+  RadioInputContainer,
 };
