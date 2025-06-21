@@ -40,7 +40,11 @@ const App = () => {
       children: [
         {
           path: "",
-          element: <HomePage />,
+          element: (
+            <AuthProtectedLayout authentication={false}>
+              <HomePage />
+            </AuthProtectedLayout>
+          ),
         },
         {
           path: "/profile",
@@ -82,7 +86,14 @@ const App = () => {
             </AuthProtectedLayout>
           ),
         },
-        { path: "/single", element: <WatchPage /> },
+        {
+          path: "/single",
+          element: (
+            <AuthProtectedLayout authentication={false}>
+              <WatchPage />
+            </AuthProtectedLayout>
+          ),
+        },
       ],
     },
   ]);

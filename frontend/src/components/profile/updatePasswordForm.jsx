@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { updatePasswordThunk } from "../../features/authSlice";
+import { updatePasswordThunk } from "../../store/slices/authSlice";
 import showFormErrors from "../../utils/showFormError";
 import {
   PasswordInputContainer,

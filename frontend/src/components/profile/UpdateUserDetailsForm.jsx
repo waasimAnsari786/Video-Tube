@@ -10,7 +10,7 @@ import {
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
-import { updateUserDetailsThunk } from "../../features/authSlice";
+import { updateUserDetailsThunk } from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 

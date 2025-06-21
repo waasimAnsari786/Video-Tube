@@ -6,7 +6,7 @@ import { FormButton } from "../../index";
 import {
   deleteAvatarThunk,
   deleteCoverImageThunk,
-} from "../../features/authSlice";
+} from "../../store/slices/authSlice";
 
 const DeleteMedia = () => {
   const dispatch = useDispatch();

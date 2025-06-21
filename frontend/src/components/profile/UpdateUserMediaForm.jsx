@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import {
   updateAvatarThunk,
   updateCoverImageThunk,
-} from "../../features/authSlice";
+} from "../../store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 

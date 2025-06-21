@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AddUpdateVideoForm } from "../../index";
-import { getVideo } from "../../features/videoSlice";
+import { getVideo } from "../../store/slices/videoSlice";
 
 const UpdateVideoPage = () => {
   const { videoId } = useParams();

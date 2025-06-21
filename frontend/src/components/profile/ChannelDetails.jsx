@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, CoverImage, Button, Row, Column } from "../../index";
 import { useParams } from "react-router-dom";
-import { getChannelDetailsThunk } from "../../features/authSlice";
+import { getChannelDetailsThunk } from "../../store/slices/authSlice";
 import "./css/profile.css";
 
 const ChannelDetails = () => {

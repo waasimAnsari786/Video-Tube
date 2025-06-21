@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllVideosThunk } from "../../features/videoSlice";
+import { getAllVideosThunk } from "../../store/slices/videoSlice";
 import { Column, PlaylistCard, Row, VideoCard } from "../../index";
 
 export default function HomePage() {

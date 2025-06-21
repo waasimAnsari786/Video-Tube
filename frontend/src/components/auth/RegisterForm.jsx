@@ -14,13 +14,14 @@ import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { registerUserThunk } from "../../features/authSlice";
+import { registerUserThunk } from "../../store/slices/authSlice";
 
 const RegisterForm = () => {
+  console.log("register form render");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { register, reset, handleSubmit } = useForm({
+  const { register, handleSubmit } = useForm({
     defaultValues: {
       userName: "",
       email: "",
@@ -39,7 +40,6 @@ const RegisterForm = () => {
     } else {
       toast.error(result.payload || "Registration failed");
     }
-    reset();
   };
 
   return (

@@ -13,7 +13,10 @@ import {
   RadioInputContainer,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
-import { uploadVideoThunk, updateVideoThunk } from "../../features/videoSlice";
+import {
+  uploadVideoThunk,
+  updateVideoThunk,
+} from "../../store/slices/videoSlice";
 import { IMAGE_EXTENTIONS, VIDEO_EXTENTIONS } from "../../constant";
 import { MdOutlineSubtitles, MdOutlineDescription } from "react-icons/md";
 

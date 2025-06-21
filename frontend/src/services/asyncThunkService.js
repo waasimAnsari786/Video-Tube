@@ -1,17 +1,16 @@
 // ✅ This class contains generic async thunk functions (`getThunk`, `postThunk`, `patchThunk`, `deleteThunk`).
-// ✅ Each thunk follows a unified pattern for error handling using `rejectWithValue`.
-// ✅ Internally, it uses ApiRequestService to call relevant request methods (e.g., get, post).
-// ✅ These thunks are passed directly to `createAsyncThunk` in authThunks or other slices.
-// ✅ It helps reduce redundancy and ensures all thunks follow the same structure.
+// ✅ Each thunk uses the shared `axiosInstance` directly to perform API requests.
+// ✅ All thunks follow a consistent structure with built-in error handling using `rejectWithValue`.
+// ✅ These methods are passed to `createAsyncThunk` in Redux slices to avoid boilerplate code.
+// ✅ This approach centralizes API logic and ensures reusable, clean async actions.
 
-import apiRequestService from "./apiRequestService.js";
+import { axiosInstance } from "../index";
 
 class AsyncThunk {
   getThunk() {
-    return async (data, { rejectWithValue }) => {
+    return async ({ url, config = {} }, { rejectWithValue }) => {
       try {
-        const { url, config = {} } = data;
-        const response = await apiRequestService.get_req(url, config);
+        const response = await axiosInstance.get(url, config);
         return response.data;
       } catch (err) {
         return rejectWithValue(err.response?.data?.message || "GET failed");
@@ -20,10 +19,9 @@ class AsyncThunk {
   }
 
   postThunk() {
-    return async (data, { rejectWithValue }) => {
+    return async ({ url, payload, config = {} }, { rejectWithValue }) => {
       try {
-        const { url, payload, config } = data;
-        const response = await apiRequestService.post_req(url, payload, config);
+        const response = await axiosInstance.post(url, payload, config);
         return response.data;
       } catch (err) {
         return rejectWithValue(err.response?.data?.message || "POST failed");
@@ -32,14 +30,9 @@ class AsyncThunk {
   }
 
   patchThunk() {
-    return async (data, { rejectWithValue }) => {
+    return async ({ url, payload, config = {} }, { rejectWithValue }) => {
       try {
-        const { url, payload, config } = data;
-        const response = await apiRequestService.patch_req(
-          url,
-          payload,
-          config
-        );
+        const response = await axiosInstance.patch(url, payload, config);
         return response.data;
       } catch (err) {
         return rejectWithValue(err.response?.data?.message || "PATCH failed");
@@ -48,10 +41,9 @@ class AsyncThunk {
   }
 
   deleteThunk() {
-    return async (data, { rejectWithValue }) => {
+    return async ({ url, config = {} }, { rejectWithValue }) => {
       try {
-        const { url, config } = data;
-        const response = await apiRequestService.delete_req(url, config);
+        const response = await axiosInstance.delete(url, config);
         return response.data;
       } catch (err) {
         return rejectWithValue(err.response?.data?.message || "DELETE failed");

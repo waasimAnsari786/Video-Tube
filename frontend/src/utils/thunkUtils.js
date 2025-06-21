@@ -1,11 +1,11 @@
-const initializeLoading = (state) => {
+const updateStateOnPending = (state) => {
   state.loading = true;
   state.error = null;
 };
 
-const updateloadingAndError = (state, action) => {
+const updateStateOnRejected = (state, action) => {
   state.loading = false;
   state.error = action.payload;
 };
 
-export { initializeLoading, updateloadingAndError };
+export { updateStateOnPending, updateStateOnRejected };

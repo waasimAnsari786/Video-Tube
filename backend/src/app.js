@@ -27,6 +27,10 @@ app.use("/api/v1/tweets", tweetRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/playlists", playlistRouter);
+app.use("/api/v1/test", (req, res) => {
+  console.log(req.body);
+  return res.status(200).json(req.body);
+});
 // Error Handling Middleware
 app.use(errorHandler);
 

@@ -6,7 +6,7 @@ import {
   useRoute,
 } from "../../../index";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutThunk } from "../../../features/authSlice";
+import { logoutThunk } from "../../../store/slices/authSlice";
 import { toast } from "react-toastify";
 import { FaSignOutAlt, FaUser, FaYoutube } from "react-icons/fa";
 

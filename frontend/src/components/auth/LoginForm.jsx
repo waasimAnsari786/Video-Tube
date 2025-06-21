@@ -14,10 +14,10 @@ import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUserThunk } from "../../features/authSlice";
+import { loginUserThunk } from "../../store/slices/authSlice";
 
 const LoginForm = () => {
-  const { register, reset, handleSubmit } = useForm({
+  const { register, handleSubmit } = useForm({
     defaultValues: { email: "", password: "" },
     mode: "onSubmit",
     reValidateMode: "onSubmit",
@@ -39,7 +39,6 @@ const LoginForm = () => {
     } else {
       toast.error(result.payload || "Login failed");
     }
-    reset();
   };
 
   return (
