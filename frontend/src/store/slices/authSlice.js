@@ -15,7 +15,6 @@ import {
   axiosInstance,
 } from "../../index";
 import { asyncThunkService } from "../../services";
-import axios from "axios";
 
 const initialState = {
   loading: false,

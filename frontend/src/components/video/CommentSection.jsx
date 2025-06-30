@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FiSend } from "react-icons/fi";
-import { Avatar, useImagePreview } from "../../../index";
+import { Avatar, useImagePreview } from "../../index";
 
 const CommentSection = ({ customClass = "" }) => {
   const { getPreview } = useImagePreview();

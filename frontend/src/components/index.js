@@ -74,12 +74,12 @@ export { default as PlaylistCard } from "../components/playlist/PlaylistCard";
 // ==============================
 // Single Video Layout Components
 // ==============================
-export { default as SingleVideoLayout } from "../components/layout/single video layout/SingleVideoLayout";
-export { default as RecommendedVideosSidebar } from "../components/layout/single video layout/RecommendedVideoSidebar";
-export { default as WatchPage } from "../components/layout/single video layout/WatchPage";
-export { default as RecommendedVideoCard } from "../components/layout/single video layout/RecommendedVideoCard";
-export { default as RecommendedPlaylistCard } from "../components/layout/single video layout/RecommendedPlaylistCard";
-export { default as CommentSection } from "../components/layout/single video layout/CommentSection";
+export { default as SingleVideo } from "./video/SingleVideo";
+export { default as RecommendedVideosSidebar } from "./video/RecommendedVideoSidebar";
+export { default as WatchPage } from "./pages/WatchPage";
+export { default as RecommendedVideoCard } from "./video/RecommendedVideoCard";
+export { default as RecommendedPlaylistCard } from "./playlist/RecommendedPlaylistCard";
+export { default as CommentSection } from "./video/CommentSection";
 
 // ==============================
 // Page Components

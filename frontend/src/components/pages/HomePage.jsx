@@ -5,6 +5,7 @@ import { Column, PlaylistCard, Row, VideoCard } from "../../index";
 
 export default function HomePage() {
   const dispatch = useDispatch();
+  console.log("Home page render");
 
   const videosArr = useSelector((state) => state.video.videosArr); // adjust if your slice name differs
 

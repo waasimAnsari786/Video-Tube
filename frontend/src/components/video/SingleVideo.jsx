@@ -17,7 +17,7 @@ import {
   CustomModal,
   ModalContent,
   openCloseModal,
-} from "../../../index";
+} from "../../index";
 
 const SingleVideoLayout = ({ videoData }) => {
   const {

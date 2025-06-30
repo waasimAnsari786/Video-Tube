@@ -12,18 +12,21 @@ export default function AuthProtectedLayout({
   children,
   authentication = true,
 }) {
+  console.log("Auth protected layout render");
+
   const navigate = useNavigate();
-  const authStatus = useSelector((state) => state.auth.authStatus);
-  const [loader, setLoader] = useState(true);
+  // const authStatus = useSelector((state) => state.auth.authStatus);
+  // const [loader, setLoader] = useState(true);
 
-  useEffect(() => {
-    if (authentication && authStatus !== authentication) {
-      navigate("/login");
-    } else if (!authentication && authStatus !== authentication) {
-      navigate("/");
-    }
-    setLoader(false);
-  }, [navigate, authStatus]);
+  // useEffect(() => {
+  //   if (authentication && authStatus !== authentication) {
+  //     navigate("/login");
+  //   } else if (!authentication && authStatus !== authentication) {
+  //     navigate("/");
+  //   }
+  //   setLoader(false);
+  // }, [navigate, authStatus]);
 
-  return loader ? <h1>Loading...</h1> : <>{children}</>;
+  return <>{children}</>;
+  // return loader ? <h1>Loading...</h1> : <>{children}</>;
 }

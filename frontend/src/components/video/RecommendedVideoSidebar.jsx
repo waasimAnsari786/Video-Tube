@@ -5,7 +5,7 @@ import {
   RecommendedPlaylistCard,
   RecommendedVideoCard,
   Row,
-} from "../../../index";
+} from "../../index";
 
 const RecommendedVideosSidebar = ({ videos }) => {
   return (

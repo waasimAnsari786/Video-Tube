@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  SingleVideoLayout,
+  SingleVideo,
   RecommendedVideosSidebar,
   Container,
   CommentSection,
   Row,
   Column,
-} from "../../../index";
+} from "../../index";
 
 const WatchPage = () => {
   const mainVideoData = {

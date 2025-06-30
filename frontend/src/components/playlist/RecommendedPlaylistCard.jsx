@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Row, Column } from "../../../index"; // adjust the path if needed
+import { Button, Row, Column } from "../../index"; // adjust the path if needed
 import { FaPlay } from "react-icons/fa";
 
 const RecommendedPlaylistCard = ({ playlist }) => {
