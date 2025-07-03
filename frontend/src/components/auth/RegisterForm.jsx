@@ -1,5 +1,5 @@
 import React from "react";
-import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
   Logo,
@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux";
 import { registerUserThunk } from "../../store/slices/authSlice";
 
 const RegisterForm = () => {
-  console.log("register form render");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -35,6 +34,7 @@ const RegisterForm = () => {
   const handleRegister = async (data) => {
     const result = await dispatch(registerUserThunk(data));
     if (registerUserThunk.fulfilled.match(result)) {
+      console.log(result.payload);
       toast.success("User registered successfully");
       navigate("/");
     } else {

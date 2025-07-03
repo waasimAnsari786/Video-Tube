@@ -33,7 +33,9 @@ const LoginForm = () => {
         payload: data,
       })
     );
+
     if (loginUserThunk.fulfilled.match(result)) {
+      console.log(result.payload);
       toast.success(result.payload.message);
       navigate("/");
     } else {

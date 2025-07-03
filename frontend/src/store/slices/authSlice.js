@@ -34,15 +34,12 @@ const registerUserThunk = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const { email, password } = formData;
-
-      const res = await axiosInstance.post("/test", formData);
-      //  await axiosInstance.post("/test", formData);
-      // const loggedInAccount = await axiosInstance.post("/users/login", {
-      //   email,
-      //   password,
-      // });
-
-      return res.data;
+      await axiosInstance.post("/users", formData);
+      const loggedInAccount = await axiosInstance.post("/users/login", {
+        email,
+        password,
+      });
+      return loggedInAccount.data;
     } catch (err) {
       console.log(err);
       return rejectWithValue(
@@ -132,10 +129,7 @@ const authSlice = createSlice({
     builder
       // Register
       .addCase(registerUserThunk.pending, updateStateOnPending)
-      .addCase(registerUserThunk.fulfilled, (state, action) => {
-        console.log(action.payload);
-        state.loading = false;
-      })
+      .addCase(registerUserThunk.fulfilled, updateUserInfo)
       .addCase(registerUserThunk.rejected, updateStateOnRejected)
 
       // Login

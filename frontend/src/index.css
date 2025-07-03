@@ -60,7 +60,6 @@
   color: var(--my-blue);
   background: none;
   border: 2px solid var(--my-blue);
-  cursor: pointer;
   overflow: hidden;
   transition: all 0.3s ease;
 }
