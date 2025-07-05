@@ -1,9 +1,3 @@
-// ✅ This class contains generic async thunk functions (`getThunk`, `postThunk`, `patchThunk`, `deleteThunk`).
-// ✅ Each thunk uses the shared `axiosInstance` directly to perform API requests.
-// ✅ All thunks follow a consistent structure with built-in error handling using `rejectWithValue`.
-// ✅ These methods are passed to `createAsyncThunk` in Redux slices to avoid boilerplate code.
-// ✅ This approach centralizes API logic and ensures reusable, clean async actions.
-
 import { axiosInstance } from "../index";
 
 class AsyncThunk {
@@ -13,6 +7,10 @@ class AsyncThunk {
         const response = await axiosInstance.get(url, config);
         return response.data;
       } catch (err) {
+        if (config.signal.aborted) {
+          console.log("get request cancelled");
+          return rejectWithValue("get request cancelled");
+        } // silent cancellation
         return rejectWithValue(err.response?.data?.message || "GET failed");
       }
     };
@@ -24,6 +22,10 @@ class AsyncThunk {
         const response = await axiosInstance.post(url, payload, config);
         return response.data;
       } catch (err) {
+        if (config.signal.aborted) {
+          console.log("post request cancelled");
+          return rejectWithValue("post request cancelled");
+        }
         return rejectWithValue(err.response?.data?.message || "POST failed");
       }
     };
@@ -32,9 +34,13 @@ class AsyncThunk {
   patchThunk() {
     return async ({ url, payload, config = {} }, { rejectWithValue }) => {
       try {
-        const response = await axiosInstance.patch(url, payload, config);
+        const response = await axiosInstance.post(url, payload, config);
         return response.data;
       } catch (err) {
+        if (config.signal.aborted) {
+          console.log("patch request cancelled");
+          return rejectWithValue("patch request cancelled");
+        }
         return rejectWithValue(err.response?.data?.message || "PATCH failed");
       }
     };
@@ -46,6 +52,10 @@ class AsyncThunk {
         const response = await axiosInstance.delete(url, config);
         return response.data;
       } catch (err) {
+        if (config.signal.aborted) {
+          console.log("delete request cancelled");
+          return rejectWithValue("delete request cancelled");
+        }
         return rejectWithValue(err.response?.data?.message || "DELETE failed");
       }
     };

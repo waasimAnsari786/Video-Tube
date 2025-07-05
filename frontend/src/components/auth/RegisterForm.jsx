@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
@@ -31,16 +31,39 @@ const RegisterForm = () => {
     reValidateMode: "onSubmit",
   });
 
-  const handleRegister = async (data) => {
-    const result = await dispatch(registerUserThunk(data));
+  const controllerRef = useRef(null);
+
+  const handleRegister = async (formData) => {
+    const controller = new AbortController();
+    if (controllerRef.current) {
+      controllerRef.current.abort(); // Abort previous
+    }
+    controllerRef.current = controller;
+
+    const result = await dispatch(
+      registerUserThunk({ formData, signal: controller.signal })
+    );
+
     if (registerUserThunk.fulfilled.match(result)) {
-      console.log(result.payload);
+      console.log(result);
       toast.success("User registered successfully");
       navigate("/");
     } else {
-      toast.error(result.payload || "Registration failed");
+      // Don't show error toast if request was cancelled
+      if (result.payload !== "Register user request cancelled") {
+        toast.error(result.payload || "Registration failed");
+      }
     }
   };
+
+  useEffect(() => {
+    return () => {
+      // Cancel any in-progress request on unmount
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <Container childElemClass="h-screen flex items-center flex-col justify-center">

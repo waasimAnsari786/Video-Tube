@@ -29,8 +29,11 @@ app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/playlists", playlistRouter);
 app.use("/api/v1/test", (req, res) => {
   console.log(req.body);
-  return res.status(200).json(req.body);
+  setTimeout(() => {
+    return res.status(200).json(req.body);
+  }, 5000);
 });
+
 // Error Handling Middleware
 app.use(errorHandler);
 

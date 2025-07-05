@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { FaEnvelope } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
@@ -26,29 +26,54 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogin = async (data) => {
+  const controllerRef = useRef(null);
+
+  const handlelogin = async (formData) => {
+    const controller = new AbortController();
+    if (controllerRef.current) {
+      controllerRef.current.abort(); // Abort previous
+    }
+    controllerRef.current = controller;
+
     const result = await dispatch(
       loginUserThunk({
-        url: "/users/login",
-        payload: data,
+        url: "/test",
+        payload: formData,
+        config: { signal: controllerRef.current.signal },
       })
+      // loginUserThunk({
+      //   url: "/users/login",
+      //   payload: formData,
+      //   config: { signal: controllerRef.current.signal },
+      // })
     );
 
     if (loginUserThunk.fulfilled.match(result)) {
-      console.log(result.payload);
+      console.log(result);
       toast.success(result.payload.message);
       navigate("/");
     } else {
-      toast.error(result.payload || "Login failed");
+      if (result.payload !== "post request cancelled") {
+        toast.error(result.payload || "Login failed");
+      }
     }
   };
+
+  useEffect(() => {
+    return () => {
+      // Cancel any in-progress request on unmount
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <Container childElemClass="h-screen flex items-center flex-col justify-center">
       <Logo src="/images/logo.png" logoClass={"mb-5"} />
 
       <form
-        onSubmit={handleSubmit(handleLogin, (formErrors) =>
+        onSubmit={handleSubmit(handlelogin, (formErrors) =>
           showFormErrors(formErrors)
         )}
         className="bg-white shadow-2xl rounded-xl p-5 md:p-10 text-center w-full md:w-1/2"

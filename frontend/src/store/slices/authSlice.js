@@ -31,17 +31,19 @@ const initialState = {
 // For user registration (custom logic - not using generic thunk)
 const registerUserThunk = createAsyncThunk(
   "auth/registerUser",
-  async (formData, { rejectWithValue }) => {
+  async ({ formData, signal }, { rejectWithValue }) => {
     try {
       const { email, password } = formData;
-      await axiosInstance.post("/users", formData);
-      const loggedInAccount = await axiosInstance.post("/users/login", {
-        email,
-        password,
-      });
-      return loggedInAccount.data;
+
+      // const res = await axiosInstance.post("/users", formData, { signal });
+      // const loginRes = await axiosInstance.post("/users/login", { email, password }, { signal });
+      const loginRes = await axiosInstance.post("/test", formData, { signal });
+      return loginRes.data;
     } catch (err) {
-      console.log(err);
+      if (signal.aborted) {
+        console.log("Register user request cancelled");
+        return rejectWithValue("Register user request cancelled");
+      }
       return rejectWithValue(
         err.response?.data?.message || "User hasn't registered"
       );
