@@ -1,3 +1,4 @@
+import { OAuth2Client } from "google-auth-library";
 // constant var for DB name
 const DB_NAME = "youTube";
 // max file size
@@ -15,6 +16,9 @@ const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
 const USER_EXCLUDED_FIELDS =
   "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password";
 
+// google related stuff
+const GOOGLE_CLIENT = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 export {
   DB_NAME,
   MAX_FILE_SIZE,
@@ -23,4 +27,5 @@ export {
   VIDEO_EXTENTIONS,
   ALLOWED_EXTENTIONS,
   USER_EXCLUDED_FIELDS,
+  GOOGLE_CLIENT,
 };

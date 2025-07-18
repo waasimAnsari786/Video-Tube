@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
   LoginForm,
   RegisterForm,
@@ -10,11 +11,13 @@ import {
   UploadVideoPage,
   UpdateVideoPage,
   WatchPage,
+  AuthOptions,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import { GOOGLE_CLIENT_ID } from "./constant";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -28,6 +31,15 @@ const App = () => {
     },
     {
       path: "/register",
+      element: (
+        <AuthProtectedLayout authentication={false}>
+          <AuthOptions />
+          {/* <RegisterForm /> */}
+        </AuthProtectedLayout>
+      ),
+    },
+    {
+      path: "/signup",
       element: (
         <AuthProtectedLayout authentication={false}>
           <RegisterForm />
@@ -100,21 +112,23 @@ const App = () => {
 
   return (
     <>
-      <Provider store={store}>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-          transition:Bounce
-        />
-        <RouterProvider router={router} />
-      </Provider>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <Provider store={store}>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+            transition:Bounce
+          />
+          <RouterProvider router={router} />
+        </Provider>
+      </GoogleOAuthProvider>
     </>
   );
 };

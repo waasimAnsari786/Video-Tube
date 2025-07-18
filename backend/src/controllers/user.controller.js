@@ -8,6 +8,7 @@ import {
 import User from "../models/user.model.js";
 import {
   COOKIE_OPTIONS,
+  GOOGLE_CLIENT,
   IMAGE_EXTENTIONS,
   USER_EXCLUDED_FIELDS,
 } from "../constants.js";
@@ -54,6 +55,45 @@ const registerUser = asyncHandler(async (req, res, _) => {
       .json(new ApiResponse(200, {}, "User registered successfully"));
   } catch (error) {
     throw error;
+  }
+});
+
+const googleSignup = asyncHandler(async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const ticket = await GOOGLE_CLIENT.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    // let user = await User.findOne({ googleId: payload.sub });
+
+    // if (!user) {
+    //   user = await User.create({
+    //     googleId: payload.sub,
+    //     email: payload.email,
+    //     name: payload.name,
+    //     picture: payload.picture,
+    //   });
+    // }
+
+    // const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    //   expiresIn: "15m",
+    // });
+
+    // const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    //   expiresIn: "7d",
+    // });
+
+    // res
+    //   .cookie("accessToken", jwtToken, { httpOnly: true, sameSite: "Lax" })
+    //   .cookie("refreshToken", refreshToken, { httpOnly: true, sameSite: "Lax" })
+    //   .json({ message: "Login successful", user });
+  } catch (err) {
+    res.status(401).json({ message: "Unauthorized", error: err.message });
   }
 });
 

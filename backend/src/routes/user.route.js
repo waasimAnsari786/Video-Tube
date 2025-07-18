@@ -22,6 +22,7 @@ const userRouter = Router();
 userRouter.route("/").post(registerUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/refresh-token").post(refreshAccessToken);
+userRouter.route("/google").post(googleSignup);
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below

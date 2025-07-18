@@ -72,10 +72,7 @@ export default function MyWebLayout() {
             // })
           );
 
-          if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) {
-            navigate("/login");
-            return;
-          }
+          if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
         }
 
         refreshTimeoutId.current = setTimeout(
