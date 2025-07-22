@@ -106,59 +106,118 @@ const registerUser = asyncHandler(async (req, res, _) => {
     throw new ApiError(500, "Internal server error while registering user");
   }
 
-  // Step 6: Generate a unique email verification token for the user
-  const verificationToken = createdUser.generateEmailVerificationToken();
-
-  // Step 7: Send verification email with the token using nodemailer
-  await sendEmail(createdUser.email, verificationToken);
-
-  // Step 8: Respond with success (without returning sensitive fields)
+  // Step 6: Respond with success (without returning sensitive fields)
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        {},
+        { createdUser },
         "User registered successfully. Please verify your email."
       )
     );
 });
 
-const verifyEmail = asyncHandler(async (req, res) => {
-  // Step 1: Extract token from the query string
-  const { token } = req.query;
+const sendEmailVerification = asyncHandler(async (req, res) => {
+  const { verificationType } = req.body;
+  const user = req.user;
 
-  // Step 2: If token is missing, throw an error
-  if (!token) {
-    throw new ApiError(400, "Verification token is missing");
+  if (!verificationType || !["link", "otp"].includes(verificationType)) {
+    throw new ApiError(400, "Invalid or missing verification type");
   }
 
-  let // Step 3: Verify the token using JWT and decode it to get user ID
-    decoded = jwt.verify(token, process.env.VERIFICATION_TOKEN_SECRET);
+  if (verificationType === "link") {
+    const emailVeficationToken = user.generateEmailVerificationToken();
+    const url = `${process.env.FRONTEND_URL}/verify-email?token=${emailVeficationToken}&email=${user.email}`;
 
-  // Step 4: Find the user by decoded token ID
-  const user = await User.findById(decoded._id);
+    const html = `<h2>Hello ${user.fullName || user.userName},</h2>
+      <p>Please verify your email by clicking the link:</p>
+      <a href="${url}" target="_blank">${url}</a>`;
 
-  // Step 5: If user doesn't exist, throw an error
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
+    await sendEmail({
+      to: user.email,
+      subject: "Email Verification Request from VideoTube",
+      html,
+    });
 
-  // Step 6: If email is already verified, return success message
-  if (user.isEmailVerified) {
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "Email is already verified"));
+      .json(new ApiResponse(200, {}, "Verification link sent."));
   }
 
-  // Step 7: Mark user's email as verified and save the user
+  if (verificationType === "otp") {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailVerificationOtp = otp;
+    user.emailVerificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    const html = `<h2>Hello ${user.fullName || user.userName},</h2>
+      <p>For verifying your email in VideoTube, your OTP is: <strong>${otp}</strong></p>`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Email Verification Request from VideoTube",
+      html,
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "OTP sent to your email"));
+  }
+
+  throw new ApiError(400, "Invalid verification type");
+});
+
+const verifyEmailByLink = asyncHandler(async (req, res) => {
+  const { verificationToken } = req.body;
+  const user = req.user;
+
+  if (!verificationToken) {
+    throw new ApiError(400, "Invalid or missing verification token");
+  }
+
+  let decodedVerificationToken;
+  try {
+    decodedVerificationToken = jwt.verify(
+      verificationToken,
+      process.env.VERIFICATION_TOKEN_SECRET
+    );
+  } catch (err) {
+    throw new ApiError(400, "Invalid or expired verification token");
+  }
+
+  if (String(user._id) !== decodedVerificationToken._id) {
+    throw new ApiError(400, "Verification Token does not match the user");
+  }
+
   user.isEmailVerified = true;
   await user.save();
 
-  // Step 8: Respond with success message
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Email verified successfully"));
+    .json(new ApiResponse(200, {}, "Email verified via link"));
+});
+
+const verifyEmailByOTP = asyncHandler(async (req, res) => {
+  const { otp } = req.body;
+  const user = req.user;
+
+  if (
+    !user.emailVerificationOtp ||
+    user.emailVerificationOtp !== otp ||
+    user.emailVerificationOtpExpires < new Date()
+  ) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+
+  user.isEmailVerified = true;
+  user.emailVerificationOtp = undefined;
+  user.emailVerificationOtpExpires = undefined;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Email verified successfully via OTP"));
 });
 
 const googleSignup = asyncHandler(async (req, res) => {
@@ -185,6 +244,7 @@ const googleSignup = asyncHandler(async (req, res) => {
         gooName: name,
         gooPic: picture,
       },
+      isEmailVerified: true,
     });
   }
 
@@ -641,5 +701,7 @@ export {
   getWatchHistory,
   getCurrentUser,
   googleSignup,
-  verifyEmail,
+  sendEmailVerification,
+  verifyEmailByLink,
+  verifyEmailByOTP,
 };

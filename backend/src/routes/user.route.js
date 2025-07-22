@@ -12,10 +12,15 @@ import {
   getWatchHistory,
   getCurrentUser,
   googleSignup,
+  verifyEmail,
+  sendEmailVerification,
+  verifyEmailByLink,
+  verifyEmailByOTP,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
+import checkUserEmailStatus from "../middlewares/checkUserEmailStatus.middleware.js";
 
 const userRouter = Router();
 
@@ -24,6 +29,17 @@ userRouter.route("/").post(registerUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/refresh-token").post(refreshAccessToken);
 userRouter.route("/google").post(googleSignup);
+userRouter
+  .route("/send-email")
+  .post(checkUserEmailStatus, sendEmailVerification); // Send link or OTP based on req.body
+
+userRouter
+  .route("/verify-email/link")
+  .post(checkUserEmailStatus, verifyEmailByLink); // Handle verification via link
+
+userRouter
+  .route("/verify-email/otp")
+  .post(checkUserEmailStatus, verifyEmailByOTP); // Handle verification via OTP
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below

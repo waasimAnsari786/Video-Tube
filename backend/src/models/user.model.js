@@ -104,9 +104,20 @@ const userSchema = new Schema(
       type: googleAuthSchema,
       default: undefined, // Optional field, used when user logs in via Google
     },
+    // ✅ Email Verification
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+
+    // ✅ For OTP-based Email Verification
+    emailVerificationOtp: {
+      type: String,
+      default: null,
+    },
+    emailVerificationOtpExpires: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }
