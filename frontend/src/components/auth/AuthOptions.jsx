@@ -7,7 +7,7 @@ import { axiosInstance } from "../../utils";
 const AuthOptions = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await axiosInstance.post("/auth/google", {
+      const res = await axiosInstance.post("/users/google", {
         token: credentialResponse.credential,
       });
       console.log(res.data);

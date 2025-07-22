@@ -16,8 +16,10 @@ const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
 const USER_EXCLUDED_FIELDS =
   "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password";
 
-// google related stuff
-const GOOGLE_CLIENT = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// google related stuff constants
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export {
   DB_NAME,
@@ -28,4 +30,5 @@ export {
   ALLOWED_EXTENTIONS,
   USER_EXCLUDED_FIELDS,
   GOOGLE_CLIENT,
+  GOOGLE_CLIENT_ID,
 };

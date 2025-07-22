@@ -11,6 +11,7 @@ import {
   getUserChannelDetails,
   getWatchHistory,
   getCurrentUser,
+  googleSignup,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
