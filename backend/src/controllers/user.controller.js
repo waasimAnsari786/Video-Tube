@@ -10,8 +10,8 @@ import {
   COOKIE_OPTIONS,
   GOOGLE_CLIENT,
   GOOGLE_CLIENT_ID,
+  GOOGLE_USER_EXCLUDED_FIELDS,
   IMAGE_EXTENTIONS,
-  USER_EXCLUDED_FIELDS,
 } from "../constants.js";
 import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
@@ -43,39 +43,106 @@ const generateAccessAndRefreshTokens = async user => {
       console.error("Error while generating refresh-token");
       throw new ApiError(500, "Internal server error while generating tokens");
     }
-
-    // Step 4: Save the generated refresh token in the database using $set
-    // Step 5: Exclude unnecessary fields (like image publicId/resourceType and password) from the returned document
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      {
-        $set: { refreshToken },
-      },
-      { new: true } // return the updated document
-    )
-      .select(USER_EXCLUDED_FIELDS)
-      .lean(); // convert Mongoose document to a plain JS object
-
-    // Step 6: Handle case where user update failed
-    if (!updatedUser) {
-      console.error("Error while updating user after creating tokens");
-      throw new ApiError(
-        500,
-        "Internal server error while updating user with refresh token"
-      );
-    }
-
-    // Step 7: Attach the newly generated access token to the updated user object
-    updatedUser.accessToken = accessToken;
-
-    // Step 8: Return the user object with access token
-    return updatedUser;
+    return { refreshToken, accessToken };
   } catch (error) {
-    // Step 9: Log and rethrow any caught errors
     console.error("Token generation error:", error);
     throw error;
   }
 };
+
+const googleSignup = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+
+  // ✅ Step 1: Check if token is provided
+  if (!token) {
+    throw new ApiError(
+      400,
+      "No credential (token) provided for Google signup."
+    );
+  }
+
+  // ✅ Step 2: Verify the Google ID token using Google's API
+  const ticket = await GOOGLE_CLIENT.verifyIdToken({
+    idToken: token,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  // ✅ Step 3: Extract required user info from Google payload
+  const payload = ticket.getPayload();
+  const { sub: googleId, email, name, picture } = payload;
+
+  // ✅ Step 4: Check if user exists by either google.gooID or email
+  const existingUser = await User.findOne({
+    $or: [{ "google.gooID": googleId }, { email }],
+  });
+
+  let user = null;
+
+  // ✅ Step 5: Handle if user is already registered
+  if (existingUser) {
+    // 👉 Case 1: Email/Password user trying Google login
+    if (existingUser.email === email) {
+      throw new ApiError(
+        400,
+        "User with this email already exists. Please log in via simple Email/Password instead of Google."
+      );
+    }
+
+    // 👉 Case 2: Google user logging in again
+    if (existingUser.google?.gooID === googleId) {
+      user = existingUser;
+    } else {
+      // This handles rare edge cases where email doesn't match but some other user has the same Google ID
+      throw new ApiError(500, "Unexpected user conflict during Google signup.");
+    }
+  } else {
+    // ✅Step 6: Create new Google user
+    user = await User.create({
+      google: {
+        gooID: googleId,
+        gooEmail: email,
+        gooName: name,
+        gooPic: picture,
+      },
+      isEmailVerified: true,
+    });
+  }
+
+  // ✅ Step 7: Generate tokens
+  const { refreshToken, accessToken } =
+    await generateAccessAndRefreshTokens(user);
+
+  // ✅ Step 8: Update user with refresh token and prepare response
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { $set: { refreshToken } },
+    { new: true }
+  )
+    .select(GOOGLE_USER_EXCLUDED_FIELDS)
+    .lean();
+
+  if (!updatedUser) {
+    throw new ApiError(
+      500,
+      "Internal server error while updating new Google user."
+    );
+  }
+
+  updatedUser.accessToken = accessToken;
+
+  // ✅ Step 9: Set cookies and return success
+  return res
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .status(201)
+    .json(
+      new ApiResponse(
+        201,
+        updatedUser,
+        "User signed up successfully via Google."
+      )
+    );
+});
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // Step 1: Extract user data from the request body
@@ -85,7 +152,10 @@ const registerUser = asyncHandler(async (req, res, _) => {
   checkFields([userName, fullName, email, password], "All fields are required");
 
   // Step 3: Check if a user already exists with same userName or email
-  const existedUser = await User.findOne({ $or: [{ userName }, { email }] });
+  const existedUser = await User.findOne({
+    $or: [{ userName }, { email }, { "google.gooEmail": email }],
+  });
+
   if (existedUser) {
     throw new ApiError(
       401,
@@ -218,50 +288,6 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Email verified successfully via OTP"));
-});
-
-const googleSignup = asyncHandler(async (req, res) => {
-  const { token } = req.body;
-
-  // Step 1: Verify Google ID token
-  const ticket = await GOOGLE_CLIENT.verifyIdToken({
-    idToken: token,
-    audience: GOOGLE_CLIENT_ID,
-  });
-
-  const payload = ticket.getPayload();
-  const { sub, email, name, picture } = payload;
-
-  // Step 2: Check if user already exists using google.gooID
-  let user = await User.findOne({ "google.gooID": sub });
-
-  if (!user) {
-    // Step 3: If new user, create user with google subdocument
-    user = await User.create({
-      google: {
-        gooID: sub,
-        gooEmail: email,
-        gooName: name,
-        gooPic: picture,
-      },
-      isEmailVerified: true,
-    });
-  }
-
-  const updatedUser = await generateAccessAndRefreshTokens(user);
-
-  // Step 4: Set cookies and return response
-  return res
-    .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
-    .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        updatedUser,
-        "User logged in successfully via Google."
-      )
-    );
 });
 
 const loginUser = asyncHandler(async (req, res, _) => {

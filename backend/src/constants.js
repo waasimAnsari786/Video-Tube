@@ -13,11 +13,10 @@ const IMAGE_EXTENTIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
 const VIDEO_EXTENTIONS = [".mp4", ".mov", ".avi", ".mkv"];
 const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
 // user excluded properties/fields
-const USER_EXCLUDED_FIELDS =
-  "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password";
+const GOOGLE_USER_EXCLUDED_FIELDS =
+  "-avatar -coverImage -password -userName -email -fullName -watchHistory -emailVerificationOtp -emailVerificationOtpExpires";
 
 // google related stuff constants
-
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT = new OAuth2Client(GOOGLE_CLIENT_ID);
 
@@ -31,4 +30,5 @@ export {
   USER_EXCLUDED_FIELDS,
   GOOGLE_CLIENT,
   GOOGLE_CLIENT_ID,
+  GOOGLE_USER_EXCLUDED_FIELDS,
 };

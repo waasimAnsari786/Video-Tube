@@ -31,13 +31,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mediaSchema from "./media.model.js"; // Subschema for media fields like avatar, cover
 import googleAuthSchema from "./googleAuth.model.js"; // Subschema for Google-authenticated users
+import emailVerificationSchema from "./emailVerification.model.js";
 
 const userSchema = new Schema(
   {
     userName: {
       type: String,
       unique: true,
-      required: [true, "User name is required"],
+      required: false,
       trim: true,
       index: true,
       validate: {
@@ -104,12 +105,15 @@ const userSchema = new Schema(
       type: googleAuthSchema,
       default: undefined, // Optional field, used when user logs in via Google
     },
+    emailVerification: {
+      type: emailVerificationSchema,
+      default: undefined,
+    },
     // ✅ Email Verification
     isEmailVerified: {
       type: Boolean,
       default: false,
     },
-
     // ✅ For OTP-based Email Verification
     emailVerificationOtp: {
       type: String,
