@@ -145,25 +145,36 @@ const googleSignup = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res, _) => {
-  // Step 1: Extract user data from the request body
+  // ✅ Step 1: Extract user data from the request body
   const { userName, email, fullName, password } = req.body;
 
-  // Step 2: Check if all required fields are provided
+  // ✅ Step 2: Check if all required fields are provided
   checkFields([userName, fullName, email, password], "All fields are required");
 
-  // Step 3: Check if a user already exists with same userName or email
+  // ✅ Step 3: Check if a user already exists with google.gooEmail, userName, or email
   const existedUser = await User.findOne({
-    $or: [{ userName }, { email }, { "google.gooEmail": email }],
+    $or: [{ "google.gooEmail": email }, { userName }, { email }],
   });
 
   if (existedUser) {
-    throw new ApiError(
-      401,
-      "User exists with email or user-name. Please do login."
-    );
+    // 👉 Check if email matches with a Google-registered user
+    if (existedUser.google?.gooEmail === email) {
+      throw new ApiError(
+        400,
+        "User with the provided email does exist. Please do login via Google instead of submitting this form."
+      );
+    }
+
+    // 👉 Check if email or userName conflicts with an existing account
+    if (existedUser.email === email || existedUser.userName === userName) {
+      throw new ApiError(
+        401,
+        "User exists with email or user-name. Please do login."
+      );
+    }
   }
 
-  // Step 4: Create a new user in the database
+  // ✅ Step 4: Create a new user in the database
   const createdUser = await User.create({
     userName,
     fullName,
@@ -171,18 +182,26 @@ const registerUser = asyncHandler(async (req, res, _) => {
     password,
   });
 
-  // Step 5: Ensure user creation succeeded
+  // ✅ Step 5: Ensure user creation succeeded
   if (!createdUser) {
     throw new ApiError(500, "Internal server error while registering user");
   }
 
-  // Step 6: Respond with success (without returning sensitive fields)
+  const safeUser = {
+    _id: createdUser._id,
+    email: createdUser.email,
+    userName: createdUser.userName,
+    fullName: createdUser.fullName,
+    isEmailVerified: createdUser.isEmailVerified,
+  };
+
+  // ✅ Step 6: Respond with success (without returning sensitive fields)
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { createdUser },
+        safeUser,
         "User registered successfully. Please verify your email."
       )
     );
@@ -212,7 +231,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "Verification link sent."));
+      .json(new ApiResponse(200, {}, "Verification link sent to your email."));
   }
 
   if (verificationType === "otp") {
@@ -234,8 +253,6 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "OTP sent to your email"));
   }
-
-  throw new ApiError(400, "Invalid verification type");
 });
 
 const verifyEmailByLink = asyncHandler(async (req, res) => {
@@ -270,6 +287,11 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 
 const verifyEmailByOTP = asyncHandler(async (req, res) => {
   const { otp } = req.body;
+
+  if (!otp) {
+    throw new ApiError(400, "OTP is required for verification");
+  }
+
   const user = req.user;
 
   if (

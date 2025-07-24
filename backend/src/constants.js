@@ -8,13 +8,30 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
 };
+
 // uploaded files allowed extensions
 const IMAGE_EXTENTIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
 const VIDEO_EXTENTIONS = [".mp4", ".mov", ".avi", ".mkv"];
 const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
-// user excluded properties/fields
+
+//-----****user excluded properties/fields****-----
+// google users excluded fields
 const GOOGLE_USER_EXCLUDED_FIELDS =
   "-avatar -coverImage -password -userName -email -fullName -watchHistory -emailVerificationOtp -emailVerificationOtpExpires";
+// simple email/password users excluded fields
+const EMAIL_USER_EXCLUDED_FIELDS =
+  "-avatar -coverImage -password -watchHistory -emailVerificationOtp -emailVerificationOtpExpires -google";
+
+//-----****user fields validation regex****-----
+// validate userName regex
+const VALIDATE_USERNAME_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/;
+// validate email regex
+const VALIDATE_EMAIL_REGEX =
+  /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/;
+// validate PASSWORD regex
+const VALIDATE_PASSWORD_REGEX =
+  /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/;
 
 // google related stuff constants
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -31,4 +48,8 @@ export {
   GOOGLE_CLIENT,
   GOOGLE_CLIENT_ID,
   GOOGLE_USER_EXCLUDED_FIELDS,
+  EMAIL_USER_EXCLUDED_FIELDS,
+  VALIDATE_EMAIL_REGEX,
+  VALIDATE_PASSWORD_REGEX,
+  VALIDATE_USERNAME_REGEX,
 };

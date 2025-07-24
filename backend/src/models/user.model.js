@@ -31,7 +31,12 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mediaSchema from "./media.model.js"; // Subschema for media fields like avatar, cover
 import googleAuthSchema from "./googleAuth.model.js"; // Subschema for Google-authenticated users
-import emailVerificationSchema from "./emailVerification.model.js";
+
+import {
+  VALIDATE_EMAIL_REGEX,
+  VALIDATE_PASSWORD_REGEX,
+  VALIDATE_USERNAME_REGEX,
+} from "../constants.js";
 
 const userSchema = new Schema(
   {
@@ -43,9 +48,7 @@ const userSchema = new Schema(
       index: true,
       validate: {
         validator: function (value) {
-          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*_.*_)[a-zA-Z0-9_]{3,20}$/.test(
-            value
-          );
+          return VALIDATE_USERNAME_REGEX.test(value);
         },
         message:
           "User name must be 3-20 characters long and must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 underscore(_)",
@@ -60,9 +63,7 @@ const userSchema = new Schema(
       validate: {
         validator: function (value) {
           if (!value) return true;
-          return /^[\da-zA-Z]+(?:[+%._-][\da-zA-Z]+)*@(?:[-.])*[a-zA-Z\d]+(?:[-])*\.[A-Za-z]{2,}$/.test(
-            value
-          );
+          return VALIDATE_EMAIL_REGEX.test(value);
         },
         message: "Please enter a valid email address",
       },
@@ -78,9 +79,7 @@ const userSchema = new Schema(
       validate: {
         validator: function (value) {
           if (!value) return true;
-          return /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/.test(
-            value
-          );
+          return VALIDATE_PASSWORD_REGEX.test(value);
         },
         message:
           "Password must be at least 8 characters long, contain at least 1 uppercase, 1 lowercase, 1 digit, 1 special character (@$!%*?&), and must not have consecutive repeating characters.",
@@ -104,10 +103,6 @@ const userSchema = new Schema(
     google: {
       type: googleAuthSchema,
       default: undefined, // Optional field, used when user logs in via Google
-    },
-    emailVerification: {
-      type: emailVerificationSchema,
-      default: undefined,
     },
     // ✅ Email Verification
     isEmailVerified: {

@@ -1,3 +1,4 @@
+import { VALIDATE_EMAIL_REGEX } from "../constants.js";
 import User from "../models/user.model.js";
 import ApiError from "../utils/API_error.utils.js";
 import asyncHandler from "../utils/asyncHandler.utils.js";
@@ -8,6 +9,11 @@ const checkUserEmailStatus = asyncHandler(async (req, res, next) => {
   // Ensure email is provided
   if (!email) {
     throw new ApiError(400, "Email is required for verifying it.");
+  }
+
+  // Check email format using your provided regex
+  if (!VALIDATE_EMAIL_REGEX.test(email)) {
+    throw new ApiError(400, "Invalid email format.");
   }
 
   // Find user by email
