@@ -112,23 +112,21 @@ const googleSignup = asyncHandler(async (req, res) => {
   const { refreshToken, accessToken } =
     await generateAccessAndRefreshTokens(user);
 
-  // ✅ Step 8: Update user with refresh token and prepare response
-  const updatedUser = await User.findByIdAndUpdate(
-    user._id,
-    { $set: { refreshToken } },
-    { new: true }
-  )
-    .select(GOOGLE_USER_EXCLUDED_FIELDS)
-    .lean();
-
-  if (!updatedUser) {
-    throw new ApiError(
-      500,
-      "Internal server error while updating new Google user."
-    );
-  }
-
-  updatedUser.accessToken = accessToken;
+  // ✅ Step 8: save user with refresh token and prepare response
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+  const safeUser = {
+    _id: user._id,
+    google: {
+      gooID: googleId,
+      gooEmail: email,
+      gooName: name,
+      gooPic: picture,
+    },
+    isEmailVerified: user.isEmailVerified,
+    accessToken,
+    refreshToken,
+  };
 
   // ✅ Step 9: Set cookies and return success
   return res
@@ -136,11 +134,7 @@ const googleSignup = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
     .status(201)
     .json(
-      new ApiResponse(
-        201,
-        updatedUser,
-        "User signed up successfully via Google."
-      )
+      new ApiResponse(201, safeUser, "User signed up successfully via Google.")
     );
 });
 
@@ -257,12 +251,14 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
 
 const verifyEmailByLink = asyncHandler(async (req, res) => {
   const { verificationToken } = req.body;
-  const user = req.user;
+  const user = req.user; // Assuming user is already populated from middleware
 
+  // 1. Check if token is provided
   if (!verificationToken) {
     throw new ApiError(400, "Invalid or missing verification token");
   }
 
+  // 2. Verify the token
   let decodedVerificationToken;
   try {
     decodedVerificationToken = jwt.verify(
@@ -273,69 +269,153 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid or expired verification token");
   }
 
+  // 3. Validate token’s _id matches user._id
   if (String(user._id) !== decodedVerificationToken._id) {
-    throw new ApiError(400, "Verification Token does not match the user");
+    throw new ApiError(400, "Verification token does not match the user");
   }
 
+  // 4. Update user as verified
   user.isEmailVerified = true;
-  await user.save();
 
+  // 5. Generate tokens
+  const { accessToken, refreshToken } =
+    await generateAccessAndRefreshTokens(user);
+
+  // 6. Save refresh token and verification status
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  // 7. Build safe user response object
+  const safeUser = {
+    _id: user._id,
+    email: user.email,
+    userName: user.userName,
+    fullName: user.fullName,
+    isEmailVerified: user.isEmailVerified,
+    accessToken,
+    refreshToken,
+  };
+
+  // 8. Return response with cookies and success message
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Email verified via link"));
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .json(
+      new ApiResponse(
+        200,
+        safeUser,
+        "Email verified and user logged-in successfully"
+      )
+    );
 });
 
 const verifyEmailByOTP = asyncHandler(async (req, res) => {
   const { otp } = req.body;
+  const user = req.user;
 
+  // 1. Check if OTP is provided
   if (!otp) {
     throw new ApiError(400, "OTP is required for verification");
   }
 
-  const user = req.user;
-
-  if (
+  // 2. Validate the OTP
+  const isOtpInvalid =
     !user.emailVerificationOtp ||
     user.emailVerificationOtp !== otp ||
-    user.emailVerificationOtpExpires < new Date()
-  ) {
+    user.emailVerificationOtpExpires < new Date();
+
+  if (isOtpInvalid) {
     throw new ApiError(400, "Invalid or expired OTP");
   }
 
+  // 3. Mark email as verified and clear OTP fields
   user.isEmailVerified = true;
   user.emailVerificationOtp = undefined;
   user.emailVerificationOtpExpires = undefined;
-  await user.save();
 
+  // 4. Generate access and refresh tokens
+  const { accessToken, refreshToken } =
+    await generateAccessAndRefreshTokens(user);
+
+  // 5. Save refresh token
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  // 6. Prepare safe user data
+  const safeUser = {
+    _id: user._id,
+    email: user.email,
+    userName: user.userName,
+    fullName: user.fullName,
+    isEmailVerified: user.isEmailVerified,
+    accessToken,
+    refreshToken,
+  };
+
+  // 7. Return response with cookies and success message
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Email verified successfully via OTP"));
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .json(
+      new ApiResponse(
+        200,
+        safeUser,
+        "Email verified and user logged-in via OTP"
+      )
+    );
 });
 
-const loginUser = asyncHandler(async (req, res, _) => {
+const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // 1. Check if required fields are provided
   checkFields([email, password], "Email and password are required");
 
-  const existedUser = await User.findOne({ email });
+  // 2. Check if user exists by matching the email
+  const existingUser = await User.findOne({ email });
 
-  if (!existedUser) {
-    throw new ApiError(404, "User doesn't exist");
+  if (!existingUser) {
+    throw new ApiError(404, "User not found with this email");
   }
 
-  const isPasswordCorrect = await existedUser.comparePassword(password.trim());
+  // 3. Check if email is verified
+  if (!existingUser.isEmailVerified) {
+    throw new ApiError(401, "Email is not verified. Please verify first.");
+  }
+
+  // 4. Compare password with saved hash
+  const isPasswordCorrect = await existingUser.comparePassword(password.trim());
 
   if (!isPasswordCorrect) {
-    throw new ApiError(400, "Provided password is incorrect");
+    throw new ApiError(400, "Incorrect password. Please try again.");
   }
 
-  const updatedUser = await generateAccessAndRefreshTokens(existedUser);
+  // 5. Generate access and refresh tokens
+  const { accessToken, refreshToken } =
+    await generateAccessAndRefreshTokens(existingUser);
 
+  // 6. Save refresh token to the user object
+  existingUser.refreshToken = refreshToken;
+  await existingUser.save({ validateBeforeSave: false });
+
+  const safeUser = {
+    _id: existingUser._id,
+    email: existingUser.email,
+    userName: existingUser.userName,
+    fullName: existingUser.fullName,
+    isEmailVerified: existingUser.isEmailVerified,
+    accessToken,
+    refreshToken,
+  };
+
+  // 7. Return response with cookies
   return res
     .status(200)
-    .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
-    .json(new ApiResponse(200, updatedUser, "User logged-in successfully"));
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .json(new ApiResponse(200, safeUser, "User logged-in successfully"));
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
@@ -377,7 +457,12 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     throw new ApiError(400, "Unauthorized Request: Refresh token is missing");
   }
 
-  const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+  } catch (err) {
+    throw new ApiError(400, "Invalid or expired refresh token");
+  }
 
   const user = await User.findById(decodedToken?._id);
 
@@ -385,13 +470,23 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     throw new ApiError(400, "Refresh token has been expired or invalid");
   }
 
-  const updatedUser = await generateAccessAndRefreshTokens(user);
+  const { refreshToken, accessToken } =
+    await generateAccessAndRefreshTokens(user);
+
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
     .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
     .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
-    .json(new ApiResponse(200, updatedUser, "Token refreshed successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { refreshToken, accessToken },
+        "Access token refreshed successfully"
+      )
+    );
 });
 
 const updatePassword = asyncHandler(async (req, res, _) => {
