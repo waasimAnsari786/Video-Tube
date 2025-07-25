@@ -118,6 +118,14 @@ const userSchema = new Schema(
       type: Date,
       default: null,
     },
+    updatePasswordOtp: {
+      type: String,
+      default: null,
+    },
+    updatePasswordOtpExpires: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

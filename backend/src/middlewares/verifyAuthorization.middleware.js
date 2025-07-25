@@ -24,8 +24,15 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
   }
 
   const user = await User.findById(decodedToken?._id);
+
   if (!user) {
     throw new ApiError(404, "User doesn't exist");
+  }
+
+  if (user.google.gooID && user.google.gooEmail) {
+    req.isGoogleUser = true;
+  } else {
+    req.isGoogleUser = false;
   }
 
   req.user = user;

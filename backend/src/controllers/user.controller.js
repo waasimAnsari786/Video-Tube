@@ -10,8 +10,8 @@ import {
   COOKIE_OPTIONS,
   GOOGLE_CLIENT,
   GOOGLE_CLIENT_ID,
-  GOOGLE_USER_EXCLUDED_FIELDS,
   IMAGE_EXTENTIONS,
+  USER_EXCLUDED_FIELDS,
 } from "../constants.js";
 import { checkFields } from "../utils/checkFields.utils.js";
 import deleteFileFromLocalServer from "../utils/deleteFileFromLocalServer.utils.js";
@@ -115,18 +115,6 @@ const googleSignup = asyncHandler(async (req, res) => {
   // ✅ Step 8: save user with refresh token and prepare response
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: false });
-  const safeUser = {
-    _id: user._id,
-    google: {
-      gooID: googleId,
-      gooEmail: email,
-      gooName: name,
-      gooPic: picture,
-    },
-    isEmailVerified: user.isEmailVerified,
-    accessToken,
-    refreshToken,
-  };
 
   // ✅ Step 9: Set cookies and return success
   return res
@@ -134,7 +122,11 @@ const googleSignup = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
     .status(201)
     .json(
-      new ApiResponse(201, safeUser, "User signed up successfully via Google.")
+      new ApiResponse(
+        201,
+        { accessToken, refreshToken },
+        "User signed up successfully via Google."
+      )
     );
 });
 
@@ -181,13 +173,9 @@ const registerUser = asyncHandler(async (req, res, _) => {
     throw new ApiError(500, "Internal server error while registering user");
   }
 
-  const safeUser = {
-    _id: createdUser._id,
-    email: createdUser.email,
-    userName: createdUser.userName,
-    fullName: createdUser.fullName,
-    isEmailVerified: createdUser.isEmailVerified,
-  };
+  const user = await User.findById(createdUser._id)
+    .select("email", "_id", "isEmailVerified")
+    .lean();
 
   // ✅ Step 6: Respond with success (without returning sensitive fields)
   return res
@@ -195,7 +183,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
     .json(
       new ApiResponse(
         200,
-        safeUser,
+        user,
         "User registered successfully. Please verify your email."
       )
     );
@@ -285,17 +273,6 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: false });
 
-  // 7. Build safe user response object
-  const safeUser = {
-    _id: user._id,
-    email: user.email,
-    userName: user.userName,
-    fullName: user.fullName,
-    isEmailVerified: user.isEmailVerified,
-    accessToken,
-    refreshToken,
-  };
-
   // 8. Return response with cookies and success message
   return res
     .status(200)
@@ -304,7 +281,7 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        safeUser,
+        { accessToken, refreshToken },
         "Email verified and user logged-in successfully"
       )
     );
@@ -342,17 +319,6 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: false });
 
-  // 6. Prepare safe user data
-  const safeUser = {
-    _id: user._id,
-    email: user.email,
-    userName: user.userName,
-    fullName: user.fullName,
-    isEmailVerified: user.isEmailVerified,
-    accessToken,
-    refreshToken,
-  };
-
   // 7. Return response with cookies and success message
   return res
     .status(200)
@@ -361,7 +327,7 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        safeUser,
+        { accessToken, refreshToken },
         "Email verified and user logged-in via OTP"
       )
     );
@@ -400,22 +366,18 @@ const loginUser = asyncHandler(async (req, res) => {
   existingUser.refreshToken = refreshToken;
   await existingUser.save({ validateBeforeSave: false });
 
-  const safeUser = {
-    _id: existingUser._id,
-    email: existingUser.email,
-    userName: existingUser.userName,
-    fullName: existingUser.fullName,
-    isEmailVerified: existingUser.isEmailVerified,
-    accessToken,
-    refreshToken,
-  };
-
   // 7. Return response with cookies
   return res
     .status(200)
     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
-    .json(new ApiResponse(200, safeUser, "User logged-in successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken },
+        "User logged-in successfully"
+      )
+    );
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
@@ -467,7 +429,7 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
   const user = await User.findById(decodedToken?._id);
 
   if (!user || token !== user.refreshToken) {
-    throw new ApiError(400, "Refresh token has been expired or invalid");
+    throw new ApiError(400, "Invalid or expired refresh token. Try to login.");
   }
 
   const { refreshToken, accessToken } =
@@ -478,8 +440,8 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
 
   return res
     .status(200)
-    .cookie("accessToken", updatedUser.accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", updatedUser.refreshToken, COOKIE_OPTIONS)
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
     .json(
       new ApiResponse(
         200,
@@ -489,13 +451,17 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     );
 });
 
-const updatePassword = asyncHandler(async (req, res, _) => {
+const updatePasswordViaOldPassword = asyncHandler(async (req, res, _) => {
   // extract old,new,confirm passwords from req.body
   // match new and confirm passwords must same. If not throw error
   // get user by req._id
   // check is old password correct by decoding it. if not throw error
   // update password
   // return response
+
+  if (req.isGoogleUser) {
+    throw new ApiError(400, "User is not allowed to update password");
+  }
 
   const { oldPassword, newPassword, confirmPassword } = req.body;
 
@@ -520,42 +486,134 @@ const updatePassword = asyncHandler(async (req, res, _) => {
     .json(new ApiResponse(200, {}, "Password updated successfully"));
 });
 
-const updateAccountDetails = asyncHandler(async (req, res, _) => {
-  // extract account details from req.body
-  // check - is requested data valid?
-  // update user
-  // return response
+const sendUpdatePasswordOTP = asyncHandler(async (req, res, _) => {
+  if (req.isGoogleUser) {
+    throw new ApiError(400, "User is not allowed to update password");
+  }
 
-  const { fullName, email } = req.body;
+  const user = req.user;
 
-  checkFields([fullName, email], "Email and full name is invalid", false);
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit numeric OTP
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: {
-        fullName: fullName ? fullName : req.user.fullName,
-        email: email ? email : req.user.email,
-      },
-    },
-    { new: true, runValidators: true }
-  )
-    .select(`${USER_EXCLUDED_FIELDS} -refreshToken`)
-    .lean();
-
-  if (!updatedUser) {
+  // Send email
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "OTP for Password Update",
+      html: `<h4>Your OTP for updating password is: <strong>${otp}</strong></h4>
+             <p>This OTP will expire in 30 seconds.</p>`,
+    });
+  } catch (err) {
+    console.error("Failed to send update password OTP email:", err);
     throw new ApiError(
       500,
-      "Internal server error while updating acccount details"
+      "Internal server error: Failed to send OTP to your email"
     );
   }
+
+  const otpExpiry = new Date(Date.now() + 30 * 1000); // 30 seconds from now
+
+  user.updatePasswordOtp = otp;
+  user.updatePasswordOtpExpires = otpExpiry;
+
+  await user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        updatedUser,
+        {},
+        `OTP sent successfully to your registered email address ${user.email}`
+      )
+    );
+});
+
+const verifyUpdatePasswordOTP = asyncHandler(async (req, res, _) => {
+  if (req.isGoogleUser) {
+    throw new ApiError(400, "User is not allowed to update password");
+  }
+
+  const { otp } = req.body;
+
+  if (!otp) {
+    throw new ApiError(400, "OTP is required for verification");
+  }
+
+  const user = req.user;
+
+  const isOtpInvalidOrExpired =
+    !user.updatePasswordOtp ||
+    user.updatePasswordOtp !== otp ||
+    user.updatePasswordOtpExpires < new Date();
+
+  if (isOtpInvalidOrExpired) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+
+  // Clear OTP fields from user document
+  user.updatePasswordOtp = undefined;
+  user.updatePasswordOtpExpires = undefined;
+
+  // Allow user to proceed with password update (optional flag if needed)
+  // user.canUpdatePassword = true; // optional: add such a flag if your flow needs it
+
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "OTP verified successfully. You can now update your password."
+      )
+    );
+});
+
+const updateAccountDetails = asyncHandler(async (req, res, _) => {
+  if (req.isGoogleUser) {
+    throw new ApiError(400, "User is not allowed to update account details");
+  }
+
+  const { fullName, email } = req.body;
+
+  checkFields([fullName, email], "Email and full name is invalid", false);
+
+  // Check if provided values match existing ones
+  if (email === req.user.email) {
+    throw new ApiError(
+      400,
+      "New email must be different from the current email"
+    );
+  }
+
+  if (fullName === req.user.fullName) {
+    throw new ApiError(
+      400,
+      "New full name must be different from the current full name"
+    );
+  }
+
+  if (fullName) {
+    req.user.fullName = fullName;
+  }
+
+  if (email) {
+    req.user.email = email;
+  }
+
+  // Save updated user
+  await req.user.save({ validateBeforeSave: false });
+
+  // Send response with provided data
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { email, fullName },
         "User account details updated successfully"
       )
     );
@@ -570,12 +628,12 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     validateFileExtensions([req.file], IMAGE_EXTENTIONS);
 
     const fieldName = req.file.fieldname;
+    const user = req.user;
 
     // Define transform based on field name
     let transformParams = null;
-
     if (fieldName === "avatar") {
-      transformParams = new CloudinaryTransform(100, 100);
+      transformParams = new CloudinaryTransform(96, 96);
     } else if (fieldName === "coverImage") {
       transformParams = new CloudinaryTransform(256, 1200);
     }
@@ -592,25 +650,17 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       uploadedFile.public_id
     );
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          [fieldName]: fileDetails,
-        },
-      },
-      { new: true }
-    )
-      .select(`${fieldName}.secureURL`)
-      .lean();
+    // Save previous file reference to delete later
+    const prevFile = user[fieldName];
 
-    if (!updatedUser) {
-      throw new ApiError(500, "Internal server error while updating user");
-    }
+    // Update user field
+    user[fieldName] = fileDetails;
 
-    const prevFile = req.user[fieldName];
+    await user.save({ validateBeforeSave: false });
+
+    // Delete old image if it exists
     if (prevFile?.secureURL) {
-      await deleteFromCloudinary([prevFile?.publicId], prevFile?.resourceType);
+      await deleteFromCloudinary([prevFile.publicId], prevFile.resourceType);
     }
 
     return res
@@ -618,8 +668,8 @@ const updateAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
       .json(
         new ApiResponse(
           200,
-          updatedUser,
-          `${fieldName} has updated successfully`
+          { [fieldName]: fileDetails.secureURL },
+          `${fieldName} has been updated successfully`
         )
       );
   } catch (error) {
@@ -659,24 +709,8 @@ const deleteAvatarAndCoverImage = asyncHandler(async (req, res, _) => {
     fileToBeDeleted.resourceType
   );
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $unset: {
-        [expectedField]: 1,
-      },
-    },
-    { new: true }
-  )
-    .select(`-password -refreshToken -${expectedField}`)
-    .lean();
-
-  if (!updatedUser) {
-    throw new ApiError(
-      500,
-      "Internal server error while updating user after file deletion"
-    );
-  }
+  fileToBeDeleted = undefined;
+  await req.user.save();
 
   res
     .status(200)
