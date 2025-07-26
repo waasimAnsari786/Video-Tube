@@ -556,8 +556,9 @@ const verifyUpdatePasswordOTP = asyncHandler(async (req, res, _) => {
   user.updatePasswordOtp = undefined;
   user.updatePasswordOtpExpires = undefined;
 
-  // Allow user to proceed with password update (optional flag if needed)
-  // user.canUpdatePassword = true; // optional: add such a flag if your flow needs it
+  // ✅ Set permission to allow password update and its expiration time
+  user.canUpdatePassword = true;
+  user.canUpdatePasswordExpires = new Date(Date.now() + 60 * 1000); // 1 minute from now
 
   await user.save({ validateBeforeSave: false });
 
@@ -570,6 +571,40 @@ const verifyUpdatePasswordOTP = asyncHandler(async (req, res, _) => {
         "OTP verified successfully. You can now update your password."
       )
     );
+});
+
+const updatePasswordViaOTP = asyncHandler(async (req, res, _) => {
+  if (req.isGoogleUser) {
+    throw new ApiError(400, "User is not allowed to update password");
+  }
+
+  const { password } = req.body;
+
+  checkFields([password], "Password is required");
+
+  const user = req.user;
+
+  if (!user.canUpdatePassword || user.canUpdatePasswordExpires < new Date()) {
+    throw new ApiError(
+      400,
+      "You are not authorized to update password or your session has expired"
+    );
+  }
+
+  // Set new password — pre-save hook will hash it
+  user.password = password;
+
+  // Clear temporary OTP & permission fields
+  user.canUpdatePassword = false;
+  user.canUpdatePasswordExpires = undefined;
+  user.updatePasswordOtp = undefined;
+  user.updatePasswordOtpExpires = undefined;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password updated successfully"));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res, _) => {
@@ -881,4 +916,8 @@ export {
   sendEmailVerification,
   verifyEmailByLink,
   verifyEmailByOTP,
+  updatePasswordViaOTP,
+  updatePasswordViaOldPassword,
+  sendUpdatePasswordOTP,
+  verifyUpdatePasswordOTP,
 };

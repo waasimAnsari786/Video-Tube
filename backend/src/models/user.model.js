@@ -126,6 +126,14 @@ const userSchema = new Schema(
       type: Date,
       default: null,
     },
+    canUpdatePassword: {
+      type: Boolean,
+      default: false,
+    },
+    canUpdatePasswordExpires: {
+      type: Date,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
