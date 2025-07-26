@@ -43,6 +43,10 @@ const generateAccessAndRefreshTokens = async user => {
       console.error("Error while generating refresh-token");
       throw new ApiError(500, "Internal server error while generating tokens");
     }
+
+    // ✅ Step 4: save user with refresh token and prepare response
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
     return { refreshToken, accessToken };
   } catch (error) {
     console.error("Token generation error:", error);
@@ -112,11 +116,7 @@ const googleSignup = asyncHandler(async (req, res) => {
   const { refreshToken, accessToken } =
     await generateAccessAndRefreshTokens(user);
 
-  // ✅ Step 8: save user with refresh token and prepare response
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false });
-
-  // ✅ Step 9: Set cookies and return success
+  // ✅ Step 8: Set cookies and return success
   return res
     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
@@ -218,18 +218,19 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
 
   if (verificationType === "otp") {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.emailVerificationOtp = otp;
-    user.emailVerificationOtpExpires = new Date(Date.now() + 10 * 60 * 1000);
-    await user.save();
 
     const html = `<h2>Hello ${user.fullName || user.userName},</h2>
-      <p>For verifying your email in VideoTube, your OTP is: <strong>${otp}</strong></p>`;
+    <p>For verifying your email in VideoTube, your OTP is: <strong>${otp}</strong></p>`;
 
     await sendEmail({
       to: user.email,
       subject: "Email Verification Request from VideoTube",
       html,
     });
+
+    user.emailVerificationOtp = otp;
+    user.emailVerificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
 
     return res
       .status(200)
@@ -269,11 +270,7 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } =
     await generateAccessAndRefreshTokens(user);
 
-  // 6. Save refresh token and verification status
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false });
-
-  // 8. Return response with cookies and success message
+  // 6. Return response with cookies and success message
   return res
     .status(200)
     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
@@ -288,8 +285,8 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 });
 
 const verifyEmailByOTP = asyncHandler(async (req, res) => {
-  const { otp } = req.body;
   const user = req.user;
+  const { otp } = req.body;
 
   // 1. Check if OTP is provided
   if (!otp) {
@@ -315,11 +312,7 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } =
     await generateAccessAndRefreshTokens(user);
 
-  // 5. Save refresh token
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false });
-
-  // 7. Return response with cookies and success message
+  // 5. Return response with cookies and success message
   return res
     .status(200)
     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
@@ -362,11 +355,7 @@ const loginUser = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } =
     await generateAccessAndRefreshTokens(existingUser);
 
-  // 6. Save refresh token to the user object
-  existingUser.refreshToken = refreshToken;
-  await existingUser.save({ validateBeforeSave: false });
-
-  // 7. Return response with cookies
+  // 6. Return response with cookies
   return res
     .status(200)
     .cookie("accessToken", accessToken, COOKIE_OPTIONS)
@@ -434,9 +423,6 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
 
   const { refreshToken, accessToken } =
     await generateAccessAndRefreshTokens(user);
-
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
