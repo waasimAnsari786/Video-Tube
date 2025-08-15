@@ -68,7 +68,7 @@ const googleSignup = asyncHandler(async (req, res) => {
 
   //step 2: get the user info from google by using the received access token in req.body
   let googleUserInfo = null;
-  console.log("request received in google signup");
+
   setTimeout(async () => {
     try {
       // 1️⃣ Call Google's UserInfo endpoint with the access token
@@ -87,7 +87,6 @@ const googleSignup = asyncHandler(async (req, res) => {
     const { sub: googleId, email, name, picture } = googleUserInfo.data;
   }, 5000);
 
-  console.log("response returning...");
   return res.status(200).json("success");
   // ✅ Step 4: Check if user exists by either google.gooID or email
   const existingUser = await User.findOne({

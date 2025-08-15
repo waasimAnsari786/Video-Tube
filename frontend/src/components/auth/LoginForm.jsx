@@ -7,7 +7,6 @@ import {
   FormText,
   InputContainer,
   FormButton,
-  Container,
   PasswordInputContainer,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
@@ -26,15 +25,9 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const controllerRef = useRef(null);
+  const controllerRef = useRef(new AbortController());
 
   const handlelogin = async (formData) => {
-    const controller = new AbortController();
-    if (controllerRef.current) {
-      controllerRef.current.abort(); // Abort previous
-    }
-    controllerRef.current = controller;
-
     const result = await dispatch(
       loginUserThunk({
         url: "/test",

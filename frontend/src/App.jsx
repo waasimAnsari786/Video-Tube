@@ -16,9 +16,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-import { GOOGLE_CLIENT_ID } from "./constant";
 
 const App = () => {
+  const googleClientID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const router = createBrowserRouter([
     {
       path: "/login",
@@ -102,7 +102,7 @@ const App = () => {
 
   return (
     <>
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <GoogleOAuthProvider clientId={googleClientID}>
         <Provider store={store}>
           <ToastContainer
             position="top-right"

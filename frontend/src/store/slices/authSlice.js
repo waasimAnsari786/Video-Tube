@@ -52,7 +52,7 @@ const registerUserThunk = createAsyncThunk(
   }
 );
 
-// Login
+// googleSignup
 const googleSignUpThunk = createAsyncThunk(
   "auth/googleSignUp",
   asyncThunkService.postThunk()

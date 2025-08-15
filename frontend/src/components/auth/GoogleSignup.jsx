@@ -6,13 +6,13 @@ import { googleSignUpThunk } from "../../store/slices/authSlice";
 import { FormButton } from "../index";
 
 const GoogleSignup = () => {
-  console.log("GoogleSignup Render ");
-
   const dispatch = useDispatch();
-  const controllerRef = useRef(new AbortController());
+  const controllerRef = useRef(null);
+  // const controllerRef = useRef(new AbortController());
 
   const signUp = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
+      controllerRef.current = new AbortController();
       try {
         const response = await dispatch(
           googleSignUpThunk({
