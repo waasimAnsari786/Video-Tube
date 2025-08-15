@@ -21,6 +21,7 @@ import jwt from "jsonwebtoken";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
 import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 import sendEmail from "../utils/sendEmail.utils.js";
+import axios from "axios";
 
 const generateAccessAndRefreshTokens = async user => {
   try {
@@ -65,16 +66,29 @@ const googleSignup = asyncHandler(async (req, res) => {
     );
   }
 
-  // ✅ Step 2: Verify the Google ID token using Google's API
-  const ticket = await GOOGLE_CLIENT.verifyIdToken({
-    idToken: token,
-    audience: GOOGLE_CLIENT_ID,
-  });
+  //step 2: get the user info from google by using the received access token in req.body
+  let googleUserInfo = null;
+  console.log("request received in google signup");
+  setTimeout(async () => {
+    try {
+      // 1️⃣ Call Google's UserInfo endpoint with the access token
+      googleUserInfo = await axios.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // token is the access_token from frontend
+          },
+        }
+      );
+    } catch (error) {
+      throw new ApiError(400, "Failed to fetch Google user info" + error);
+    }
 
-  // ✅ Step 3: Extract required user info from Google payload
-  const payload = ticket.getPayload();
-  const { sub: googleId, email, name, picture } = payload;
+    const { sub: googleId, email, name, picture } = googleUserInfo.data;
+  }, 5000);
 
+  console.log("response returning...");
+  return res.status(200).json("success");
   // ✅ Step 4: Check if user exists by either google.gooID or email
   const existingUser = await User.findOne({
     $or: [{ "google.gooID": googleId }, { email }],
@@ -891,7 +905,6 @@ export {
   loginUser,
   logoutUser,
   refreshAccessToken,
-  updatePassword,
   updateAccountDetails,
   updateAvatarAndCoverImage,
   deleteAvatarAndCoverImage,

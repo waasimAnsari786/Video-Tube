@@ -31,17 +31,11 @@ const RegisterForm = () => {
     reValidateMode: "onSubmit",
   });
 
-  const controllerRef = useRef(null);
+  const controllerRef = useRef(new AbortController());
 
   const handleRegister = async (formData) => {
-    const controller = new AbortController();
-    if (controllerRef.current) {
-      controllerRef.current.abort(); // Abort previous
-    }
-    controllerRef.current = controller;
-
     const result = await dispatch(
-      registerUserThunk({ formData, signal: controller.signal })
+      registerUserThunk({ formData, signal: controllerRef.current.signal })
     );
 
     if (registerUserThunk.fulfilled.match(result)) {
@@ -66,8 +60,8 @@ const RegisterForm = () => {
   }, []);
 
   return (
-    <Container childElemClass="h-screen flex items-center flex-col justify-center">
-      <Logo src="/images/logo.png" logoClass={"mb-5"} />
+    <>
+      <Logo src="/images/logo.png" logoClass={"my-5"} />
 
       <form
         onSubmit={handleSubmit(handleRegister, (formErrors) =>
@@ -138,7 +132,7 @@ const RegisterForm = () => {
           linkTo="/login"
         />
       </form>
-    </Container>
+    </>
   );
 };
 

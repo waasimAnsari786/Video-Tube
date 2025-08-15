@@ -53,6 +53,12 @@ const registerUserThunk = createAsyncThunk(
 );
 
 // Login
+const googleSignUpThunk = createAsyncThunk(
+  "auth/googleSignUp",
+  asyncThunkService.postThunk()
+);
+
+// Login
 const loginUserThunk = createAsyncThunk(
   "auth/loginUser",
   asyncThunkService.postThunk()
@@ -139,6 +145,14 @@ const authSlice = createSlice({
       .addCase(loginUserThunk.pending, updateStateOnPending)
       .addCase(loginUserThunk.fulfilled, updateUserInfo)
       .addCase(loginUserThunk.rejected, updateStateOnRejected)
+
+      // googleSignUp
+      .addCase(googleSignUpThunk.pending, updateStateOnPending)
+      .addCase(googleSignUpThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.authStatus = true;
+      })
+      .addCase(googleSignUpThunk.rejected, updateStateOnRejected)
 
       // Get Current User
       .addCase(getCurrentUserThunk.pending, updateStateOnPending)
@@ -228,6 +242,7 @@ export {
   getChannelDetailsThunk,
   deleteAvatarThunk,
   deleteCoverImageThunk,
+  googleSignUpThunk,
 };
 
 export default authSlice.reducer;

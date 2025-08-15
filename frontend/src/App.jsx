@@ -1,8 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
-  LoginForm,
-  RegisterForm,
   MyWebLayout,
   HomePage,
   AuthProtectedLayout,
@@ -11,7 +9,8 @@ import {
   UploadVideoPage,
   UpdateVideoPage,
   WatchPage,
-  AuthOptions,
+  RegistrationPage,
+  LoginPage,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,7 +24,7 @@ const App = () => {
       path: "/login",
       element: (
         <AuthProtectedLayout authentication={false}>
-          <LoginForm />
+          <LoginPage />
         </AuthProtectedLayout>
       ),
     },
@@ -33,16 +32,7 @@ const App = () => {
       path: "/register",
       element: (
         <AuthProtectedLayout authentication={false}>
-          <AuthOptions />
-          {/* <RegisterForm /> */}
-        </AuthProtectedLayout>
-      ),
-    },
-    {
-      path: "/signup",
-      element: (
-        <AuthProtectedLayout authentication={false}>
-          <RegisterForm />
+          <RegistrationPage />
         </AuthProtectedLayout>
       ),
     },

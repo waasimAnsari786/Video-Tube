@@ -69,7 +69,7 @@ const LoginForm = () => {
   }, []);
 
   return (
-    <Container childElemClass="h-screen flex items-center flex-col justify-center">
+    <>
       <Logo src="/images/logo.png" logoClass={"mb-5"} />
 
       <form
@@ -114,7 +114,7 @@ const LoginForm = () => {
           linkTo="/register"
         />
       </form>
-    </Container>
+    </>
   );
 };
 

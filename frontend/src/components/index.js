@@ -13,6 +13,7 @@ export { default as LoginForm } from "./auth/LoginForm";
 export { default as RegisterForm } from "./auth/RegisterForm";
 export { default as DeleteMedia } from "./auth/DeleteMedia";
 export { default as AuthOptions } from "./auth/AuthOptions";
+export { default as GoogleSignup } from "./auth/GoogleSignup";
 
 // ==============================
 // Profile Components
@@ -86,3 +87,5 @@ export { default as CommentSection } from "./video/CommentSection";
 // Page Components
 // ==============================
 export { default as HomePage } from "../components/pages/HomePage";
+export { default as RegistrationPage } from "../components/pages/RegistrationPage";
+export { default as LoginPage } from "../components/pages/LoginPage";
