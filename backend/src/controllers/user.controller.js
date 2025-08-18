@@ -55,6 +55,23 @@ const generateAccessAndRefreshTokens = async user => {
   }
 };
 
+const googleAuthSuccess = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication failed" });
+  }
+  res.json({
+    message: "Authentication successful",
+    user: req.user,
+  });
+};
+
+const googleUserlogout = (req, res) => {
+  req.logout(err => {
+    if (err) return res.status(500).json({ message: "Error logging out" });
+    res.json({ message: "Logged out successfully" });
+  });
+};
+
 const googleSignup = asyncHandler(async (req, res) => {
   const { token } = req.body;
 
@@ -918,4 +935,6 @@ export {
   updatePasswordViaOldPassword,
   sendUpdatePasswordOTP,
   verifyUpdatePasswordOTP,
+  googleAuthSuccess,
+  googleUserlogout,
 };

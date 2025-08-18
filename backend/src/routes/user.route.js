@@ -18,6 +18,8 @@ import {
   sendUpdatePasswordOTP,
   verifyUpdatePasswordOTP,
   updatePasswordViaOTP,
+  googleAuthSuccess,
+  googleUserlogout,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
@@ -30,7 +32,6 @@ const userRouter = Router();
 userRouter.route("/").post(registerUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/refresh-token").post(refreshAccessToken);
-userRouter.route("/google").post(googleSignup);
 userRouter
   .route("/verify-email")
   .post(checkUserEmailStatus, sendEmailVerification); // Send link or OTP based on req.body
@@ -42,6 +43,26 @@ userRouter
 userRouter
   .route("/verify-email/otp")
   .post(checkUserEmailStatus, verifyEmailByOTP); // Handle verification via OTP
+
+// Start Google login
+userRouter
+  .route("/auth/google")
+  .get(passport.authenticate("google", { scope: ["profile", "email"] }));
+
+// Google callback
+userRouter
+  .route("/auth/google/callback")
+  .get(
+    passport.authenticate("google", { failureRedirect: "/" }),
+    (req, res) => {
+      res.redirect("/api/v1/users/auth/success");
+    }
+  );
+
+// Success
+userRouter.route("/auth/success").get(googleAuthSuccess);
+// Logout
+userRouter.route("/logout").post(googleUserlogout);
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below
