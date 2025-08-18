@@ -25,6 +25,7 @@ import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
 import checkUserEmailStatus from "../middlewares/checkUserEmailStatus.middleware.js";
+import passport from "passport";
 
 const userRouter = Router();
 
@@ -46,23 +47,25 @@ userRouter
 
 // Start Google login
 userRouter
-  .route("/auth/google")
+  .route("/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
 // Google callback
 userRouter
-  .route("/auth/google/callback")
+  .route("/google/callback")
   .get(
-    passport.authenticate("google", { failureRedirect: "/" }),
+    passport.authenticate("google", {
+      failureRedirect: "http://localhost:5173",
+    }),
     (req, res) => {
-      res.redirect("/api/v1/users/auth/success");
+      res.redirect("/api/v1/users/google/success");
     }
   );
 
 // Success
-userRouter.route("/auth/success").get(googleAuthSuccess);
+userRouter.route("/google/success").get(googleAuthSuccess);
 // Logout
-userRouter.route("/logout").post(googleUserlogout);
+userRouter.route("/google/logout").post(googleUserlogout);
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below

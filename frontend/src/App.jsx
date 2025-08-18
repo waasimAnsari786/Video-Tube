@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
   MyWebLayout,
   HomePage,
@@ -18,7 +17,6 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 
 const App = () => {
-  const googleClientID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const router = createBrowserRouter([
     {
       path: "/login",
@@ -102,23 +100,21 @@ const App = () => {
 
   return (
     <>
-      <GoogleOAuthProvider clientId={googleClientID}>
-        <Provider store={store}>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="dark"
-            transition:Bounce
-          />
-          <RouterProvider router={router} />
-        </Provider>
-      </GoogleOAuthProvider>
+      <Provider store={store}>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition:Bounce
+        />
+        <RouterProvider router={router} />
+      </Provider>
     </>
   );
 };

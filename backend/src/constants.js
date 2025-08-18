@@ -1,4 +1,3 @@
-import { OAuth2Client } from "google-auth-library";
 // constant var for DB name
 const DB_NAME = "youTube";
 // max file size
@@ -30,10 +29,6 @@ const VALIDATE_EMAIL_REGEX =
 const VALIDATE_PASSWORD_REGEX =
   /^(?!.*(.)\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/;
 
-// google related stuff constants
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT = new OAuth2Client(GOOGLE_CLIENT_ID);
-
 export {
   DB_NAME,
   MAX_FILE_SIZE,
@@ -42,8 +37,6 @@ export {
   VIDEO_EXTENTIONS,
   ALLOWED_EXTENTIONS,
   USER_EXCLUDED_FIELDS,
-  GOOGLE_CLIENT,
-  GOOGLE_CLIENT_ID,
   VALIDATE_EMAIL_REGEX,
   VALIDATE_PASSWORD_REGEX,
   VALIDATE_USERNAME_REGEX,

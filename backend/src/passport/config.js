@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/v1/users/auth/google/callback",
+      callbackURL: "/api/v1/users/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -19,8 +19,9 @@ passport.use(
               gooID: profile.id,
               gooEmail: profile.emails?.[0]?.value,
               gooName: profile.displayName,
-              gooPic: { url: profile.photos?.[0]?.value },
+              gooPic: profile.photos?.[0]?.value,
             },
+            isEmailVerified: profile._json.email_verified,
           });
         }
         // directly returned user's id in passport.serializeUser()

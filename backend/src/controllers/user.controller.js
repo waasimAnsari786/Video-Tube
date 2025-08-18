@@ -8,8 +8,6 @@ import {
 import User from "../models/user.model.js";
 import {
   COOKIE_OPTIONS,
-  GOOGLE_CLIENT,
-  GOOGLE_CLIENT_ID,
   IMAGE_EXTENTIONS,
   USER_EXCLUDED_FIELDS,
 } from "../constants.js";
@@ -59,16 +57,14 @@ const googleAuthSuccess = (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Authentication failed" });
   }
-  res.json({
-    message: "Authentication successful",
-    user: req.user,
-  });
+
+  res.redirect("http://localhost:5173");
 };
 
 const googleUserlogout = (req, res) => {
   req.logout(err => {
     if (err) return res.status(500).json({ message: "Error logging out" });
-    res.json({ message: "Logged out successfully" });
+    res.status(200).json(new ApiResponse(200, {}, "Logged out successfully"));
   });
 };
 

@@ -12,7 +12,6 @@ export { default as Logo } from "./auth/auth reuseable components/Logo";
 export { default as LoginForm } from "./auth/LoginForm";
 export { default as RegisterForm } from "./auth/RegisterForm";
 export { default as DeleteMedia } from "./auth/DeleteMedia";
-export { default as AuthOptions } from "./auth/AuthOptions";
 export { default as GoogleSignup } from "./auth/GoogleSignup";
 
 // ==============================

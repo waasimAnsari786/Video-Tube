@@ -8,17 +8,38 @@ import tweetRouter from "./routes/tweet.route.js";
 import commentRouter from "./routes/comment.route.js";
 import likeRouter from "./routes/like.route.js";
 import playlistRouter from "./routes/playlist.route.js";
+import session from "express-session";
+import passport from "./passport/config.js";
 
 // create app from express
 const app = express();
+
 // fixed json data limit
 app.use(json({ limit: "16kb" }));
+
 // fixed URL-encoded data limit and allow nested objects to be parsed in the URL-encoded Data
 app.use(urlencoded({ limit: "16kb", extended: true }));
-// define static folder for storing temporary data
-app.use(static_("./public/assets"));
+
 // configure cookie-parser for performing CRUD on user's cookies
 app.use(cookieParser());
+
+// session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 },
+  })
+);
+
+// passport middlewares
+app.use(passport.initialize());
+app.use(passport.session());
+
+// define static folder for storing temporary data
+app.use(static_("./public/assets"));
+
 // configure routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/videos", videoRouter);

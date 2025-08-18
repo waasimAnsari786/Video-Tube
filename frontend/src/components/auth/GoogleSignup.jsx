@@ -1,49 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { useGoogleLogin } from "@react-oauth/google";
-import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import { googleSignUpThunk } from "../../store/slices/authSlice";
+import React from "react";
 import { FormButton } from "../index";
 
 const GoogleSignup = () => {
-  const dispatch = useDispatch();
-  const controllerRef = useRef(null);
-  // const controllerRef = useRef(new AbortController());
-
-  const signUp = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      controllerRef.current = new AbortController();
-      try {
-        const response = await dispatch(
-          googleSignUpThunk({
-            url: "/users/google",
-            payload: {
-              token: tokenResponse.access_token,
-            },
-            config: { signal: controllerRef.current.signal },
-          })
-        );
-        console.log("googleSignup response", response);
-      } catch (err) {
-        console.error(err.response?.data);
-        toast.error("Google sign-in failed");
-      }
-    },
-    onError: (error) => {
-      console.error("Google sign-in failed:", error);
-      toast.error("Google sign-in failed");
-    },
-  });
-
-  useEffect(() => {
-    return () => {
-      // Cancel any in-progress request on unmount
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
-    };
-  }, []);
-
   return (
     <>
       <FormButton
@@ -58,7 +16,9 @@ const GoogleSignup = () => {
           </>
         }
         customClass="w-full md:w-1/2 py-3 w-full rounded-lg mt-10"
-        onClick={() => signUp()}
+        onClick={() =>
+          (window.location.href = "http://localhost:3000/api/v1/users/google")
+        }
       />
     </>
   );
