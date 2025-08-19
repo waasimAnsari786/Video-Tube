@@ -6,6 +6,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
 
 // uploaded files allowed extensions

@@ -11,26 +11,19 @@ import { toast } from "react-toastify";
 
 export default function MyWebLayout() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const refreshTimeoutId = useRef(null);
-  // const abortController = useRef(new AbortController());
+  const abortController = useRef(new AbortController());
   const [loading, setLoading] = useState(true);
-  console.log("my web layout render");
 
   useEffect(() => {
     const scheduleRefresh = async () => {
       try {
         const refreshed = await dispatch(
           refreshAccessTokenThunk({
-            url: "/test",
+            url: "/users/refresh-token",
             payload: {},
             config: { signal: abortController.current.signal },
           })
-          // refreshAccessTokenThunk({
-          //   url: "/users/refresh-token",
-          //   payload: {},
-          //   config: { signal: abortController.current.signal },
-          // })
         );
 
         if (!refreshAccessTokenThunk.fulfilled.match(refreshed)) {
@@ -46,58 +39,46 @@ export default function MyWebLayout() {
       }
     };
 
-    const init = async () => {
-      const abortController = new AbortController();
-
+    (async () => {
       try {
         const userRes = await dispatch(
           getCurrentUserThunk({
-            url: "/users/google/me",
-            config: { signal: abortController.signal },
+            url: "/users/me",
+            config: { signal: abortController.current.signal },
           })
         );
-        console.log(userRes);
 
-        // if (!getCurrentUserThunk.fulfilled.match(userRes)) {
-        //   const refreshRes = await dispatch(
-        //     refreshAccessTokenThunk({
-        //       url: "/users/refresh-token",
-        //       payload: {},
-        //       config: { signal: abortController.signal },
-        //     })
-        //   );
-
-        //   if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
-        // }
-
-        if (userRes.payload?.data?.google?.gooID) {
-          console.log("current user is googel user");
-
-          toast.success(userRes.payload?.message);
-          return;
-        } else if (userRes.payload.data.userName) {
-          toast.success(userRes.payload?.message);
-          refreshTimeoutId.current = setTimeout(
-            scheduleRefresh,
-            REFRESH_INTERVAL
+        if (!getCurrentUserThunk.fulfilled.match(userRes)) {
+          const refreshRes = await dispatch(
+            refreshAccessTokenThunk({
+              url: "/users/refresh-token",
+              payload: {},
+              config: { signal: abortController.current.signal },
+            })
           );
+
+          if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
         }
+
+        toast.success(userRes.payload?.message);
+        refreshTimeoutId.current = setTimeout(
+          scheduleRefresh,
+          REFRESH_INTERVAL
+        );
       } catch (err) {
-        // if (abortController.current.signal.aborted) return;
+        if (abortController.current.aborted) return;
       } finally {
         setLoading(false);
       }
-    };
-
-    init();
+    })();
 
     return () => {
       clearTimeout(refreshTimeoutId.current);
-      // abortController.current.abort();
+      abortController.current.abort();
     };
   }, []);
 
-  if (loading) return null;
+  // if (loading) return null;
 
   return (
     <div className="drawer lg:drawer-open">

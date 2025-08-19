@@ -10,7 +10,6 @@ import {
   getUserChannelDetails,
   getWatchHistory,
   getCurrentUser,
-  googleSignup,
   sendEmailVerification,
   verifyEmailByLink,
   verifyEmailByOTP,
@@ -59,14 +58,11 @@ userRouter
 
 /** -------JWT-based google callback route------*/
 userRouter.route("/google/callback").get(
-  passport.authenticate(
-    "google",
-    {
-      failureRedirect: "http://localhost:5173",
-      session: false,
-    },
-    googleCallback
-  )
+  passport.authenticate("google", {
+    failureRedirect: "http://localhost:5173",
+    session: false,
+  }),
+  googleCallback
 );
 
 // --- Authenticated Routes ---

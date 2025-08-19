@@ -60,7 +60,6 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ "google.gooID": profile.id });
-
         if (!user) {
           user = await User.create({
             google: {
@@ -72,7 +71,9 @@ passport.use(
             isEmailVerified: profile._json.email_verified,
           });
         }
-        // returned the entire user object/document of DB for accessing it in google-callback controller/request-handler
+
+        // Attach state so controller can use it
+
         return done(null, user);
       } catch (err) {
         return done(err, null);

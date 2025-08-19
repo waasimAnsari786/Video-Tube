@@ -19,7 +19,6 @@ import jwt from "jsonwebtoken";
 import CloudinaryTransform from "../utils/fileTransformParams.utils.js";
 import validateFileExtensions from "../utils/checkFileExtension.utils.js";
 import sendEmail from "../utils/sendEmail.utils.js";
-import axios from "axios";
 
 const generateAccessAndRefreshTokens = async user => {
   try {
@@ -53,113 +52,20 @@ const generateAccessAndRefreshTokens = async user => {
   }
 };
 
-const googleCallback = asyncHandler(async (req, res) => {
+const googleCallback = async (req, res) => {
   if (!req.user) throw new ApiError(401, "Authentication Failed");
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-    req.user
-  );
+  const { user } = req;
 
-  res.redirect("http://localhost:5173");
-
-  res.json({
-    message: "Authentication successful",
-    user: {
-      id: req.user._id,
-      email: req.user.email,
-      fullName: req.user.fullName,
-    },
-    tokens: { accessToken, refreshToken },
-  });
-});
-
-const googleSignup = asyncHandler(async (req, res) => {
-  const { token } = req.body;
-
-  // ✅ Step 1: Check if token is provided
-  if (!token) {
-    throw new ApiError(
-      400,
-      "No credential (token) provided for Google signup."
-    );
-  }
-
-  //step 2: get the user info from google by using the received access token in req.body
-  let googleUserInfo = null;
-
-  setTimeout(async () => {
-    try {
-      // 1️⃣ Call Google's UserInfo endpoint with the access token
-      googleUserInfo = await axios.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // token is the access_token from frontend
-          },
-        }
-      );
-    } catch (error) {
-      throw new ApiError(400, "Failed to fetch Google user info" + error);
-    }
-
-    const { sub: googleId, email, name, picture } = googleUserInfo.data;
-  }, 5000);
-
-  return res.status(200).json("success");
-  // ✅ Step 4: Check if user exists by either google.gooID or email
-  const existingUser = await User.findOne({
-    $or: [{ "google.gooID": googleId }, { email }],
-  });
-
-  let user = null;
-
-  // ✅ Step 5: Handle if user is already registered
-  if (existingUser) {
-    // 👉 Case 1: Email/Password user trying Google login
-    if (existingUser.email === email) {
-      throw new ApiError(
-        400,
-        "User with this email already exists. Please log in via simple Email/Password instead of Google."
-      );
-    }
-
-    // 👉 Case 2: Google user logging in again
-    if (existingUser.google?.gooID === googleId) {
-      user = existingUser;
-    } else {
-      // This handles rare edge cases where email doesn't match but some other user has the same Google ID
-      throw new ApiError(500, "Unexpected user conflict during Google signup.");
-    }
-  } else {
-    // ✅Step 6: Create new Google user
-    user = await User.create({
-      google: {
-        gooID: googleId,
-        gooEmail: email,
-        gooName: name,
-        gooPic: picture,
-      },
-      isEmailVerified: true,
-    });
-  }
-
-  // ✅ Step 7: Generate tokens
-  const { refreshToken, accessToken } =
+  const { accessToken, refreshToken } =
     await generateAccessAndRefreshTokens(user);
 
-  // ✅ Step 8: Set cookies and return success
-  return res
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+  res
     .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
-    .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        { accessToken, refreshToken },
-        "User signed up successfully via Google."
-      )
-    );
-});
+    .cookie("accessToken", accessToken, COOKIE_OPTIONS);
+
+  return res.redirect("http://localhost:5173");
+};
 
 const registerUser = asyncHandler(async (req, res, _) => {
   // ✅ Step 1: Extract user data from the request body
@@ -928,7 +834,6 @@ export {
   getUserChannelDetails,
   getWatchHistory,
   getCurrentUser,
-  googleSignup,
   sendEmailVerification,
   verifyEmailByLink,
   verifyEmailByOTP,
@@ -936,4 +841,5 @@ export {
   updatePasswordViaOldPassword,
   sendUpdatePasswordOTP,
   verifyUpdatePasswordOTP,
+  googleCallback,
 };

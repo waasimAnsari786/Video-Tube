@@ -23,7 +23,7 @@ app.use(urlencoded({ limit: "16kb", extended: true }));
 // configure cookie-parser for performing CRUD on user's cookies
 app.use(cookieParser());
 
-// session middleware
+// // session middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -35,7 +35,7 @@ app.use(
 
 // passport middlewares
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 // define static folder for storing temporary data
 app.use(static_("./public/assets"));
