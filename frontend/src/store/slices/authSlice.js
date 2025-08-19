@@ -26,6 +26,7 @@ const initialState = {
   coverImage: {},
   authStatus: false,
   channelData: {},
+  google: {},
 };
 
 // For user registration (custom logic - not using generic thunk)
@@ -50,12 +51,6 @@ const registerUserThunk = createAsyncThunk(
       );
     }
   }
-);
-
-// googleSignup
-const googleSignUpThunk = createAsyncThunk(
-  "auth/googleSignUp",
-  asyncThunkService.getThunk()
 );
 
 // Login
@@ -146,14 +141,6 @@ const authSlice = createSlice({
       .addCase(loginUserThunk.fulfilled, updateUserInfo)
       .addCase(loginUserThunk.rejected, updateStateOnRejected)
 
-      // googleSignUp
-      .addCase(googleSignUpThunk.pending, updateStateOnPending)
-      .addCase(googleSignUpThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.authStatus = true;
-      })
-      .addCase(googleSignUpThunk.rejected, updateStateOnRejected)
-
       // Get Current User
       .addCase(getCurrentUserThunk.pending, updateStateOnPending)
       .addCase(getCurrentUserThunk.fulfilled, updateUserInfo)
@@ -242,7 +229,6 @@ export {
   getChannelDetailsThunk,
   deleteAvatarThunk,
   deleteCoverImageThunk,
-  googleSignUpThunk,
 };
 
 export default authSlice.reducer;

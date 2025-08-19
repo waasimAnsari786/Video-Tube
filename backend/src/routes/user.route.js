@@ -18,8 +18,7 @@ import {
   sendUpdatePasswordOTP,
   verifyUpdatePasswordOTP,
   updatePasswordViaOTP,
-  googleAuthSuccess,
-  googleUserlogout,
+  googleCallback,
 } from "../controllers/user.controller.js";
 import validateFileType from "../middlewares/validateFileType.middleware.js";
 import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.js";
@@ -50,22 +49,25 @@ userRouter
   .route("/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
-// Google callback
-userRouter
-  .route("/google/callback")
-  .get(
-    passport.authenticate("google", {
-      failureRedirect: "http://localhost:5173",
-    }),
-    (req, res) => {
-      res.redirect("/api/v1/users/google/success");
-    }
-  );
+/** -------Session-based google callback route------*/
+// userRouter.route("/google/callback").get(
+//   passport.authenticate("google", {
+//     failureRedirect: "http://localhost:5173",
+//     successRedirect: "http://localhost:5173",
+//   })
+// );
 
-// Success
-userRouter.route("/google/success").get(googleAuthSuccess);
-// Logout
-userRouter.route("/google/logout").post(googleUserlogout);
+/** -------JWT-based google callback route------*/
+userRouter.route("/google/callback").get(
+  passport.authenticate(
+    "google",
+    {
+      failureRedirect: "http://localhost:5173",
+      session: false,
+    },
+    googleCallback
+  )
+);
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below

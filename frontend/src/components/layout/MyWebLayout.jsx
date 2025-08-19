@@ -13,8 +13,9 @@ export default function MyWebLayout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const refreshTimeoutId = useRef(null);
-  const abortController = useRef(new AbortController());
+  // const abortController = useRef(new AbortController());
   const [loading, setLoading] = useState(true);
+  console.log("my web layout render");
 
   useEffect(() => {
     const scheduleRefresh = async () => {
@@ -46,41 +47,43 @@ export default function MyWebLayout() {
     };
 
     const init = async () => {
+      const abortController = new AbortController();
+
       try {
         const userRes = await dispatch(
           getCurrentUserThunk({
-            url: "/test",
-            config: { signal: abortController.current.signal },
+            url: "/users/google/me",
+            config: { signal: abortController.signal },
           })
-          // getCurrentUserThunk({
-          //   url: "/users/me",
-          //   config: { signal: abortController.current.signal },
-          // })
         );
+        console.log(userRes);
 
-        if (!getCurrentUserThunk.fulfilled.match(userRes)) {
-          const refreshRes = await dispatch(
-            refreshAccessTokenThunk({
-              url: "/test",
-              payload: {},
-              config: { signal: abortController.current.signal },
-            })
-            // refreshAccessTokenThunk({
-            //   url: "/users/refresh-token",
-            //   payload: {},
-            //   config: { signal: abortController.current.signal },
-            // })
+        // if (!getCurrentUserThunk.fulfilled.match(userRes)) {
+        //   const refreshRes = await dispatch(
+        //     refreshAccessTokenThunk({
+        //       url: "/users/refresh-token",
+        //       payload: {},
+        //       config: { signal: abortController.signal },
+        //     })
+        //   );
+
+        //   if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
+        // }
+
+        if (userRes.payload?.data?.google?.gooID) {
+          console.log("current user is googel user");
+
+          toast.success(userRes.payload?.message);
+          return;
+        } else if (userRes.payload.data.userName) {
+          toast.success(userRes.payload?.message);
+          refreshTimeoutId.current = setTimeout(
+            scheduleRefresh,
+            REFRESH_INTERVAL
           );
-
-          if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
         }
-
-        refreshTimeoutId.current = setTimeout(
-          scheduleRefresh,
-          REFRESH_INTERVAL
-        );
       } catch (err) {
-        if (abortController.current.signal.aborted) return;
+        // if (abortController.current.signal.aborted) return;
       } finally {
         setLoading(false);
       }
@@ -90,7 +93,7 @@ export default function MyWebLayout() {
 
     return () => {
       clearTimeout(refreshTimeoutId.current);
-      abortController.current.abort();
+      // abortController.current.abort();
     };
   }, []);
 

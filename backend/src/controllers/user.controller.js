@@ -53,20 +53,25 @@ const generateAccessAndRefreshTokens = async user => {
   }
 };
 
-const googleAuthSuccess = (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Authentication failed" });
-  }
+const googleCallback = asyncHandler(async (req, res) => {
+  if (!req.user) throw new ApiError(401, "Authentication Failed");
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    req.user
+  );
 
   res.redirect("http://localhost:5173");
-};
 
-const googleUserlogout = (req, res) => {
-  req.logout(err => {
-    if (err) return res.status(500).json({ message: "Error logging out" });
-    res.status(200).json(new ApiResponse(200, {}, "Logged out successfully"));
+  res.json({
+    message: "Authentication successful",
+    user: {
+      id: req.user._id,
+      email: req.user.email,
+      fullName: req.user.fullName,
+    },
+    tokens: { accessToken, refreshToken },
   });
-};
+});
 
 const googleSignup = asyncHandler(async (req, res) => {
   const { token } = req.body;
@@ -931,6 +936,4 @@ export {
   updatePasswordViaOldPassword,
   sendUpdatePasswordOTP,
   verifyUpdatePasswordOTP,
-  googleAuthSuccess,
-  googleUserlogout,
 };

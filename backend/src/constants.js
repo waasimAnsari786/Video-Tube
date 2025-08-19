@@ -16,7 +16,7 @@ const ALLOWED_EXTENTIONS = [...IMAGE_EXTENTIONS, ...VIDEO_EXTENTIONS];
 //-----****user excluded properties/fields****-----
 // google users excluded fields
 const USER_EXCLUDED_FIELDS =
-  "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password -emailVerificationOtp -emailVerificationOtpExpires";
+  "-avatar.publicId -avatar.resourceType -coverImage.publicId -coverImage.resourceType -password -emailVerificationOtp -emailVerificationOtpExpires -updatePasswordOtp -updatePasswordOtpExpires -canUpdatePassword -canUpdatePasswordExpires";
 
 //-----****user fields validation regex****-----
 // validate userName regex
