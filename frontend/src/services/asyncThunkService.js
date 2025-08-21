@@ -1,3 +1,11 @@
+// 📦 AsyncThunk Utility Class:
+// Provides reusable async thunks for CRUD API requests using axiosInstance.
+// Each method (getThunk, postThunk, patchThunk, deleteThunk):
+//   - Wraps axios calls in a consistent try/catch pattern.
+//   - Handles request cancellation gracefully via AbortController signals.
+//   - Returns the server response data or a clear rejectWithValue message on failure.
+// This abstraction reduces boilerplate and ensures uniform error handling across Redux thunks.
+
 import { axiosInstance } from "../index";
 
 class AsyncThunk {
@@ -34,7 +42,7 @@ class AsyncThunk {
   patchThunk() {
     return async ({ url, payload, config = {} }, { rejectWithValue }) => {
       try {
-        const response = await axiosInstance.post(url, payload, config);
+        const response = await axiosInstance.patch(url, payload, config);
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {

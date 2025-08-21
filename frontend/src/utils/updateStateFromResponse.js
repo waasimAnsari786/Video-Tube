@@ -1,4 +1,4 @@
-// This is a utility function for updating selected states of redux-toolkit's slices
+// This is a utility function for updating specific states of redux-toolkit's slices
 // currently it is being used in authSlice.
 const updateStateFromResponse = (state, payload) => {
   if (!payload || typeof payload !== "object") return;

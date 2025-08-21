@@ -3,7 +3,8 @@
 // ✅ Custom thunk `registerUserThunk` handles user registration followed by auto-login.
 // ✅ Other thunks (login, logout, update, fetch) use reusable generic methods from `asyncThunkService`.
 // ✅ Each thunk handles its own pending, fulfilled, and rejected states via `extraReducers`.
-// ✅ Utility functions (`updateStateOnPending`, `updateStateOnRejected`, `updateStateFromResponse`) are used for cleaner state updates.
+// ✅ Utility functions (`updateStateOnPending`, `updateStateOnRejected`, `updateStateFromResponse`) are used for cleaner state
+// updates.
 // ✅ State is fully reset on logout using `Object.assign(state, initialState)`.
 // ✅ All thunks and the reducer are exported for external use.
 
@@ -27,6 +28,7 @@ const initialState = {
   authStatus: false,
   channelData: {},
   google: {},
+  isEmailVerified: false,
 };
 
 // For user registration (custom logic - not using generic thunk)

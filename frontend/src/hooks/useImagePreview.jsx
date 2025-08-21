@@ -8,6 +8,7 @@ export default function useImagePreview() {
 
   const avatar = useSelector((state) => state.auth.avatar);
   const coverImage = useSelector((state) => state.auth.coverImage);
+  const googleAvatar = useSelector((state) => state.auth.google.gooPic);
 
   const handleImagePreview = (event) => {
     const files = event.target.files;
@@ -20,7 +21,7 @@ export default function useImagePreview() {
   };
 
   const previews = {
-    avatar: avatar?.secureURL || avatarPlaceholder,
+    avatar: avatar?.secureURL || googleAvatar || avatarPlaceholder,
     cover: coverImage?.secureURL || bannerPlaceholder,
   };
 

@@ -61,8 +61,14 @@ const googleCallback = async (req, res) => {
     await generateAccessAndRefreshTokens(user);
 
   res
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS);
+    .cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
 
   return res.redirect("http://localhost:5173");
 };
@@ -210,8 +216,14 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
   // 6. Return response with cookies and success message
   return res
     .status(200)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
     .json(
       new ApiResponse(
         200,
@@ -252,8 +264,14 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
   // 5. Return response with cookies and success message
   return res
     .status(200)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
     .json(
       new ApiResponse(
         200,
@@ -295,8 +313,14 @@ const loginUser = asyncHandler(async (req, res) => {
   // 6. Return response with cookies
   return res
     .status(200)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
     .json(
       new ApiResponse(
         200,
@@ -307,6 +331,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
+  await new Promise(resolve => setTimeout(resolve, 10000));
   req.user.refreshToken = "";
   await req.user.save({ validateBeforeSave: false });
 
@@ -363,8 +388,14 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, COOKIE_OPTIONS)
-    .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+    .cookie("accessToken", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
+    .cookie("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    })
     .json(
       new ApiResponse(
         200,

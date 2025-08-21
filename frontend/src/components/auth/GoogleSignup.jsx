@@ -4,6 +4,11 @@ import { FormButton } from "../index";
 const GoogleSignup = () => {
   return (
     <>
+      {/*
+      i've used this component for just keeping the button style same as other button styles used in various component
+      The only need of this part of the component is just a functionality of redirecting the user to the defined URL in 
+      "window.location.href"
+      */}
       <FormButton
         label={
           <>

@@ -13,8 +13,12 @@ export default function MyWebLayout() {
   const dispatch = useDispatch();
   const refreshTimeoutId = useRef(null);
   const abortController = useRef(new AbortController());
-  const [loading, setLoading] = useState(true);
 
+  // 🔄 Handles user session persistence:
+  // 1. On mount, fetches the current user (`/users/me`).
+  // 2. If access token is expired/invalid, tries to refresh it (`/users/refresh-token`).
+  // 3. If refresh succeeds, schedules the next refresh using REFRESH_INTERVAL.
+  // 4. On unmount, clears the scheduled refresh and aborts any pending requests.
   useEffect(() => {
     const scheduleRefresh = async () => {
       try {
@@ -57,6 +61,10 @@ export default function MyWebLayout() {
             })
           );
 
+          // updating "userRes" variable with value of "refreshRes" variable for using this variable's response easily in the
+          // rest of useEffect()
+          userRes = refreshRes;
+
           if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
         }
 
@@ -67,8 +75,6 @@ export default function MyWebLayout() {
         );
       } catch (err) {
         if (abortController.current.aborted) return;
-      } finally {
-        setLoading(false);
       }
     })();
 
@@ -77,8 +83,6 @@ export default function MyWebLayout() {
       abortController.current.abort();
     };
   }, []);
-
-  // if (loading) return null;
 
   return (
     <div className="drawer lg:drawer-open">
