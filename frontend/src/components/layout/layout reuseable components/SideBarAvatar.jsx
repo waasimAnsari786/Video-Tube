@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import {
+  Loading,
   PopUp,
   PopupContent,
   SidebarAvatarButton,
+  useLoading,
   useRoute,
 } from "../../../index";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,23 +16,33 @@ export default function SideBarAvatar() {
   const userName = useSelector((state) => state.auth.userName);
   const authStatus = useSelector((state) => state.auth.authStatus);
   const controllerRef = useRef(new AbortController());
+  const { loading, setLoading } = useLoading();
 
   const { handleRoute } = useRoute();
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    const result = await dispatch(
-      logoutThunk({
-        url: "/users/me/logout",
-        payload: {},
-        config: { signal: controllerRef.current.signal },
-      })
-    );
-    if (!logoutThunk.fulfilled.match(result)) {
-      toast.error(result.payload || "Logout failed");
-    }
+    try {
+      setLoading(true); // show loader
+      const result = await dispatch(
+        logoutThunk({
+          url: "/users/me/logout",
+          payload: {},
+          config: { signal: controllerRef.current.signal },
+        })
+      );
 
-    toast.success(result.payload.message);
+      if (!logoutThunk.fulfilled.match(result)) {
+        toast.error(result.payload || "Logout failed");
+        return;
+      }
+
+      toast.success(result.payload.message);
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false); // hide loader
+    }
   };
 
   const sidebarAvatarPopupContent = [
@@ -49,11 +61,14 @@ export default function SideBarAvatar() {
 
   return (
     authStatus && (
-      <PopUp
-        button={<SidebarAvatarButton />}
-        content={sidebarAvatarPopupContent}
-        position="dropdown-top"
-      />
+      <>
+        <PopUp
+          button={<SidebarAvatarButton />}
+          content={sidebarAvatarPopupContent}
+          position="dropdown-top"
+        />
+        {loading && <Loading />} {/* Overlay spinner */}
+      </>
     )
   );
 }

@@ -331,7 +331,6 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res, _) => {
-  await new Promise(resolve => setTimeout(resolve, 10000));
   req.user.refreshToken = "";
   await req.user.save({ validateBeforeSave: false });
 

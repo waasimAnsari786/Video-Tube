@@ -49,6 +49,7 @@ export { default as Row } from "../components/resuseable-components/Row";
 export { default as Column } from "../components/resuseable-components/Column";
 export { default as Tabs } from "../components/resuseable-components/Tabs";
 export { default as RadioInputContainer } from "../components/resuseable-components/RadioInputContainer";
+export { default as Loading } from "../components/resuseable-components/Loading";
 
 // ==============================
 // Header & Sidebar Reuseable Components
