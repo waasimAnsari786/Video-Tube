@@ -53,21 +53,26 @@ const generateAccessAndRefreshTokens = async user => {
 };
 
 const googleCallback = async (req, res) => {
-  if (!req.user) throw new ApiError(401, "Authentication Failed");
+  if (!req.user) {
+    return res.redirect(
+      `http://localhost:5173/auth?error=${encodeURIComponent(
+        "Authentication Failed"
+      )}`
+    );
+  }
 
   const { user } = req;
-
   const { accessToken, refreshToken } =
     await generateAccessAndRefreshTokens(user);
 
   res
     .cookie("refreshToken", refreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     })
     .cookie("accessToken", accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
   return res.redirect("http://localhost:5173");

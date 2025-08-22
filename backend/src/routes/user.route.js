@@ -24,6 +24,7 @@ import verifyAuthorization from "../middlewares/verifyAuthorization.middleware.j
 import upload from "../middlewares/multer.middleware.js";
 import checkUserEmailStatus from "../middlewares/checkUserEmailStatus.middleware.js";
 import passport from "passport";
+import ApiError from "../utils/API_error.utils.js";
 
 const userRouter = Router();
 
@@ -57,13 +58,27 @@ userRouter
 // );
 
 /** -------JWT-based google callback route------*/
-userRouter.route("/google/callback").get(
-  passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173",
-    session: false,
-  }),
-  googleCallback
-);
+userRouter.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user, info) => {
+    if (err) {
+      // 👇 redirect with error message to frontend
+      return res.redirect(
+        `http://localhost:5173/auth?error=${encodeURIComponent(err.message)}`
+      );
+    }
+
+    if (!user) {
+      return res.redirect(
+        `http://localhost:5173/auth?error=${encodeURIComponent(
+          "Authentication Failed"
+        )}`
+      );
+    }
+
+    req.user = user;
+    return googleCallback(req, res, next);
+  })(req, res, next);
+});
 
 // --- Authenticated Routes ---
 userRouter.use(verifyAuthorization); // Protect everything below

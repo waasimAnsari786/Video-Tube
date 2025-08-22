@@ -1,6 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/user.model.js";
+import ApiError from "../utils/API_error.utils.js";
 
 /** -------Session-based Approach------*/
 // passport.use(
@@ -59,9 +60,32 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ "google.gooID": profile.id });
+        const googleId = profile.id;
+        const email = profile.emails?.[0]?.value;
 
-        if (!user) {
+        const existingUser = await User.findOne({
+          $or: [{ "google.gooID": googleId }, { email }],
+        });
+
+        let user = null;
+
+        if (existingUser) {
+          if (existingUser.email === email) {
+            throw new ApiError(
+              400,
+              "User with this email already exists. Please log in via Email/Password instead of Google."
+            );
+          }
+
+          if (existingUser.google?.gooID === googleId) {
+            user = existingUser;
+          } else {
+            throw new ApiError(
+              500,
+              "Unexpected user conflict during Google signup."
+            );
+          }
+        } else {
           user = await User.create({
             google: {
               gooID: profile.id,
@@ -73,11 +97,9 @@ passport.use(
           });
         }
 
-        // Attach state so controller can use it
-
         return done(null, user);
       } catch (err) {
-        return done(err, null);
+        return done(err, null); // <-- Pass ApiError forward
       }
     }
   )
