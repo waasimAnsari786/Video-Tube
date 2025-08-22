@@ -60,6 +60,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ "google.gooID": profile.id });
+
         if (!user) {
           user = await User.create({
             google: {

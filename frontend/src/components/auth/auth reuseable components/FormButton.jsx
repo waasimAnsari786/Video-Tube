@@ -1,15 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { FaSpinner } from "react-icons/fa";
-import { useSelector } from "react-redux";
 
 const FormButton = ({
   label = "Update",
   loadingLabel = "Updating...",
   customClass = "py-3 w-full rounded-lg",
+  loading = false,
   ...props
 }) => {
-  const loading = useSelector((state) => state.auth.loading);
-
   return (
     <button
       type="submit"

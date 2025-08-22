@@ -33,13 +33,12 @@ export default function SideBarAvatar() {
       );
 
       if (!logoutThunk.fulfilled.match(result)) {
-        toast.error(result.payload || "Logout failed");
-        return;
+        throw new Error(result.payload);
       }
 
       toast.success(result.payload.message);
     } catch (err) {
-      toast.error("Something went wrong");
+      toast.error(err);
     } finally {
       setLoading(false); // hide loader
     }

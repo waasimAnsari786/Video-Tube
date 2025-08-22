@@ -100,6 +100,12 @@ const registerUser = asyncHandler(async (req, res, _) => {
         401,
         "User exists with email or user-name. Please do login."
       );
+    } else {
+      // This handles rare edge cases where email doesn't match but some other user has the same Google ID
+      throw new ApiError(
+        500,
+        "Unexpected user conflict during register the user."
+      );
     }
   }
 

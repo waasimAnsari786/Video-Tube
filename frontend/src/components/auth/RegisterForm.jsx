@@ -8,6 +8,7 @@ import {
   InputContainer,
   FormButton,
   PasswordInputContainer,
+  useLoading,
 } from "../../index";
 import showFormErrors from "../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -32,25 +33,39 @@ const RegisterForm = () => {
 
   const controllerRef = useRef(new AbortController());
 
-  const handleRegister = async (formData) => {
-    const result = await dispatch(
-      registerUserThunk({ formData, signal: controllerRef.current.signal })
-    );
+  const { loading, setLoading } = useLoading();
 
-    if (registerUserThunk.fulfilled.match(result)) {
+  const handleRegister = async (formData) => {
+    try {
+      setLoading(true);
+      const result = await dispatch(
+        registerUserThunk({ formData, signal: controllerRef.current.signal })
+      );
+
+      if (!registerUserThunk.fulfilled.match(result)) {
+        throw new Error(result.payload);
+      }
+
       console.log(result);
+
       toast.success("User registered successfully");
       navigate("/");
-    } else {
+    } catch (error) {
       // Don't show error toast if request was cancelled
-      if (result.payload !== "Register user request cancelled") {
-        toast.error(result.payload || "Registration failed");
+      if (error !== "Register user request cancelled") {
+        toast.error(error);
+      } else {
+        console.log("Register user request cancelled");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     return () => {
+      console.log("register fomr unmounted");
+
       // Cancel any in-progress request on unmount
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -124,7 +139,11 @@ const RegisterForm = () => {
           })}
         />
 
-        <FormButton label="Register" loadingLabel="Signing Up..." />
+        <FormButton
+          label="Register"
+          loadingLabel="Signing Up..."
+          loading={loading}
+        />
         <FormText
           text="Already have an account?"
           linkText="Login"
