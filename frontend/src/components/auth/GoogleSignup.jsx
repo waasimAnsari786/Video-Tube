@@ -1,7 +1,9 @@
 import React from "react";
 import { FormButton } from "../index";
+import { useNavigate } from "react-router-dom";
 
 const GoogleSignup = () => {
+  const navigate = useNavigate();
   return (
     <>
       {/*
@@ -21,9 +23,7 @@ const GoogleSignup = () => {
           </>
         }
         customClass="w-full md:w-1/2 py-3 w-full rounded-lg mt-10"
-        onClick={() =>
-          (window.location.href = "http://localhost:3000/api/v1/users/google")
-        }
+        onClick={() => navigate("/auth")}
       />
     </>
   );

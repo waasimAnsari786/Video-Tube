@@ -10,6 +10,7 @@ import {
   WatchPage,
   RegistrationPage,
   LoginPage,
+  AuthHandlingPage,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -31,6 +32,14 @@ const App = () => {
       element: (
         <AuthProtectedLayout authentication={false}>
           <RegistrationPage />
+        </AuthProtectedLayout>
+      ),
+    },
+    {
+      path: "/auth",
+      element: (
+        <AuthProtectedLayout authentication={false}>
+          <AuthHandlingPage />
         </AuthProtectedLayout>
       ),
     },

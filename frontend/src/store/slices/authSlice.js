@@ -36,15 +36,8 @@ const registerUserThunk = createAsyncThunk(
   "auth/registerUser",
   async ({ formData, signal }, { rejectWithValue }) => {
     try {
-      const { email, password } = formData;
-
-      await axiosInstance.post("/", formData, { signal });
-      const loginRes = await axiosInstance.post(
-        "/users/login",
-        { email, password },
-        { signal }
-      );
-      return loginRes.data;
+      const res = await axiosInstance.post("/", formData, { signal });
+      return res.data;
     } catch (err) {
       if (signal.aborted) {
         console.log("Register user request cancelled");
