@@ -130,7 +130,11 @@ const authSlice = createSlice({
     builder
       // Register
       .addCase(registerUserThunk.pending, updateStateOnPending)
-      .addCase(registerUserThunk.fulfilled, updateUserInfo)
+      .addCase(registerUserThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.authStatus = true;
+        state.email = action.payload.data;
+      })
       .addCase(registerUserThunk.rejected, updateStateOnRejected)
 
       // Login

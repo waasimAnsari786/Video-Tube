@@ -127,9 +127,9 @@ const registerUser = asyncHandler(async (req, res, _) => {
     throw new ApiError(500, "Internal server error while registering user");
   }
 
-  const user = await User.findById(createdUser._id)
-    .select("email", "_id", "isEmailVerified")
-    .lean();
+  // const user = await User.findById(createdUser._id)
+  //   .select("email", "_id", "isEmailVerified")
+  //   .lean();
 
   // ✅ Step 6: Respond with success (without returning sensitive fields)
   return res
@@ -137,7 +137,7 @@ const registerUser = asyncHandler(async (req, res, _) => {
     .json(
       new ApiResponse(
         200,
-        user,
+        createdUser.email,
         "User registered successfully. Please verify your email."
       )
     );
@@ -183,12 +183,18 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
     });
 
     user.emailVerificationOtp = otp;
-    user.emailVerificationOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.emailVerificationOtpExpires = new Date(Date.now() + 60 * 1000); // 1 minute
     await user.save();
 
     return res
       .status(200)
-      .json(new ApiResponse(200, {}, "OTP sent to your email"));
+      .json(
+        new ApiResponse(
+          200,
+          { otpExpiresIn: user.emailVerificationOtpExpires },
+          "OTP sent to your email"
+        )
+      );
   }
 });
 
