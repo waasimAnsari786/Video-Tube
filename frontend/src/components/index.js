@@ -9,11 +9,14 @@ export { default as InputContainer } from "./auth/auth reuseable components/Inpu
 export { default as FileInputContainer } from "./auth/auth reuseable components/FileInputContainer";
 export { default as PasswordInputContainer } from "./auth/auth reuseable components/PasswordInputContainer";
 export { default as Logo } from "./auth/auth reuseable components/Logo";
-export { default as LoginForm } from "./auth/LoginForm";
-export { default as RegisterForm } from "./auth/RegisterForm";
+export { default as LoginForm } from "./auth/email-password auth flow/LoginForm";
+export { default as RegisterForm } from "./auth/email-password auth flow/RegisterForm";
 export { default as DeleteMedia } from "./auth/DeleteMedia";
-export { default as GoogleSignup } from "./auth/GoogleSignup";
-export { default as AuthHandler } from "./auth/AuthHandler";
+export { default as GoogleSignup } from "./auth/google auth flow/GoogleSignup";
+export { default as AuthHandler } from "./auth/google auth flow/AuthHandler";
+export { default as EmailVerificationViaOtp } from "./auth/email-password auth flow/EmailVerificationViaOtp";
+export { default as EmailVerificationViaLink } from "./auth/email-password auth flow/EmailVerificationViaLink";
+export { default as EmailVerificationOptions } from "./auth/email-password auth flow/EmailVerificationOptions";
 
 // ==============================
 // Profile Components
@@ -91,3 +94,4 @@ export { default as HomePage } from "../components/pages/HomePage";
 export { default as RegistrationPage } from "../components/pages/RegistrationPage";
 export { default as LoginPage } from "../components/pages/LoginPage";
 export { default as AuthHandlingPage } from "../components/pages/AuthHandlingPage";
+export { default as EmailVerificationPage } from "../components/pages/EmailVerificationPage";

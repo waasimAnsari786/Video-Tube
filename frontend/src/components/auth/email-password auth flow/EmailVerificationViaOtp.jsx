@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import OtpInput from "react-otp-input";
-import axiosInstance from "../utils/axiosInstance"; // adjust path
 import { toast } from "react-toastify";
+import { axiosInstance } from "../../../utils";
 
-const OtpVerification = ({ email }) => {
+export default function EmailVerificationViaOtp() {
   const [otp, setOtp] = useState("");
   const abortControllerRef = useRef(null);
 
@@ -72,6 +72,4 @@ const OtpVerification = ({ email }) => {
       />
     </div>
   );
-};
-
-export default OtpVerification;
+}

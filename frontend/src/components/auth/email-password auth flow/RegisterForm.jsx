@@ -9,14 +9,15 @@ import {
   FormButton,
   PasswordInputContainer,
   useLoading,
-} from "../../index";
-import showFormErrors from "../../utils/showFormError";
+} from "../../../index";
+import showFormErrors from "../../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { registerUserThunk } from "../../store/slices/authSlice";
+import { registerUserThunk } from "../../../store/slices/authSlice";
 
 const RegisterForm = () => {
+  console.log("register form render");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -48,12 +49,12 @@ const RegisterForm = () => {
 
       console.log(result);
 
-      toast.success("User registered successfully");
-      navigate("/");
+      toast.success(result.payload.message);
+      navigate("/verify-email");
     } catch (error) {
       // Don't show error toast if request was cancelled
-      if (error !== "Register user request cancelled") {
-        toast.error(error);
+      if (error.message !== "Register user request cancelled") {
+        toast.error(error.message);
       } else {
         console.log("Register user request cancelled");
       }
@@ -63,8 +64,9 @@ const RegisterForm = () => {
   };
 
   useEffect(() => {
+    console.log("register form mounted");
     return () => {
-      console.log("register fomr unmounted");
+      console.log("register form unmounted");
 
       // Cancel any in-progress request on unmount
       if (controllerRef.current) {

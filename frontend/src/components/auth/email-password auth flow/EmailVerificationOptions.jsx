@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { Button } from "../../index";
+import { axiosInstance } from "../../../utils";
 
 const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
   const email = useSelector((state) => state.auth.email); // reading from auth slice
@@ -45,7 +47,7 @@ const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <div className="flex flex-col items-center justify-center px-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Verify Your Email</h1>
         <p className="text-gray-600 max-w-md mb-8">
           To complete your registration, please verify your email address. You
@@ -60,14 +62,16 @@ const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row justify-center gap-4">
         <Button
           btnText="Via Link"
           padding="px-6 py-3"
           onClick={() => sendEmailVerificationMail("link")}
+          borderRadius="rounded-full"
         />
         <Button
           btnText="Via OTP"
+          borderRadius="rounded-full"
           padding="px-6 py-3"
           onClick={() => sendEmailVerificationMail("otp")}
         />

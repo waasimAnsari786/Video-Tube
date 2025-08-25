@@ -36,7 +36,7 @@ const registerUserThunk = createAsyncThunk(
   "auth/registerUser",
   async ({ formData, signal }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/", formData, { signal });
+      const res = await axiosInstance.post("/users", formData, { signal });
       return res.data;
     } catch (err) {
       if (signal.aborted) {
@@ -132,7 +132,6 @@ const authSlice = createSlice({
       .addCase(registerUserThunk.pending, updateStateOnPending)
       .addCase(registerUserThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.authStatus = true;
         state.email = action.payload.data;
       })
       .addCase(registerUserThunk.rejected, updateStateOnRejected)

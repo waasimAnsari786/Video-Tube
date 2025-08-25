@@ -8,12 +8,12 @@ import {
   InputContainer,
   FormButton,
   PasswordInputContainer,
-} from "../../index";
-import showFormErrors from "../../utils/showFormError";
+} from "../../../index";
+import showFormErrors from "../../../utils/showFormError";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUserThunk } from "../../store/slices/authSlice";
+import { loginUserThunk } from "../../../store/slices/authSlice";
 
 const LoginForm = () => {
   const { register, handleSubmit } = useForm({
@@ -30,15 +30,10 @@ const LoginForm = () => {
   const handlelogin = async (formData) => {
     const result = await dispatch(
       loginUserThunk({
-        url: "/test",
+        url: "/users/login",
         payload: formData,
         config: { signal: controllerRef.current.signal },
       })
-      // loginUserThunk({
-      //   url: "/users/login",
-      //   payload: formData,
-      //   config: { signal: controllerRef.current.signal },
-      // })
     );
 
     if (loginUserThunk.fulfilled.match(result)) {

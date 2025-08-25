@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaTimesCircle } from "react-icons/fa"; // cancel icon
-import { Logo, Button } from "../index";
+import { Logo, Button } from "../../index";
 
 const AuthHandler = () => {
   const location = useLocation();

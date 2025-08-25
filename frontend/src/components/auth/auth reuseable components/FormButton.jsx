@@ -13,7 +13,7 @@ const FormButton = ({
       type="submit"
       disabled={loading}
       className={`btn-liquid liquid flex items-center justify-center gap-2 text-sm ${
-        loading ? "opacity-75 cursor-not-allowed" : "cursor-pointer"
+        loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       } ${customClass}`}
       {...props}
     >

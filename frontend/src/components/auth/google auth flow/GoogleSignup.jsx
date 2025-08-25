@@ -1,5 +1,5 @@
 import React from "react";
-import { FormButton } from "../index";
+import { FormButton } from "../../index";
 import { useNavigate } from "react-router-dom";
 
 const GoogleSignup = () => {
