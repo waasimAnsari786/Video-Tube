@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux";
 import { registerUserThunk } from "../../../store/slices/authSlice";
 
 const RegisterForm = () => {
-  console.log("register form render");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -47,8 +46,6 @@ const RegisterForm = () => {
         throw new Error(result.payload);
       }
 
-      console.log(result);
-
       toast.success(result.payload.message);
       navigate("/verify-email");
     } catch (error) {
@@ -56,7 +53,7 @@ const RegisterForm = () => {
       if (error.message !== "Register user request cancelled") {
         toast.error(error.message);
       } else {
-        console.log("Register user request cancelled");
+        console.log(error.message);
       }
     } finally {
       setLoading(false);
@@ -64,10 +61,7 @@ const RegisterForm = () => {
   };
 
   useEffect(() => {
-    console.log("register form mounted");
     return () => {
-      console.log("register form unmounted");
-
       // Cancel any in-progress request on unmount
       if (controllerRef.current) {
         controllerRef.current.abort();

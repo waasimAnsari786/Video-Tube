@@ -50,6 +50,12 @@ const registerUserThunk = createAsyncThunk(
   }
 );
 
+// send email verification mail thunk
+const sendEmailVerificationMailThunk = createAsyncThunk(
+  "auth/sendEmailVerificationMail",
+  asyncThunkService.postThunk()
+);
+
 // Login
 const loginUserThunk = createAsyncThunk(
   "auth/loginUser",
@@ -135,6 +141,13 @@ const authSlice = createSlice({
         state.email = action.payload.data;
       })
       .addCase(registerUserThunk.rejected, updateStateOnRejected)
+
+      // send email verification mail thunk
+      .addCase(sendEmailVerificationMailThunk.pending, updateStateOnPending)
+      .addCase(sendEmailVerificationMailThunk.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(sendEmailVerificationMailThunk.rejected, updateStateOnRejected)
 
       // Login
       .addCase(loginUserThunk.pending, updateStateOnPending)
@@ -229,6 +242,7 @@ export {
   getChannelDetailsThunk,
   deleteAvatarThunk,
   deleteCoverImageThunk,
+  sendEmailVerificationMailThunk,
 };
 
 export default authSlice.reducer;

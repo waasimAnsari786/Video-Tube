@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import OtpInput from "react-otp-input";
 import { toast } from "react-toastify";
 import { axiosInstance } from "../../../utils";
+import { useSelector } from "react-redux";
 
 export default function EmailVerificationViaOtp() {
   const [otp, setOtp] = useState("");
   const abortControllerRef = useRef(null);
+  const email = useSelector((state) => state.auth.email); // reading from auth slice
 
   // 👇 triggered every time OTP changes
   const handleChange = (newOtp) => {
@@ -14,7 +16,7 @@ export default function EmailVerificationViaOtp() {
 
   // 👇 send API request when OTP is fully entered (e.g., 4 digits)
   useEffect(() => {
-    if (otp.length === 4) {
+    if (otp.length === 6) {
       // create controller for cancellation
       const controller = new AbortController();
       abortControllerRef.current = controller;
@@ -61,7 +63,7 @@ export default function EmailVerificationViaOtp() {
       <OtpInput
         value={otp}
         onChange={handleChange}
-        numInputs={4}
+        numInputs={6}
         renderSeparator={<span>-</span>}
         renderInput={(props) => (
           <input

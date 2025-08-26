@@ -12,7 +12,7 @@ export default function Button({
 }) {
   return (
     <button
-      className={`btn-liquid liquid text-sm ${borderRadius} ${padding} ${margin} ${customClass} flex items-center gap-1 justify-center`}
+      className={`btn-liquid liquid text-sm cursor-pointer ${borderRadius} ${padding} ${margin} ${customClass} flex items-center gap-1 justify-center`}
       style={{
         "--hover-text": hoverTextColor,
         "--my-blue": accentColor,

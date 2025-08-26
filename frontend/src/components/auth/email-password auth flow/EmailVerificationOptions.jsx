@@ -1,39 +1,43 @@
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Button } from "../../index";
-import { axiosInstance } from "../../../utils";
+import { sendEmailVerificationMailThunk } from "../../../store/slices/authSlice";
 
 const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
   const email = useSelector((state) => state.auth.email); // reading from auth slice
   const abortControllerRef = useRef(null);
+
+  const dispatch = useDispatch();
 
   const sendEmailVerificationMail = async (verificationType) => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
     try {
-      const response = await axiosInstance.post(
-        "/users/verify-email",
-        {
-          email,
-          verificationType,
-        },
-        { signal: controller.signal }
+      const resultAction = await dispatch(
+        sendEmailVerificationMailThunk({
+          url: "/users/verify-email",
+          payload: { email, verificationType },
+          config: { signal: controller.signal },
+        })
       );
 
-      // ✅ Update parent state if OTP selected
+      if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
+        throw new Error(resultAction.payload);
+      }
+
       if (verificationType === "otp") {
         setIS_OTP_Selected(true);
       }
-
-      toast.success(response.data.message);
-    } catch (err) {
-      if (controller.signal.aborted) {
-        console.log("send email verification mail request has been deleted");
-        return;
+      toast.success(resultAction.payload.message);
+    } catch (error) {
+      // Don't show error toast if request was cancelled
+      if (error.message !== "post request cancelled") {
+        toast.error(error.message);
+      } else {
+        console.log(error.message);
       }
-      toast.error(err.response?.data?.message);
     }
   };
 

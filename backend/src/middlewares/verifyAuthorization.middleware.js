@@ -29,7 +29,7 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
     throw new ApiError(404, "User doesn't exist");
   }
 
-  if (user.google.gooID && user.google.gooEmail) {
+  if (user?.google?.gooID && user?.google?.gooEmail) {
     req.isGoogleUser = true;
   } else {
     req.isGoogleUser = false;

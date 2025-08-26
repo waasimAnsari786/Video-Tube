@@ -184,7 +184,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
 
     user.emailVerificationOtp = otp;
     user.emailVerificationOtpExpires = new Date(Date.now() + 60 * 1000); // 1 minute
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return res
       .status(200)
@@ -204,7 +204,7 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 
   // 1. Check if token is provided
   if (!verificationToken) {
-    throw new ApiError(400, "Invalid or missing verification token");
+    throw new ApiError(400, "Verification token missing");
   }
 
   // 2. Verify the token
@@ -215,7 +215,7 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
       process.env.VERIFICATION_TOKEN_SECRET
     );
   } catch (err) {
-    throw new ApiError(400, "Invalid or expired verification token");
+    throw new ApiError(400, "Verification token expired");
   }
 
   // 3. Validate token’s _id matches user._id
@@ -312,9 +312,9 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   // 3. Check if email is verified
-  if (!existingUser.isEmailVerified) {
-    throw new ApiError(401, "Email is not verified. Please verify first.");
-  }
+  // if (!existingUser.isEmailVerified) {
+  //   throw new ApiError(401, "Email is not verified. Please verify first.");
+  // }
 
   // 4. Compare password with saved hash
   const isPasswordCorrect = await existingUser.comparePassword(password.trim());
