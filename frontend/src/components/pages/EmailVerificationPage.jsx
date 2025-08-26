@@ -12,7 +12,7 @@ const EmailVerificationPage = () => {
   const token = searchParams.get("token");
   const email = searchParams.get("email");
 
-  const [IS_OTP_Selected, setIS_OTP_Selected] = useState(false); // ✅ state for OTP selection
+  const [IS_OTP_Selected, setIS_OTP_Selected] = useState(true); // ✅ state for OTP selection
 
   if (token && email) {
     return (

@@ -151,12 +151,31 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid or missing verification type");
   }
 
+  // ✅ LINK VERIFICATION FLOW
   if (verificationType === "link") {
-    const emailVeficationToken = user.generateEmailVerificationToken();
-    const url = `${process.env.FRONTEND_URL}/verify-email?token=${emailVeficationToken}&email=${user.email}`;
+    // Check if a token already exists and is still valid
+    if (
+      user.emailVerificationToken &&
+      user.emailVerificationTokenExpires &&
+      user.emailVerificationTokenExpires > new Date()
+    ) {
+      return res.status(400).json(
+        new ApiResponse(
+          400,
+          // i'm using the same property name for sending the expiration time of both token and OTP so that frontend can easily
+          // handle this
+          { expirtationTime: user.emailVerificationTokenExpires },
+          "A verification link has already been sent. Please use the existing link until it expires."
+        )
+      );
+    }
+
+    const emailVerificationToken = user.generateEmailVerificationToken();
+
+    const url = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}&email=${user.email}`;
 
     const html = `<h2>Hello ${user.fullName || user.userName},</h2>
-      <p>Please verify your email by clicking the link:</p>
+      <p>Please verify your email by clicking the link below (valid for 24 hours):</p>
       <a href="${url}" target="_blank">${url}</a>`;
 
     await sendEmail({
@@ -165,25 +184,10 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       html,
     });
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, {}, "Verification link sent to your email."));
-  }
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-  if (verificationType === "otp") {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const html = `<h2>Hello ${user.fullName || user.userName},</h2>
-    <p>For verifying your email in VideoTube, your OTP is: <strong>${otp}</strong></p>`;
-
-    await sendEmail({
-      to: user.email,
-      subject: "Email Verification Request from VideoTube",
-      html,
-    });
-
-    user.emailVerificationOtp = otp;
-    user.emailVerificationOtpExpires = new Date(Date.now() + 60 * 1000); // 1 minute
+    user.emailVerificationToken = emailVerificationToken;
+    user.emailVerificationTokenExpires = expiry;
     await user.save({ validateBeforeSave: false });
 
     return res
@@ -191,7 +195,54 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { otpExpiresIn: user.emailVerificationOtpExpires },
+          { expirtationTime: expiry },
+          "Verification link sent to your email."
+        )
+      );
+  }
+
+  // ✅ OTP VERIFICATION FLOW
+  if (verificationType === "otp") {
+    // Check if an OTP already exists and is still valid
+    if (
+      user.emailVerificationOtp &&
+      user.emailVerificationOtpExpires &&
+      user.emailVerificationOtpExpires > new Date()
+    ) {
+      return res
+        .status(400)
+        .json(
+          new ApiResponse(
+            400,
+            { expirtationTime: user.emailVerificationOtpExpires },
+            "An OTP has already been sent. Please use the existing OTP until it expires."
+          )
+        );
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const html = `<h2>Hello ${user.fullName || user.userName},</h2>
+    <p>For verifying your email in VideoTube, your OTP is: <strong>${otp}</strong> (valid for 1 minute)</p>`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Email Verification Request from VideoTube",
+      html,
+    });
+
+    const expiry = new Date(Date.now() + 60 * 1000); // 1 minute
+
+    user.emailVerificationOtp = otp;
+    user.emailVerificationOtpExpires = expiry;
+    await user.save({ validateBeforeSave: false });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { expirtationTime: expiry },
           "OTP sent to your email"
         )
       );

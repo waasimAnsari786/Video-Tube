@@ -64,11 +64,11 @@ export default function EmailVerificationViaOtp() {
         value={otp}
         onChange={handleChange}
         numInputs={6}
-        renderSeparator={<span>-</span>}
+        renderSeparator={<span className="mx-1 text-2xl">&nbsp;</span>}
         renderInput={(props) => (
           <input
             {...props}
-            className="border p-2 w-12 text-center text-lg rounded-md"
+            className="border min-w-12 p-2 text-center text-lg rounded-md focus:bg-amber-500"
           />
         )}
       />

@@ -1,16 +1,34 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { Button } from "../../index";
+import { Button, Loading } from "../../index";
 import { sendEmailVerificationMailThunk } from "../../../store/slices/authSlice";
 
 const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
   const email = useSelector((state) => state.auth.email); // reading from auth slice
+  const loading = useSelector((state) => state.auth.loading); // reading from auth slice
+  const token_Otp_Expires = useSelector(
+    (state) => state.auth.token_Otp_Expires
+  ); // reading from auth slice
   const abortControllerRef = useRef(null);
 
   const dispatch = useDispatch();
 
   const sendEmailVerificationMail = async (verificationType) => {
+    // ✅ Check expiration before making request
+    if (token_Otp_Expires) {
+      const expiresAt = new Date(token_Otp_Expires).getTime();
+      const now = Date.now();
+
+      if (now < expiresAt) {
+        // still valid → don’t send request
+        toast.info(
+          "You already have a pending verification request. Please check your email and use the previously received token/OTP."
+        );
+        return;
+      }
+    }
+
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -30,6 +48,7 @@ const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
       if (verificationType === "otp") {
         setIS_OTP_Selected(true);
       }
+
       toast.success(resultAction.payload.message);
     } catch (error) {
       // Don't show error toast if request was cancelled
@@ -80,6 +99,8 @@ const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
           onClick={() => sendEmailVerificationMail("otp")}
         />
       </div>
+
+      {loading && <Loading />}
     </>
   );
 };

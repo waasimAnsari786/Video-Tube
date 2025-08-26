@@ -109,6 +109,15 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    // ✅ For Link-based Email Verification
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationTokenExpires: {
+      type: Date,
+      default: null,
+    },
     // ✅ For OTP-based Email Verification
     emailVerificationOtp: {
       type: String,

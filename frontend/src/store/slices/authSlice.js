@@ -29,6 +29,8 @@ const initialState = {
   channelData: {},
   google: {},
   isEmailVerified: false,
+  // this state is used for tracking the expiration time of both token and OTP
+  token_Otp_Expires: null,
 };
 
 // For user registration (custom logic - not using generic thunk)
@@ -146,6 +148,7 @@ const authSlice = createSlice({
       .addCase(sendEmailVerificationMailThunk.pending, updateStateOnPending)
       .addCase(sendEmailVerificationMailThunk.fulfilled, (state, action) => {
         state.loading = false;
+        state.token_Otp_Expires = action.payload.data.expirtationTime;
       })
       .addCase(sendEmailVerificationMailThunk.rejected, updateStateOnRejected)
 
