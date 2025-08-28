@@ -3,47 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../utils";
 import { toast } from "react-toastify";
 import { FaTimesCircle } from "react-icons/fa";
-import { sendEmailVerificationMailThunk } from "../../../store/slices/authSlice";
-import { useDispatch } from "react-redux";
 
 export default function EmailVerificationViaLink({ token, email }) {
   const [isEmailVerificationCancelled, setIsEmailVerificationCancelled] =
     useState(null);
 
-  const dispatch = useDispatch();
-
   const navigate = useNavigate();
-
   const abortControllerRef = useRef(new AbortController());
-
-  const handleResendLink = async () => {
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    try {
-      const resultAction = await dispatch(
-        sendEmailVerificationMailThunk({
-          url: "/users/verify-email",
-          payload: { email, verificationType: "link" },
-          config: { signal: controller.signal },
-        })
-      );
-
-      if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
-        throw new Error(resultAction.payload);
-      }
-
-      // If request succeeds
-      toast.success(resultAction.payload.message);
-      setIsEmailVerificationCancelled(null); // reset error state
-    } catch (error) {
-      if (error.message !== "post request cancelled") {
-        toast.error(error.message);
-      } else {
-        console.log(error.message);
-      }
-    }
-  };
 
   const handleEmailVerificationViaEmail = async () => {
     if (!token || !email) return;
@@ -62,7 +28,7 @@ export default function EmailVerificationViaLink({ token, email }) {
       navigate("/");
     } catch (err) {
       if (abortControllerRef.current.signal.aborted) {
-        console.log("email verification request has been deleted");
+        console.log("email verification request has been cancelled");
         return;
       }
       setIsEmailVerificationCancelled(err.response?.data?.message);
@@ -88,12 +54,7 @@ export default function EmailVerificationViaLink({ token, email }) {
           Email Verification Failed
         </h2>
         {isEmailVerificationCancelled === "Verification token expired" && (
-          <button
-            onClick={handleResendLink}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Resend Link
-          </button>
+          <ResendVerification verificationType="link" />
         )}
       </div>
     );

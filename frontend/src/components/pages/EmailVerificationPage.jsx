@@ -5,6 +5,7 @@ import {
   EmailVerificationViaOtp,
 } from "../index";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const EmailVerificationPage = () => {
   const location = useLocation();
@@ -12,7 +13,7 @@ const EmailVerificationPage = () => {
   const token = searchParams.get("token");
   const email = searchParams.get("email");
 
-  const [IS_OTP_Selected, setIS_OTP_Selected] = useState(true); // ✅ state for OTP selection
+  const isOtpSelected = useSelector((state) => state.auth.isOtpSelected);
 
   if (token && email) {
     return (
@@ -21,7 +22,7 @@ const EmailVerificationPage = () => {
     );
   }
 
-  if (IS_OTP_Selected) {
+  if (isOtpSelected) {
     return (
       //  If user selects "Via Otp" option for email verification along with he successfully receives the OTP in his email inbox, the
       // state is updated to "true" inside "EmailVerificationOptions" component and the below conponent renders
@@ -31,7 +32,7 @@ const EmailVerificationPage = () => {
 
   return (
     //  Default UI (when user first lands on page to pick option)
-    <EmailVerificationOptions setIS_OTP_Selected={setIS_OTP_Selected} />
+    <EmailVerificationOptions />
   );
 };
 

@@ -9,6 +9,7 @@
 // ✅ All thunks and the reducer are exported for external use.
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import {
   updateStateOnPending,
   updateStateOnRejected,
@@ -31,6 +32,8 @@ const initialState = {
   isEmailVerified: false,
   // this state is used for tracking the expiration time of both token and OTP
   token_Otp_Expires: null,
+  // this state is for displaying the UI of OTP verification inside "EmailVerificationPage.jsx"`
+  isOtpSelected: false,
 };
 
 // For user registration (custom logic - not using generic thunk)
@@ -52,10 +55,40 @@ const registerUserThunk = createAsyncThunk(
   }
 );
 
-// send email verification mail thunk
 const sendEmailVerificationMailThunk = createAsyncThunk(
   "auth/sendEmailVerificationMail",
-  asyncThunkService.postThunk()
+  async ({ url, payload, config }, { getState, rejectWithValue }) => {
+    try {
+      const { token_Otp_Expires } = getState().auth;
+
+      // ✅ Check expiration before making API call
+      if (token_Otp_Expires) {
+        const expiresAt = new Date(token_Otp_Expires).getTime();
+        const now = Date.now();
+
+        if (now < expiresAt) {
+          toast.info(
+            "You already have a pending verification request. Please check your email and use the previously received token/OTP."
+          );
+          return rejectWithValue(
+            "Verification already requested, not expired yet"
+          );
+        }
+      }
+
+      // ✅ Only send request if expired or not set
+      const response = await axiosInstance.post(url, payload, config);
+      return response.data;
+    } catch (err) {
+      const errMsg = "send email verification mail request has been cancelled";
+
+      if (config.signal.aborted) {
+        console.log(errMsg);
+        return rejectWithValue(errMsg);
+      }
+      return rejectWithValue(err.response?.data?.message || "POST failed");
+    }
+  }
 );
 
 // Login
@@ -127,7 +160,11 @@ const deleteCoverImageThunk = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setIsOtpSelected: (state, action) => {
+      state.isOtpSelected = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     const updateUserInfo = (state, action) => {
       state.loading = false;
@@ -247,5 +284,7 @@ export {
   deleteCoverImageThunk,
   sendEmailVerificationMailThunk,
 };
+
+export const { setIsOtpSelected } = authSlice.actions;
 
 export default authSlice.reducer;

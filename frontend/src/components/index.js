@@ -17,6 +17,8 @@ export { default as AuthHandler } from "./auth/google auth flow/AuthHandler";
 export { default as EmailVerificationViaOtp } from "./auth/email-password auth flow/EmailVerificationViaOtp";
 export { default as EmailVerificationViaLink } from "./auth/email-password auth flow/EmailVerificationViaLink";
 export { default as EmailVerificationOptions } from "./auth/email-password auth flow/EmailVerificationOptions";
+export { default as ResendVerification } from "./auth/email-password auth flow/ResendVerification";
+export { default as OtpCountdown } from "./auth/email-password auth flow/OtpCountdown";
 
 // ==============================
 // Profile Components

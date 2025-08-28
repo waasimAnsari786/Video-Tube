@@ -3,21 +3,19 @@ import OtpInput from "react-otp-input";
 import { toast } from "react-toastify";
 import { axiosInstance } from "../../../utils";
 import { useSelector } from "react-redux";
+import { OTP_LENGTH } from "../../../constant";
+import { ResendVerification, OtpCountdown } from "../../../index";
 
 export default function EmailVerificationViaOtp() {
   const [otp, setOtp] = useState("");
   const abortControllerRef = useRef(null);
-  const email = useSelector((state) => state.auth.email); // reading from auth slice
 
-  // 👇 triggered every time OTP changes
-  const handleChange = (newOtp) => {
-    setOtp(newOtp);
-  };
+  const email = useSelector((state) => state.auth.email);
 
-  // 👇 send API request when OTP is fully entered (e.g., 4 digits)
+  const handleChange = (newOtp) => setOtp(newOtp);
+
   useEffect(() => {
-    if (otp.length === 6) {
-      // create controller for cancellation
+    if (otp.length === OTP_LENGTH) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
@@ -25,13 +23,9 @@ export default function EmailVerificationViaOtp() {
         try {
           const response = await axiosInstance.post(
             "/users/verify-email/otp",
-            {
-              email,
-              otp,
-            },
+            { email, otp },
             { signal: controller.signal }
           );
-
           toast.success(response.data.message || "OTP verified successfully!");
         } catch (err) {
           if (controller.signal.aborted) {
@@ -48,7 +42,6 @@ export default function EmailVerificationViaOtp() {
     }
   }, [otp, email]);
 
-  // cleanup to cancel request if user leaves
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -63,7 +56,7 @@ export default function EmailVerificationViaOtp() {
       <OtpInput
         value={otp}
         onChange={handleChange}
-        numInputs={6}
+        numInputs={OTP_LENGTH}
         renderSeparator={<span className="mx-1 text-2xl">&nbsp;</span>}
         renderInput={(props) => (
           <input
@@ -72,6 +65,13 @@ export default function EmailVerificationViaOtp() {
           />
         )}
       />
+
+      <OtpCountdown />
+
+      {/* ✅ Reusable resend button */}
+      <div className="mt-4">
+        <ResendVerification verificationType="otp" />
+      </div>
     </div>
   );
 }

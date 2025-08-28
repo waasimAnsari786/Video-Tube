@@ -1,64 +1,43 @@
-import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { Button, Loading } from "../../index";
-import { sendEmailVerificationMailThunk } from "../../../store/slices/authSlice";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useSendEmailVerificationMail, Button, Loading } from "../../../index";
 
-const EmailVerificationOptions = ({ setIS_OTP_Selected }) => {
-  const email = useSelector((state) => state.auth.email); // reading from auth slice
+const EmailVerificationOptions = () => {
   const loading = useSelector((state) => state.auth.loading); // reading from auth slice
-  const token_Otp_Expires = useSelector(
-    (state) => state.auth.token_Otp_Expires
-  ); // reading from auth slice
-  const abortControllerRef = useRef(null);
 
-  const dispatch = useDispatch();
+  //   const controller = new AbortController();
+  //   abortControllerRef.current = controller;
 
-  const sendEmailVerificationMail = async (verificationType) => {
-    // ✅ Check expiration before making request
-    if (token_Otp_Expires) {
-      const expiresAt = new Date(token_Otp_Expires).getTime();
-      const now = Date.now();
+  //   try {
+  //     const resultAction = await dispatch(
+  //       sendEmailVerificationMailThunk({
+  //         url: "/users/verify-email",
+  //         payload: { email, verificationType },
+  //         config: { signal: controller.signal },
+  //       })
+  //     );
 
-      if (now < expiresAt) {
-        // still valid → don’t send request
-        toast.info(
-          "You already have a pending verification request. Please check your email and use the previously received token/OTP."
-        );
-        return;
-      }
-    }
+  //     if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
+  //       throw new Error(resultAction.payload);
+  //     }
 
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+  //     if (verificationType === "otp") {
+  //       setIS_OTP_Selected(true);
+  //     }
 
-    try {
-      const resultAction = await dispatch(
-        sendEmailVerificationMailThunk({
-          url: "/users/verify-email",
-          payload: { email, verificationType },
-          config: { signal: controller.signal },
-        })
-      );
+  //     toast.success(resultAction.payload.message);
+  //   } catch (error) {
+  //     if (
+  //       error.message !==
+  //       "send email verification mail request hss been cancelled"
+  //     ) {
+  //       toast.error(error.message);
+  //     }
+  //   }
+  // };
 
-      if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
-        throw new Error(resultAction.payload);
-      }
-
-      if (verificationType === "otp") {
-        setIS_OTP_Selected(true);
-      }
-
-      toast.success(resultAction.payload.message);
-    } catch (error) {
-      // Don't show error toast if request was cancelled
-      if (error.message !== "post request cancelled") {
-        toast.error(error.message);
-      } else {
-        console.log(error.message);
-      }
-    }
-  };
+  const { sendEmailVerificationMail, abortControllerRef } =
+    useSendEmailVerificationMail();
 
   useEffect(() => {
     return () => {
