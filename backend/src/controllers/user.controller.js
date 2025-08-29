@@ -164,7 +164,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
           400,
           // i'm using the same property name for sending the expiration time of both token and OTP so that frontend can easily
           // handle this
-          { expirtationTime: user.emailVerificationTokenExpires },
+          { expirationTime: user.emailVerificationTokenExpires },
           "A verification link has already been sent. Please use the existing link until it expires."
         )
       );
@@ -195,7 +195,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { expirtationTime: expiry },
+          { expirationTime: expiry },
           "Verification link sent to your email."
         )
       );
@@ -214,7 +214,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
         .json(
           new ApiResponse(
             400,
-            { expirtationTime: user.emailVerificationOtpExpires },
+            { expirationTime: user.emailVerificationOtpExpires },
             "An OTP has already been sent. Please use the existing OTP until it expires."
           )
         );
@@ -242,7 +242,7 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { expirtationTime: expiry },
+          { expirationTime: expiry },
           "OTP sent to your email"
         )
       );
@@ -276,6 +276,8 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 
   // 4. Update user as verified
   user.isEmailVerified = true;
+  user.emailVerificationToken = null;
+  user.emailVerificationTokenExpires = null;
 
   // 5. Generate tokens
   const { accessToken, refreshToken } =
@@ -453,6 +455,26 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
   const { refreshToken, accessToken } =
     await generateAccessAndRefreshTokens(user);
 
+  const isEmailPassUser = !!user?.email;
+  const isGoogleUser = !!user?.google?.gooEmail;
+
+  let response = null;
+
+  if (isEmailPassUser) {
+    response = {
+      fullName: user?.fullName,
+      email: user?.email,
+      userName: user?.userName,
+      avatar: user?.avatar?.secureURL,
+      coverImage: user?.coverImage?.secureURL,
+    };
+  }
+  if (isGoogleUser) {
+    response = {
+      google: user?.google,
+    };
+  }
+
   return res
     .status(200)
     .cookie("accessToken", accessToken, {
@@ -466,7 +488,7 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     .json(
       new ApiResponse(
         200,
-        { refreshToken, accessToken },
+        { refreshToken, accessToken, ...response },
         "Access token refreshed successfully"
       )
     );

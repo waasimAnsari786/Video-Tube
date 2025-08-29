@@ -185,7 +185,7 @@ const authSlice = createSlice({
       .addCase(sendEmailVerificationMailThunk.pending, updateStateOnPending)
       .addCase(sendEmailVerificationMailThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.token_Otp_Expires = action.payload.data.expirtationTime;
+        state.token_Otp_Expires = action.payload?.data?.expirationTime;
       })
       .addCase(sendEmailVerificationMailThunk.rejected, updateStateOnRejected)
 
