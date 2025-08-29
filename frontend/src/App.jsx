@@ -46,11 +46,7 @@ const App = () => {
     },
     {
       path: "/verify-email",
-      element: (
-        <AuthProtectedLayout authentication={false}>
-          <EmailVerificationPage />
-        </AuthProtectedLayout>
-      ),
+      element: <EmailVerificationPage />,
     },
     {
       path: "/",

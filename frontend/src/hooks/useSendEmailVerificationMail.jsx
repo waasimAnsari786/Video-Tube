@@ -10,8 +10,8 @@
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { sendEmailVerificationMailThunk } from "../store/slices/authSlice"; // ⬅️ adjust path
-import { setIsOtpSelected } from "../store/slices/authSlice";
+import { sendEmailVerificationMailThunk } from "../store/slices/authSlice";
+import { updateAuthSliceStateReducer } from "../store/slices/authSlice";
 
 export default function useSendEmailVerificationMail() {
   const dispatch = useDispatch();
@@ -39,12 +39,18 @@ export default function useSendEmailVerificationMail() {
 
       if (verificationType === "otp") {
         // update redux state instead of setState
-        dispatch(setIsOtpSelected(true));
+        dispatch(
+          updateAuthSliceStateReducer({ key: "isOtpSelected", value: true })
+        );
       }
 
       toast.success(resultAction.payload.message);
     } catch (error) {
-      if (
+      if (error.message === "Verification already requested, not expired yet") {
+        toast.info(
+          "You already have a pending verification request. Please check your email and use the previously received token/OTP."
+        );
+      } else if (
         error.message !==
         "send email verification mail request has been cancelled"
       ) {

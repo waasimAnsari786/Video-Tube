@@ -45,7 +45,7 @@ export default function SideBarAvatar() {
   };
 
   const sidebarAvatarPopupContent = [
-    new PopupContent(<FaUser />, "Profile", () => handleRoute("/profile")),
+    new PopupContent(<FaUser />, "Profile", () => handleRoute("/verify-email")),
     new PopupContent(<FaYoutube />, "Channel", () =>
       handleRoute(`/${userName || "waasim"}`)
     ),

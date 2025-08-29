@@ -67,9 +67,6 @@ const sendEmailVerificationMailThunk = createAsyncThunk(
         const now = Date.now();
 
         if (now < expiresAt) {
-          toast.info(
-            "You already have a pending verification request. Please check your email and use the previously received token/OTP."
-          );
           return rejectWithValue(
             "Verification already requested, not expired yet"
           );
@@ -161,8 +158,15 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setIsOtpSelected: (state, action) => {
-      state.isOtpSelected = action.payload;
+    // through this method i can easily update any one state of this slice at a time
+    updateAuthSliceStateReducer: (state, action) => {
+      if (typeof action.payload !== "object") return;
+
+      const { key, value } = action.payload;
+
+      if (key in state) {
+        state[key] = value;
+      } else return;
     },
   },
   extraReducers: (builder) => {
@@ -285,6 +289,6 @@ export {
   sendEmailVerificationMailThunk,
 };
 
-export const { setIsOtpSelected } = authSlice.actions;
+export const { updateAuthSliceStateReducer } = authSlice.actions;
 
 export default authSlice.reducer;

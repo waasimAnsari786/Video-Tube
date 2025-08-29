@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../../../utils";
 import { toast } from "react-toastify";
 import { FaTimesCircle } from "react-icons/fa";
+import { ResendVerification } from "../../../index";
 
 export default function EmailVerificationViaLink({ token, email }) {
   const [isEmailVerificationCancelled, setIsEmailVerificationCancelled] =
