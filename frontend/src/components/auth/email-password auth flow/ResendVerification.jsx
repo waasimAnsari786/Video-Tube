@@ -14,7 +14,7 @@ export default function ResendVerification({ verificationType }) {
   };
 
   const resendButtonText = {
-    opt: "Resend OTP",
+    otp: "Resend OTP",
     link: "Resend Link",
   };
 

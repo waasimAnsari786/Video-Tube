@@ -40,13 +40,7 @@ const EmailVerificationPage = () => {
     );
   }
 
-  if (isEmailVerified) {
-    return (
-      //  If user selects "Via Otp" option for email verification along with he successfully receives the OTP in his email inbox, the
-      // state is updated to "true" inside "EmailVerificationOptions" component and the below conponent renders
-      <h1>email is verified</h1>
-    );
-  }
+  if (isEmailVerified) return <h1>email is verified</h1>;
 
   return (
     //  Default UI (when user first lands on page to pick option)

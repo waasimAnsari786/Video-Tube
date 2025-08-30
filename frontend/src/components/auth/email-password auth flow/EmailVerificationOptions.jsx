@@ -5,37 +5,6 @@ import { useSendEmailVerificationMail, Button, Loading } from "../../../index";
 const EmailVerificationOptions = () => {
   const loading = useSelector((state) => state.auth.loading); // reading from auth slice
 
-  //   const controller = new AbortController();
-  //   abortControllerRef.current = controller;
-
-  //   try {
-  //     const resultAction = await dispatch(
-  //       sendEmailVerificationMailThunk({
-  //         url: "/users/verify-email",
-  //         payload: { email, verificationType },
-  //         config: { signal: controller.signal },
-  //       })
-  //     );
-
-  //     if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
-  //       throw new Error(resultAction.payload);
-  //     }
-
-  //     if (verificationType === "otp") {
-  //       setIS_OTP_Selected(true);
-  //     }
-
-  //     toast.success(resultAction.payload.message);
-  //   } catch (error) {
-  //     if (
-  //       error.message !==
-  //       "send email verification mail request hss been cancelled"
-  //     ) {
-  //       toast.error(error.message);
-  //     }
-  //   }
-  // };
-
   const { sendEmailVerificationMail, abortControllerRef } =
     useSendEmailVerificationMail();
 
