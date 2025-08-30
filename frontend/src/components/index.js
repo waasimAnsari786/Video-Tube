@@ -19,6 +19,7 @@ export { default as EmailVerificationViaLink } from "./auth/email-password auth 
 export { default as EmailVerificationOptions } from "./auth/email-password auth flow/EmailVerificationOptions";
 export { default as ResendVerification } from "./auth/email-password auth flow/ResendVerification";
 export { default as OtpCountdown } from "./auth/email-password auth flow/OtpCountdown";
+export { default as EmailVerificationFail } from "./auth/email-password auth flow/EmailVerificationFail";
 
 // ==============================
 // Profile Components

@@ -4,10 +4,11 @@ import { toast } from "react-toastify";
 import { axiosInstance } from "../../../utils";
 import { useSelector } from "react-redux";
 import { OTP_LENGTH } from "../../../constant";
-import { ResendVerification, OtpCountdown } from "../../../index";
+import { OtpCountdown } from "../../../index";
 
 export default function EmailVerificationViaOtp() {
   const [otp, setOtp] = useState("");
+
   const abortControllerRef = useRef(null);
 
   const email = useSelector((state) => state.auth.email);
@@ -32,6 +33,7 @@ export default function EmailVerificationViaOtp() {
             console.log("OTP verification request cancelled");
             return;
           }
+
           toast.error(
             err.response?.data?.message || "OTP verification failed!"
           );
@@ -51,7 +53,7 @@ export default function EmailVerificationViaOtp() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
+    <>
       <h2 className="text-xl font-semibold mb-4">Enter OTP sent to {email}</h2>
       <OtpInput
         value={otp}
@@ -67,11 +69,6 @@ export default function EmailVerificationViaOtp() {
       />
 
       <OtpCountdown />
-
-      {/* ✅ Reusable resend button */}
-      <div className="mt-4">
-        <ResendVerification verificationType="otp" />
-      </div>
-    </div>
+    </>
   );
 }

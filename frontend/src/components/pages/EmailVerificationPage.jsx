@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
+  Container,
+  EmailVerificationFail,
   EmailVerificationOptions,
   EmailVerificationViaLink,
   EmailVerificationViaOtp,
-} from "../index";
+} from "../../index";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAuthSliceStateReducer } from "../../store/slices/authSlice";
@@ -18,6 +20,7 @@ const EmailVerificationPage = () => {
 
   const isOtpSelected = useSelector((state) => state.auth.isOtpSelected);
   const isEmailVerified = useSelector((state) => state.auth.isEmailVerified);
+  const error = useSelector((state) => state.auth.error);
 
   useEffect(() => {
     if (email) {
@@ -25,10 +28,18 @@ const EmailVerificationPage = () => {
     }
   }, []);
 
+  // if (error) return <EmailVerificationFail error={error} />;
+
+  if (isEmailVerified) return <h1>email is verified</h1>;
+
   if (token && email) {
     return (
-      // If component mounts after the user click on the received link in the email, the component which handles email verification, renders
-      <EmailVerificationViaLink token={token} email={email} />
+      //  If component mounts after the user click on the received link in the
+      // email, the component which handles email verification, renders
+
+      <Container childElemClass="flex flex-col items-center justify-center min-h-screen">
+        <EmailVerificationViaLink token={token} email={email} />
+      </Container>
     );
   }
 
@@ -36,15 +47,18 @@ const EmailVerificationPage = () => {
     return (
       //  If user selects "Via Otp" option for email verification along with he successfully receives the OTP in his email inbox, the
       // state is updated to "true" inside "EmailVerificationOptions" component and the below conponent renders
-      <EmailVerificationViaOtp />
+      <Container childElemClass="flex flex-col items-center justify-center min-h-screen">
+        <EmailVerificationViaOtp />
+      </Container>
     );
   }
 
-  if (isEmailVerified) return <h1>email is verified</h1>;
-
   return (
     //  Default UI (when user first lands on page to pick option)
-    <EmailVerificationOptions />
+
+    <Container childElemClass="flex flex-col items-center justify-center min-h-screen">
+      <EmailVerificationOptions />
+    </Container>
   );
 };
 
