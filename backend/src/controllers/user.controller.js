@@ -188,6 +188,8 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
 
     user.emailVerificationToken = emailVerificationToken;
     user.emailVerificationTokenExpires = expiry;
+    user.emailVerificationOtp = null;
+    user.emailVerificationOtpExpires = null;
     await user.save({ validateBeforeSave: false });
 
     return res
@@ -231,11 +233,12 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       html,
     });
 
-    // const expiry = new Date(Date.now() + 60 * 1000); // 1 minute
-    const expiry = new Date(Date.now() + 10 * 1000); // 1 minute
+    const expiry = new Date(Date.now() + 60 * 1000); // 1 minute
 
     user.emailVerificationOtp = otp;
     user.emailVerificationOtpExpires = expiry;
+    user.emailVerificationToken = null;
+    user.emailVerificationTokenExpires = null;
     await user.save({ validateBeforeSave: false });
 
     return res

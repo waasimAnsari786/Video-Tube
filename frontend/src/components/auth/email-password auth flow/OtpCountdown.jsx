@@ -20,22 +20,26 @@
 
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { ResendVerification } from "../../../index";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAuthSliceStateReducer } from "../../../store/slices/authSlice";
 
 export default function OtpCountdown() {
   const token_Otp_Expires = useSelector(
     (state) => state.auth.token_Otp_Expires
   );
 
+  const dispatch = useDispatch();
+
   const [timeLeft, setTimeLeft] = useState(0);
-  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     if (!token_Otp_Expires) return;
 
     const expiryTime = new Date(token_Otp_Expires).getTime();
-    setExpired(false);
+
+    dispatch(
+      updateAuthSliceStateReducer({ key: "isOtpExpired", value: false })
+    );
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -44,7 +48,11 @@ export default function OtpCountdown() {
 
       if (diff <= 0) {
         clearInterval(interval);
-        setExpired(true);
+
+        dispatch(
+          updateAuthSliceStateReducer({ key: "isOtpExpired", value: true })
+        );
+
         toast.error("OTP expired! Please request a new one.");
       }
     }, 1000);
@@ -58,11 +66,9 @@ export default function OtpCountdown() {
   const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const seconds = String(timeLeft % 60).padStart(2, "0");
 
-  return !expired ? (
+  return (
     <p className="font-semibold text-red-500">
       Expires in: {minutes}:{seconds}
     </p>
-  ) : (
-    <ResendVerification verificationType={"otp"} />
   );
 }

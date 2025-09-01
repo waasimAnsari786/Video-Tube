@@ -12,6 +12,7 @@ import {
   LoginPage,
   AuthHandlingPage,
   EmailVerificationPage,
+  ProtectedEmailVerificationRoute,
 } from "./index";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,7 +47,11 @@ const App = () => {
     },
     {
       path: "/verify-email",
-      element: <EmailVerificationPage />,
+      element: (
+        <ProtectedEmailVerificationRoute>
+          <EmailVerificationPage />
+        </ProtectedEmailVerificationRoute>
+      ),
     },
     {
       path: "/",

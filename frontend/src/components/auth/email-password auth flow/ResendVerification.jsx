@@ -4,18 +4,17 @@ import { Loading, useSendEmailVerificationMail } from "../../../index";
 import { useSelector } from "react-redux";
 
 export default function ResendVerification({ verificationType }) {
-  const { sendEmailVerificationMail, abortControllerRef } =
-    useSendEmailVerificationMail();
+  const {
+    sendLinkVerificationMail,
+    sendOtpVerificationMail,
+    abortControllerRef,
+  } = useSendEmailVerificationMail();
 
   const loading = useSelector((state) => state.auth.loading);
 
-  const handleResend = () => {
-    sendEmailVerificationMail(verificationType);
-  };
-
-  const resendButtonText = {
-    otp: "Resend OTP",
-    link: "Resend Link",
+  const resendButtonData = {
+    otp: { text: "Resend OTP", func: sendOtpVerificationMail },
+    link: { text: "Resend Link", func: sendLinkVerificationMail },
   };
 
   React.useEffect(() => {
@@ -29,10 +28,10 @@ export default function ResendVerification({ verificationType }) {
   return (
     <>
       <button
-        onClick={handleResend}
+        onClick={resendButtonData[verificationType]?.func}
         className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
       >
-        {resendButtonText[verificationType]}
+        {resendButtonData[verificationType]?.text}
       </button>
 
       {loading && <Loading />}

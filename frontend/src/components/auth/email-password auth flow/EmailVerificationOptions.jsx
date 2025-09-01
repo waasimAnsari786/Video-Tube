@@ -5,8 +5,11 @@ import { useSendEmailVerificationMail, Button, Loading } from "../../../index";
 const EmailVerificationOptions = () => {
   const loading = useSelector((state) => state.auth.loading); // reading from auth slice
 
-  const { sendEmailVerificationMail, abortControllerRef } =
-    useSendEmailVerificationMail();
+  const {
+    sendLinkVerificationMail,
+    sendOtpVerificationMail,
+    abortControllerRef,
+  } = useSendEmailVerificationMail();
 
   useEffect(() => {
     return () => {
@@ -37,14 +40,14 @@ const EmailVerificationOptions = () => {
         <Button
           btnText="Via Link"
           padding="px-6 py-3"
-          onClick={() => sendEmailVerificationMail("link")}
+          onClick={() => sendLinkVerificationMail()}
           borderRadius="rounded-full"
         />
         <Button
           btnText="Via OTP"
           borderRadius="rounded-full"
           padding="px-6 py-3"
-          onClick={() => sendEmailVerificationMail("otp")}
+          onClick={() => sendOtpVerificationMail()}
         />
       </div>
 

@@ -5,6 +5,7 @@ import { OTP_LENGTH } from "../../../constant";
 import {
   EmailVerificationFail,
   OtpCountdown,
+  ResendVerification,
   useEmailVerification,
 } from "../../../index";
 
@@ -16,7 +17,15 @@ export default function EmailVerificationViaOtp() {
     (state) => state.auth.emailVerificationError
   );
 
+  const isOtpExpired = useSelector((state) => state.auth.isOtpExpired);
+
   const { verifyEmail, abortControllerRef } = useEmailVerification();
+
+  useEffect(() => {
+    if (!emailVerificationError) {
+      setOtp(""); // reset OTP when error resolves
+    }
+  }, [emailVerificationError]);
 
   useEffect(() => {
     if (otp.length !== OTP_LENGTH) return;
@@ -36,7 +45,7 @@ export default function EmailVerificationViaOtp() {
   if (emailVerificationError)
     return <EmailVerificationFail error={emailVerificationError} />;
 
-  return (
+  return !isOtpExpired ? (
     <>
       <h2 className="text-xl font-semibold mb-4">Enter OTP sent to {email}</h2>
       <OtpInput
@@ -53,5 +62,7 @@ export default function EmailVerificationViaOtp() {
       />
       <OtpCountdown />
     </>
+  ) : (
+    <ResendVerification verificationType={"otp"} />
   );
 }

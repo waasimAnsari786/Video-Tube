@@ -34,6 +34,8 @@ const initialState = {
   isOtpSelected: false,
   // this state is for rendering the error UI when email verification will be failed due to the link/otp expiration
   emailVerificationError: null,
+  // this state is for tracking the otp expiration time on the basis of otp countdown inside OtpCountDown.jsx
+  isOtpExpired: false,
 };
 
 // register user thunk
