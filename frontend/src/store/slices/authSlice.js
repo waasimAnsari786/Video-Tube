@@ -9,12 +9,10 @@
 // ✅ All thunks and the reducer are exported for external use.
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import {
   updateStateOnPending,
   updateStateOnRejected,
   updateStateFromResponse,
-  axiosInstance,
 } from "../../index";
 import { asyncThunkService } from "../../services";
 
@@ -34,58 +32,25 @@ const initialState = {
   token_Otp_Expires: null,
   // this state is for displaying the UI of OTP verification inside "EmailVerificationPage.jsx"`
   isOtpSelected: false,
+  // this state is for rendering the error UI when email verification will be failed due to the link/otp expiration
+  emailVerificationError: null,
 };
 
-// For user registration (custom logic - not using generic thunk)
+// register user thunk
 const registerUserThunk = createAsyncThunk(
   "auth/registerUser",
-  async ({ formData, signal }, { rejectWithValue }) => {
-    try {
-      const res = await axiosInstance.post("/users", formData, { signal });
-      return res.data;
-    } catch (err) {
-      if (signal.aborted) {
-        console.log("Register user request cancelled");
-        return rejectWithValue("Register user request cancelled");
-      }
-      return rejectWithValue(
-        err.response?.data?.message || "User hasn't registered"
-      );
-    }
-  }
+  asyncThunkService.postThunk() // no custom boilerplate needed 🎉
 );
 
 const sendEmailVerificationMailThunk = createAsyncThunk(
   "auth/sendEmailVerificationMail",
-  async ({ url, payload, config }, { getState, rejectWithValue }) => {
-    try {
-      const { token_Otp_Expires } = getState().auth;
+  asyncThunkService.postThunk()
+);
 
-      // ✅ Check expiration before making API call
-      if (token_Otp_Expires) {
-        const expiresAt = new Date(token_Otp_Expires).getTime();
-        const now = Date.now();
-
-        if (now < expiresAt) {
-          return rejectWithValue(
-            "Verification already requested, not expired yet"
-          );
-        }
-      }
-
-      // ✅ Only send request if expired or not set
-      const response = await axiosInstance.post(url, payload, config);
-      return response.data;
-    } catch (err) {
-      const errMsg = "send email verification mail request has been cancelled";
-
-      if (config.signal.aborted) {
-        console.log(errMsg);
-        return rejectWithValue(errMsg);
-      }
-      return rejectWithValue(err.response?.data?.message || "POST failed");
-    }
-  }
+// email verification thunk
+const emailVerificationThunk = createAsyncThunk(
+  "auth/emailVerification",
+  asyncThunkService.postThunk()
 );
 
 // Login
@@ -193,6 +158,17 @@ const authSlice = createSlice({
       })
       .addCase(sendEmailVerificationMailThunk.rejected, updateStateOnRejected)
 
+      // email verification
+      .addCase(emailVerificationThunk.pending, updateStateOnPending)
+      .addCase(emailVerificationThunk.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(emailVerificationThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.emailVerificationError = action.payload;
+      })
+
       // Login
       .addCase(loginUserThunk.pending, updateStateOnPending)
       .addCase(loginUserThunk.fulfilled, updateUserInfo)
@@ -287,6 +263,7 @@ export {
   deleteAvatarThunk,
   deleteCoverImageThunk,
   sendEmailVerificationMailThunk,
+  emailVerificationThunk,
 };
 
 export const { updateAuthSliceStateReducer } = authSlice.actions;

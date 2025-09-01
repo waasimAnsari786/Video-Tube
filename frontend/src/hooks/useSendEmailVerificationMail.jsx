@@ -17,10 +17,20 @@ export default function useSendEmailVerificationMail() {
   const dispatch = useDispatch();
   const abortControllerRef = useRef(null);
 
-  // read from redux slice (if you want it in component too)
   const email = useSelector((state) => state.auth.email);
+  const token_Otp_Expires = useSelector(
+    (state) => state.auth.token_Otp_Expires
+  );
 
   const sendEmailVerificationMail = async (verificationType) => {
+    const now = Date.now();
+    if (token_Otp_Expires && now < new Date(token_Otp_Expires).getTime()) {
+      toast.info(
+        "You already have a pending verification request. Please check your email and use the previously received link/OTP."
+      );
+      return;
+    }
+
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -38,22 +48,22 @@ export default function useSendEmailVerificationMail() {
       }
 
       if (verificationType === "otp") {
-        // update redux state instead of setState
         dispatch(
           updateAuthSliceStateReducer({ key: "isOtpSelected", value: true })
+        );
+        dispatch(
+          updateAuthSliceStateReducer({
+            key: "emailVerificationError",
+            value: null,
+          })
         );
       }
 
       toast.success(resultAction.payload.message);
     } catch (error) {
-      if (error.message === "Verification already requested, not expired yet") {
-        toast.info(
-          "You already have a pending verification request. Please check your email and use the previously received token/OTP."
-        );
-      } else if (
-        error.message !==
-        "send email verification mail request has been cancelled"
-      ) {
+      if (error.message === "post request cancelled") {
+        console.log("send email verification mail request has been cancelled");
+      } else {
         toast.error(error.message);
       }
     }

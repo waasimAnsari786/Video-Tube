@@ -1,39 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { axiosInstance } from "../../../utils";
-import { toast } from "react-toastify";
+import React, { useEffect } from "react";
+import { EmailVerificationFail, useEmailVerification } from "../../../index";
+import { useSelector } from "react-redux";
 
 export default function EmailVerificationViaLink({ token, email }) {
-  const navigate = useNavigate();
-  const abortControllerRef = useRef(new AbortController());
+  const { verifyEmail, abortControllerRef } = useEmailVerification();
 
-  const handleEmailVerificationViaEmail = async () => {
-    if (!token || !email) return;
-
-    try {
-      const response = await axiosInstance.post(
-        "/users/verify-email/link",
-        {
-          email,
-          verificationToken: token,
-        },
-        { signal: abortControllerRef.current.signal }
-      );
-
-      toast.success(response.data.message);
-      navigate("/");
-    } catch (err) {
-      if (abortControllerRef.current.signal.aborted) {
-        console.log("email verification request has been cancelled");
-        return;
-      }
-
-      toast.error(err.response?.data?.message);
-    }
-  };
+  const emailVerificationError = useSelector(
+    (state) => state.auth.emailVerificationError
+  );
 
   useEffect(() => {
-    handleEmailVerificationViaEmail();
+    verifyEmail({
+      verificationType: "link",
+      payload: { email, verificationToken: token },
+    });
 
     return () => {
       if (abortControllerRef.current) {
@@ -42,14 +22,17 @@ export default function EmailVerificationViaLink({ token, email }) {
     };
   }, []);
 
+  if (emailVerificationError)
+    return <EmailVerificationFail error={emailVerificationError} />;
+
   return (
-    <>
+    <div className="flex flex-col items-center justify-center min-h-screen px-4">
       <h1 className="text-2xl font-bold mb-4">
         Verifying Your Email <span className="text-blue-700">{email}</span>
       </h1>
       <p className="text-gray-600">
         Please wait while we verify your email. This may take a few seconds...
       </p>
-    </>
+    </div>
   );
 }

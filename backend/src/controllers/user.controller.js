@@ -231,7 +231,8 @@ const sendEmailVerification = asyncHandler(async (req, res) => {
       html,
     });
 
-    const expiry = new Date(Date.now() + 60 * 1000); // 1 minute
+    // const expiry = new Date(Date.now() + 60 * 1000); // 1 minute
+    const expiry = new Date(Date.now() + 10 * 1000); // 1 minute
 
     user.emailVerificationOtp = otp;
     user.emailVerificationOtpExpires = expiry;
@@ -255,7 +256,7 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 
   // 1. Check if token is provided
   if (!verificationToken) {
-    throw new ApiError(400, "Verification token missing");
+    throw new ApiError(400, "Verification token is missing");
   }
 
   // 2. Verify the token

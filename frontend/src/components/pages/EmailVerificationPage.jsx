@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import {
   Container,
-  EmailVerificationFail,
   EmailVerificationOptions,
   EmailVerificationViaLink,
   EmailVerificationViaOtp,
@@ -20,15 +19,12 @@ const EmailVerificationPage = () => {
 
   const isOtpSelected = useSelector((state) => state.auth.isOtpSelected);
   const isEmailVerified = useSelector((state) => state.auth.isEmailVerified);
-  const error = useSelector((state) => state.auth.error);
 
   useEffect(() => {
     if (email) {
       dispatch(updateAuthSliceStateReducer({ key: "email", value: email }));
     }
   }, []);
-
-  // if (error) return <EmailVerificationFail error={error} />;
 
   if (isEmailVerified) return <h1>email is verified</h1>;
 

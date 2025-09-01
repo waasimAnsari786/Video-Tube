@@ -1,63 +1,47 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import OtpInput from "react-otp-input";
-import { toast } from "react-toastify";
-import { axiosInstance } from "../../../utils";
 import { useSelector } from "react-redux";
 import { OTP_LENGTH } from "../../../constant";
-import { OtpCountdown } from "../../../index";
+import {
+  EmailVerificationFail,
+  OtpCountdown,
+  useEmailVerification,
+} from "../../../index";
 
 export default function EmailVerificationViaOtp() {
   const [otp, setOtp] = useState("");
-
-  const abortControllerRef = useRef(null);
-
   const email = useSelector((state) => state.auth.email);
 
-  const handleChange = (newOtp) => setOtp(newOtp);
+  const emailVerificationError = useSelector(
+    (state) => state.auth.emailVerificationError
+  );
+
+  const { verifyEmail, abortControllerRef } = useEmailVerification();
 
   useEffect(() => {
-    if (otp.length === OTP_LENGTH) {
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
+    if (otp.length !== OTP_LENGTH) return;
 
-      const verifyOtp = async () => {
-        try {
-          const response = await axiosInstance.post(
-            "/users/verify-email/otp",
-            { email, otp },
-            { signal: controller.signal }
-          );
-          toast.success(response.data.message || "OTP verified successfully!");
-        } catch (err) {
-          if (controller.signal.aborted) {
-            console.log("OTP verification request cancelled");
-            return;
-          }
+    verifyEmail({
+      verificationType: "otp",
+      payload: { email, otp },
+    });
 
-          toast.error(
-            err.response?.data?.message || "OTP verification failed!"
-          );
-        }
-      };
-
-      verifyOtp();
-    }
-  }, [otp, email]);
-
-  useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
     };
-  }, []);
+  }, [otp]);
+
+  if (emailVerificationError)
+    return <EmailVerificationFail error={emailVerificationError} />;
 
   return (
     <>
       <h2 className="text-xl font-semibold mb-4">Enter OTP sent to {email}</h2>
       <OtpInput
         value={otp}
-        onChange={handleChange}
+        onChange={setOtp}
         numInputs={OTP_LENGTH}
         renderSeparator={<span className="mx-1 text-2xl">&nbsp;</span>}
         renderInput={(props) => (
@@ -67,7 +51,6 @@ export default function EmailVerificationViaOtp() {
           />
         )}
       />
-
       <OtpCountdown />
     </>
   );

@@ -8,7 +8,6 @@ import {
   InputContainer,
   FormButton,
   PasswordInputContainer,
-  useLoading,
 } from "../../../index";
 import showFormErrors from "../../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -33,13 +32,14 @@ const RegisterForm = () => {
 
   const controllerRef = useRef(new AbortController());
 
-  const { loading, setLoading } = useLoading();
-
   const handleRegister = async (formData) => {
     try {
-      setLoading(true);
       const result = await dispatch(
-        registerUserThunk({ formData, signal: controllerRef.current.signal })
+        registerUserThunk({
+          url: "/users",
+          payload: formData,
+          config: { signal: controllerRef.current.signal },
+        })
       );
 
       if (!registerUserThunk.fulfilled.match(result)) {
@@ -49,14 +49,11 @@ const RegisterForm = () => {
       toast.success(result.payload.message);
       navigate("/verify-email");
     } catch (error) {
-      // Don't show error toast if request was cancelled
-      if (error.message !== "Register user request cancelled") {
-        toast.error(error.message);
+      if (error.message === "post request cancelled") {
+        console.log("Register user request cancelled");
       } else {
-        console.log(error.message);
+        toast.error(error.message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -135,11 +132,7 @@ const RegisterForm = () => {
           })}
         />
 
-        <FormButton
-          label="Register"
-          loadingLabel="Signing Up..."
-          loading={loading}
-        />
+        <FormButton label="Register" loadingLabel="Signing Up..." />
         <FormText
           text="Already have an account?"
           linkText="Login"

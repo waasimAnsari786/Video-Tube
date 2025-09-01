@@ -31,7 +31,6 @@ class AsyncThunk {
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {
-          console.log("post request cancelled");
           return rejectWithValue("post request cancelled");
         }
         return rejectWithValue(err.response?.data?.message || "POST failed");

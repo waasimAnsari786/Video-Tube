@@ -27,22 +27,27 @@ const LoginForm = () => {
 
   const controllerRef = useRef(new AbortController());
 
-  const handlelogin = async (formData) => {
-    const result = await dispatch(
-      loginUserThunk({
-        url: "/users/login",
-        payload: formData,
-        config: { signal: controllerRef.current.signal },
-      })
-    );
+  const handleLogin = async (formData) => {
+    try {
+      const result = await dispatch(
+        loginUserThunk({
+          url: "/users/login",
+          payload: formData,
+          config: { signal: controllerRef.current.signal },
+        })
+      );
 
-    if (loginUserThunk.fulfilled.match(result)) {
-      console.log(result);
+      if (!loginUserThunk.fulfilled.match(result)) {
+        throw new Error(result.payload);
+      }
+
       toast.success(result.payload.message);
       navigate("/");
-    } else {
-      if (result.payload !== "post request cancelled") {
-        toast.error(result.payload || "Login failed");
+    } catch (error) {
+      if (error.message === "post request cancelled") {
+        console.log("Login request cancelled");
+      } else {
+        toast.error(error.message || "Login failed");
       }
     }
   };
@@ -61,7 +66,7 @@ const LoginForm = () => {
       <Logo src="/images/logo.png" logoClass={"mb-5"} />
 
       <form
-        onSubmit={handleSubmit(handlelogin, (formErrors) =>
+        onSubmit={handleSubmit(handleLogin, (formErrors) =>
           showFormErrors(formErrors)
         )}
         className="bg-white shadow-2xl rounded-xl p-5 md:p-10 text-center w-full md:w-1/2"
