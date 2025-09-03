@@ -471,11 +471,13 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
       userName: user?.userName,
       avatar: user?.avatar?.secureURL,
       coverImage: user?.coverImage?.secureURL,
+      isEmailVerified: user?.isEmailVerified,
     };
   }
   if (isGoogleUser) {
     response = {
       google: user?.google,
+      isEmailVerified: user?.isEmailVerified,
     };
   }
 

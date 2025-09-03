@@ -1,13 +1,11 @@
 // a utility class for sending errors to frontend
 class ApiError extends Error {
   constructor(
-    // get some mendatory data on each creation of instance
     statusCode,
     message = "Something went wrong",
     errors = [],
     stack = ""
   ) {
-    // call parent class's constructor
     super(message);
     this.statusCode = statusCode;
     this.data = null;

@@ -61,14 +61,10 @@ export default function MyWebLayout() {
             })
           );
 
-          // updating "userRes" variable with value of "refreshRes" variable for using this variable's response easily in the
-          // rest of useEffect()
-          // userRes = refreshRes;
-
           if (!refreshAccessTokenThunk.fulfilled.match(refreshRes)) return;
         }
 
-        toast.success(userRes.payload?.message);
+        toast.success(userRes.payload?.message || "User fetched successfully");
         refreshTimeoutId.current = setTimeout(
           scheduleRefresh,
           REFRESH_INTERVAL
