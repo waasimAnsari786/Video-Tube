@@ -73,7 +73,8 @@ passport.use(
           if (existingUser.email === email) {
             throw new ApiError(
               400,
-              "User with this email already exists. Please log in via Email/Password instead of Google."
+              "User with this email already exists. Please log in via Email/Password instead of Google.",
+              "AUTH_USER_ALREADY_EXISTS"
             );
           }
 

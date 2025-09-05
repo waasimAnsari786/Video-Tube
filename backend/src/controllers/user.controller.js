@@ -22,27 +22,21 @@ import sendEmail from "../utils/sendEmail.utils.js";
 
 const generateAccessAndRefreshTokens = async user => {
   try {
-    // Step 1: Check if user is provided
-    if (!user) {
-      console.error("User is missing for generating tokens");
-      throw new ApiError(500, "Internal server error while generating tokens");
-    }
-
-    // Step 2: Generate access token using the user method
+    // Step 1: Generate access token using the user method
     const accessToken = user.generateAccessToken();
     if (!accessToken) {
       console.error("Error while generating access-token");
-      throw new ApiError(500, "Internal server error while generating tokens");
+      throw new ApiError(500);
     }
 
-    // Step 3: Generate refresh token using the user method
+    // Step 2: Generate refresh token using the user method
     const refreshToken = user.generateRefreshToken();
     if (!refreshToken) {
       console.error("Error while generating refresh-token");
-      throw new ApiError(500, "Internal server error while generating tokens");
+      throw new ApiError(500);
     }
 
-    // ✅ Step 4: save user with refresh token and prepare response
+    // ✅ Step 3: save user with refresh token and prepare response
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
     return { refreshToken, accessToken };
@@ -95,7 +89,8 @@ const registerUser = asyncHandler(async (req, res, _) => {
     if (existedUser.google?.gooEmail === email) {
       throw new ApiError(
         400,
-        "User with the provided email does exist. Please do login via Google instead of submitting this form."
+        "User with the provided email already exists. Please log in via Google instead of submitting this form.",
+        "AUTH_GOOGLE_ACCOUNT_EXISTS"
       );
     }
 
@@ -103,13 +98,15 @@ const registerUser = asyncHandler(async (req, res, _) => {
     if (existedUser.email === email || existedUser.userName === userName) {
       throw new ApiError(
         401,
-        "User exists with email or user-name. Please do login."
+        "User already exists with this email or username. Please log in.",
+        "AUTH_USER_ALREADY_EXISTS"
       );
     } else {
-      // This handles rare edge cases where email doesn't match but some other user has the same Google ID
+      // 👉 Rare edge case where conflict is unexpected
       throw new ApiError(
         500,
-        "Unexpected user conflict during register the user."
+        "Unexpected user conflict during registration.",
+        "AUTH_UNEXPECTED_USER_CONFLICT"
       );
     }
   }
@@ -124,12 +121,12 @@ const registerUser = asyncHandler(async (req, res, _) => {
 
   // ✅ Step 5: Ensure user creation succeeded
   if (!createdUser) {
-    throw new ApiError(500, "Internal server error while registering user");
+    throw new ApiError(
+      500,
+      "Internal server error while registering user.",
+      "AUTH_USER_CREATION_FAILED"
+    );
   }
-
-  // const user = await User.findById(createdUser._id)
-  //   .select("email", "_id", "isEmailVerified")
-  //   .lean();
 
   // ✅ Step 6: Respond with success (without returning sensitive fields)
   return res
@@ -259,23 +256,39 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
 
   // 1. Check if token is provided
   if (!verificationToken) {
-    throw new ApiError(400, "Verification token is missing");
+    throw new ApiError(
+      400,
+      "Verification token is missing",
+      "AUTH_VERIFICATION_TOKEN_MISSING"
+    );
   }
 
   // 2. Verify the token
-  let decodedVerificationToken;
-  try {
-    decodedVerificationToken = jwt.verify(
-      verificationToken,
-      process.env.VERIFICATION_TOKEN_SECRET
-    );
-  } catch (err) {
-    throw new ApiError(400, "Verification token expired");
-  }
+  // let decodedVerificationToken;
+  // try {
+  //   decodedVerificationToken = jwt.verify(
+  //     verificationToken,
+  //     process.env.VERIFICATION_TOKEN_SECRET
+  //   );
+  // } catch (err) {
+  //   throw new ApiError(
+  //     400,
+  //     "Verification token expired or invalid",
+  //     "AUTH_VERIFICATION_TOKEN_EXPIRED"
+  //   );
+  // }
+  let decodedVerificationToken = jwt.verify(
+    verificationToken,
+    process.env.VERIFICATION_TOKEN_SECRET
+  );
 
   // 3. Validate token’s _id matches user._id
   if (String(user._id) !== decodedVerificationToken._id) {
-    throw new ApiError(400, "Verification token does not match the user");
+    throw new ApiError(
+      400,
+      "Verification token does not match the user",
+      "AUTH_VERIFICATION_TOKEN_MISMATCH"
+    );
   }
 
   // 4. Update user as verified
@@ -313,7 +326,11 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
 
   // 1. Check if OTP is provided
   if (!otp) {
-    throw new ApiError(400, "OTP is required for verification");
+    throw new ApiError(
+      400,
+      "OTP is required for verification",
+      "AUTH_VERIFICATION_OTP_MISSING"
+    );
   }
 
   // 2. Validate the OTP
@@ -323,7 +340,11 @@ const verifyEmailByOTP = asyncHandler(async (req, res) => {
     user.emailVerificationOtpExpires < new Date();
 
   if (isOtpInvalid) {
-    throw new ApiError(400, "Invalid or expired OTP");
+    throw new ApiError(
+      400,
+      "Invalid or expired OTP",
+      "AUTH_INVALID_OR_EXPIRED_OTP"
+    );
   }
 
   // 3. Mark email as verified and clear OTP fields
@@ -365,7 +386,11 @@ const loginUser = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email });
 
   if (!existingUser) {
-    throw new ApiError(404, "User not found with this email");
+    throw new ApiError(
+      404,
+      "User not found with this email",
+      "AUTH_USER_NOT_FOUND"
+    );
   }
 
   // 3. Check if email is verified
@@ -377,7 +402,11 @@ const loginUser = asyncHandler(async (req, res) => {
   const isPasswordCorrect = await existingUser.comparePassword(password.trim());
 
   if (!isPasswordCorrect) {
-    throw new ApiError(400, "Incorrect password. Please try again.");
+    throw new ApiError(
+      400,
+      "Incorrect password. Please try again.",
+      "AUTH_INCORRECT_PASSWORD"
+    );
   }
 
   // 5. Generate access and refresh tokens
@@ -440,20 +469,29 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    throw new ApiError(400, "Unauthorized Request: Refresh token is missing");
+    throw new ApiError(
+      400,
+      "Unauthorized Request: Refresh token is missing",
+      "AUTH_TOKEN_MISSING"
+    );
   }
 
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-  } catch (err) {
-    throw new ApiError(400, "Invalid or expired refresh token");
-  }
+  let decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+  // let decodedToken;
+  // try {
+  //   decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+  // } catch (err) {
+  //   throw new ApiError(400, "Invalid or expired refresh token");
+  // }
 
   const user = await User.findById(decodedToken?._id);
 
   if (!user || token !== user.refreshToken) {
-    throw new ApiError(400, "Invalid or expired refresh token. Try to login.");
+    throw new ApiError(
+      400,
+      "Invalid or expired refresh token. Try to login.",
+      "AUTH_INVALID_OR_EXPIRED_TOKEN"
+    );
   }
 
   const { refreshToken, accessToken } =

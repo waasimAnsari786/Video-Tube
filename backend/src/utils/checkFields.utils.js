@@ -1,14 +1,16 @@
 /**
- * this method has written for checking fields will be passed in the "fields"
- * parameter valid or not? When "requireAll" will be true, this method
- * will check all passed fields in the "fields" param must be valid else
- * it will check for any one of them
+ * Utility for validating fields and ObjectIDs.
+ *
+ * - checkFields: Validates required string fields (all or any).
+ * - checkObjectID: Validates MongoDB ObjectIDs.
  */
+
 import mongoose from "mongoose";
 import ApiError from "./API_error.utils.js";
 
 const checkFields = (fields, message, requireAll = true) => {
   let isValid = null;
+
   if (requireAll) {
     isValid = fields.every(
       field => field && typeof field === "string" && field.trim()
@@ -20,14 +22,22 @@ const checkFields = (fields, message, requireAll = true) => {
   }
 
   if (!isValid) {
-    throw new ApiError(400, message || "All fields are required");
+    throw new ApiError(
+      400,
+      message || "Invalid or missing required fields",
+      "VALIDATION_INVALID_FIELDS" // ✅ error code
+    );
   }
 };
 
-//  This method has written for getting validate all the ObjectIDs which will be comming in request
+// Validate MongoDB ObjectID
 const checkObjectID = (id, message) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(400, message);
+    throw new ApiError(
+      400,
+      message || "Invalid ObjectID",
+      "VALIDATION_INVALID_OBJECT_ID" // ✅ error code
+    );
   }
 };
 

@@ -13,20 +13,25 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
     req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    throw new ApiError(400, "Unauthorized Request: Access token is missing");
+    throw new ApiError(
+      400,
+      "Unauthorized Request: Access token is missing",
+      "AUTH_TOKEN_MISSING"
+    );
   }
 
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  } catch (err) {
-    throw new ApiError(400, "Invalid or expired access token");
-  }
+  // let decodedToken;
+  // try {
+  //   decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  // } catch (err) {
+  //   throw new ApiError(400, "Invalid or expired access token");
+  // }
+  let decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
   const user = await User.findById(decodedToken?._id);
 
   if (!user) {
-    throw new ApiError(404, "User doesn't exist");
+    throw new ApiError(404, "User doesn't exist", "AUTH_USER_NOT_FOUND");
   }
 
   if (user?.google?.gooID && user?.google?.gooEmail) {
