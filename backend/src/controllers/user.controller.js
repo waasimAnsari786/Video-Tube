@@ -490,7 +490,7 @@ const refreshAccessToken = asyncHandler(async (req, res, _) => {
     throw new ApiError(
       400,
       "Invalid or expired refresh token. Try to login.",
-      "AUTH_INVALID_OR_EXPIRED_TOKEN"
+      "AUTH_INVALID_TOKEN"
     );
   }
 

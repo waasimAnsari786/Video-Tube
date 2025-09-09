@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { FaEnvelope, FaUser } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   InputContainer,
   FormButton,
   PasswordInputContainer,
+  useAbortController,
 } from "../../../index";
 import showFormErrors from "../../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -30,41 +31,30 @@ const RegisterForm = () => {
     reValidateMode: "onSubmit",
   });
 
-  const controllerRef = useRef(new AbortController());
+  const abortController = useAbortController();
 
   const handleRegister = async (formData) => {
-    try {
-      const result = await dispatch(
-        registerUserThunk({
-          url: "/users",
-          payload: formData,
-          config: { signal: controllerRef.current.signal },
-        })
-      );
+    const result = await dispatch(
+      registerUserThunk({
+        url: "/users",
+        payload: formData,
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-      if (!registerUserThunk.fulfilled.match(result)) {
-        throw new Error(result.payload);
-      }
-
+    // Handle success / errors directly
+    if (registerUserThunk.fulfilled.match(result)) {
       toast.success(result.payload.message);
       navigate("/verify-email");
-    } catch (error) {
-      if (error.message === "post request cancelled") {
+    } else {
+      const errorCode = result.payload?.errorCode;
+      if (errorCode === "POST_REQUEST_CANCELLED") {
         console.log("Register user request cancelled");
       } else {
-        toast.error(error.message);
+        toast.error(result.payload?.message || "Registration failed");
       }
     }
   };
-
-  useEffect(() => {
-    return () => {
-      // Cancel any in-progress request on unmount
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return (
     <>

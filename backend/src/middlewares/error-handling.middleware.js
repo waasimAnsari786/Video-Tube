@@ -1,6 +1,6 @@
 import multer from "multer";
-import ApiError from "../utils/ApiError.js";
-import ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/API_error.utils.js";
+import ErrorResponse from "../utils/ErrorResponse.utils.js";
 
 const errorHandler = (err, _, res, next) => {
   // --- Multer Error Handling ---
@@ -20,20 +20,23 @@ const errorHandler = (err, _, res, next) => {
 
     return res
       .status(400)
-      .json(new ApiResponse(400, null, friendlyMessage, "UPLOAD_ERROR"));
+      .json(new ErrorResponse(400, friendlyMessage, err.code));
   }
 
   // --- Custom API Error ---
   else if (err instanceof ApiError) {
     console.error("API Error:", err);
 
-    return res.status(err.statusCode).json({
-      success: false,
-      data: null,
-      message: err.message, // readable message
-      errorCode: err.errorCode, // stable code for client handling
-      errors: err.errors || [], // extra details (like validation issues)
-    });
+    return res
+      .status(err.statusCode)
+      .json(
+        new ErrorResponse(
+          err.statusCode,
+          err.message,
+          err.errorCode,
+          err.errors || []
+        )
+      );
   }
 
   // --- MongoDB Validation Error ---
@@ -42,13 +45,11 @@ const errorHandler = (err, _, res, next) => {
 
     const errors = Object.values(err.errors).map(error => error.message);
 
-    return res.status(400).json({
-      success: false,
-      data: null,
-      message: "Validation Error",
-      errorCode: "VALIDATION_ERROR",
-      errors,
-    });
+    return res
+      .status(400)
+      .json(
+        new ErrorResponse(400, err.message, "MONGOOSE_VALIDATION_ERROR", errors)
+      );
   }
 
   // --- JWT Errors ---
@@ -58,35 +59,39 @@ const errorHandler = (err, _, res, next) => {
   ) {
     console.error("JWT Error:", err);
 
-    return res.status(401).json({
-      success: false,
-      data: null,
-      message: err.message,
-      errorCode: "INVALID_OR_EXPIRED_TOKEN",
-    });
+    return res
+      .status(401)
+      .json(new ErrorResponse(401, err.message, "INVALID_OR_EXPIRED_TOKEN"));
   }
+
   // --- Mongoose CastError Handling ---
   else if (err.name === "CastError") {
     console.error("Mongoose CastError:", err);
 
-    return res.status(400).json({
-      success: false,
-      data: null,
-      message: `Invalid value '${err.value}' for field '${err.path}'. Expected type: ${err.kind}.`,
-      errorCode: "INVALID_DATA_TYPE",
-    });
+    return res
+      .status(400)
+      .json(
+        new ErrorResponse(
+          400,
+          `Invalid value '${err.value}' for field '${err.path}'. Expected type: ${err.kind}.`,
+          "MONGOOSE_INVALID_DATA_TYPE"
+        )
+      );
   }
 
   // --- Fallback for Unknown Errors ---
   else {
     console.error("Unhandled Error:", err);
 
-    return res.status(500).json({
-      success: false,
-      data: null,
-      message: "Something went wrong on the server.",
-      errorCode: "INTERNAL_SERVER_ERROR",
-    });
+    return res
+      .status(500)
+      .json(
+        new ErrorResponse(
+          500,
+          "Something went wrong on the server.",
+          "INTERNAL_SERVER_ERROR"
+        )
+      );
   }
 };
 

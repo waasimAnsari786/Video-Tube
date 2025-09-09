@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { FaEnvelope } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   InputContainer,
   FormButton,
   PasswordInputContainer,
+  useAbortController,
 } from "../../../index";
 import showFormErrors from "../../../utils/showFormError";
 import { toast } from "react-toastify";
@@ -25,41 +26,30 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const controllerRef = useRef(new AbortController());
+  const abortController = useAbortController();
 
   const handleLogin = async (formData) => {
-    try {
-      const result = await dispatch(
-        loginUserThunk({
-          url: "/users/login",
-          payload: formData,
-          config: { signal: controllerRef.current.signal },
-        })
-      );
+    const result = await dispatch(
+      loginUserThunk({
+        url: "/users/login",
+        payload: formData,
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-      if (!loginUserThunk.fulfilled.match(result)) {
-        throw new Error(result.payload);
-      }
-
-      toast.success(result.payload.message);
+    // Handle success / errors directly
+    if (loginUserThunk.fulfilled.match(result)) {
+      toast.success(result.payload.message || "Login successful");
       navigate("/");
-    } catch (error) {
-      if (error.message === "post request cancelled") {
+    } else {
+      const errorCode = result.payload?.errorCode;
+      if (errorCode === "POST_REQUEST_CANCELLED") {
         console.log("Login request cancelled");
       } else {
-        toast.error(error.message || "Login failed");
+        toast.error(result.payload?.message || "Login failed");
       }
     }
   };
-
-  useEffect(() => {
-    return () => {
-      // Cancel any in-progress request on unmount
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return (
     <>

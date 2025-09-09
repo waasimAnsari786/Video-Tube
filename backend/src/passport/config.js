@@ -83,7 +83,8 @@ passport.use(
           } else {
             throw new ApiError(
               500,
-              "Unexpected user conflict during Google signup."
+              "Unexpected user conflict during Google signup.",
+              "AUTH_UNEXPECTED_USER_CONFLICT"
             );
           }
         } else {

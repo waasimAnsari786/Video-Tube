@@ -16,10 +16,19 @@ class AsyncThunk {
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {
-          console.log("get request cancelled");
-          return rejectWithValue("get request cancelled");
-        } // silent cancellation
-        return rejectWithValue(err.response?.data?.message || "GET failed");
+          return rejectWithValue({
+            message: "get request cancelled",
+            errorCode: "GET_REQUEST_CANCELLED",
+          });
+        }
+
+        // Ensure consistent rejection structure
+        return rejectWithValue(
+          err.response?.data || {
+            message: "GET failed",
+            errorCode: "GET_ERROR",
+          }
+        );
       }
     };
   }
@@ -31,9 +40,19 @@ class AsyncThunk {
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {
-          return rejectWithValue("post request cancelled");
+          return rejectWithValue({
+            message: "post request cancelled",
+            errorCode: "POST_REQUEST_CANCELLED",
+          });
         }
-        return rejectWithValue(err.response?.data?.message || "POST failed");
+
+        // Ensure consistent rejection structure
+        return rejectWithValue(
+          err.response?.data || {
+            message: "POST failed",
+            errorCode: "POST_ERROR",
+          }
+        );
       }
     };
   }
@@ -45,10 +64,19 @@ class AsyncThunk {
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {
-          console.log("patch request cancelled");
-          return rejectWithValue("patch request cancelled");
+          return rejectWithValue({
+            message: "patch request cancelled",
+            errorCode: "PATCH_REQUEST_CANCELLED",
+          });
         }
-        return rejectWithValue(err.response?.data?.message || "PATCH failed");
+
+        // Ensure consistent rejection structure
+        return rejectWithValue(
+          err.response?.data || {
+            message: "PATCH failed",
+            errorCode: "PATCH_ERROR",
+          }
+        );
       }
     };
   }
@@ -60,10 +88,19 @@ class AsyncThunk {
         return response.data;
       } catch (err) {
         if (config.signal.aborted) {
-          console.log("delete request cancelled");
-          return rejectWithValue("delete request cancelled");
+          return rejectWithValue({
+            message: "delete request cancelled",
+            errorCode: "DELETE_REQUEST_CANCELLED",
+          });
         }
-        return rejectWithValue(err.response?.data?.message || "DELETE failed");
+
+        // Ensure consistent rejection structure
+        return rejectWithValue(
+          err.response?.data || {
+            message: "DELETE failed",
+            errorCode: "DELETE_ERROR",
+          }
+        );
       }
     };
   }

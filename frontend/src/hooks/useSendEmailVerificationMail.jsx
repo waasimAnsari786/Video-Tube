@@ -27,7 +27,7 @@ export default function useSendEmailVerificationMail() {
   );
 
   // 🔹 Common expiry check (reusable by both functions)
-  const hasPendingOtp = () => {
+  const hasPendingOtpOrLink = () => {
     const now = Date.now();
     if (token_Otp_Expires && now < new Date(token_Otp_Expires).getTime()) {
       toast.info(
@@ -39,7 +39,7 @@ export default function useSendEmailVerificationMail() {
   };
 
   const sendOtpVerificationMail = async () => {
-    if (hasPendingOtp()) {
+    if (hasPendingOtpOrLink()) {
       dispatch(
         updateAuthSliceStateReducer({
           key: "emailVerificationError",
@@ -90,7 +90,7 @@ export default function useSendEmailVerificationMail() {
   };
 
   const sendLinkVerificationMail = async () => {
-    if (hasPendingOtp()) return;
+    if (hasPendingOtpOrLink()) return;
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
