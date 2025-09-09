@@ -19,7 +19,7 @@ export default function EmailVerificationViaOtp() {
 
   const isOtpExpired = useSelector((state) => state.auth.isOtpExpired);
 
-  const { verifyEmail, abortControllerRef } = useEmailVerification();
+  const { verifyEmail } = useEmailVerification();
 
   useEffect(() => {
     if (!emailVerificationError) {
@@ -34,12 +34,6 @@ export default function EmailVerificationViaOtp() {
       verificationType: "otp",
       payload: { email, otp },
     });
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, [otp]);
 
   if (emailVerificationError)

@@ -25,7 +25,7 @@ export default function Header() {
           <Column customColClass="col-span-12 flex justify-between items-center">
             <div className="flex lg:w-[15%] md:w-[30%] sm:w-[40%] w-[50%] items-center gap-3">
               <SidebarToggle />
-              <Logo src={"/images/logo.png"} />
+              <Logo />
             </div>
             <SearchForm icon={<FaSearch />} customClass={"hidden lg:block"} />
             <div className="flex gap-2">

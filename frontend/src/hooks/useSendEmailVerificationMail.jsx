@@ -9,17 +9,18 @@
  * Handles request cancellation with AbortController and updates Redux auth state accordingly.
  */
 
-import { useRef } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
   sendEmailVerificationMailThunk,
   updateAuthSliceStateReducer,
 } from "../store/slices/authSlice";
+import { useAbortController } from "../index";
 
 export default function useSendEmailVerificationMail() {
   const dispatch = useDispatch();
-  const abortControllerRef = useRef(null);
+  const abortController = useAbortController();
 
   const email = useSelector((state) => state.auth.email);
   const token_Otp_Expires = useSelector(
@@ -49,78 +50,69 @@ export default function useSendEmailVerificationMail() {
       return;
     }
 
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+    const resultAction = await dispatch(
+      sendEmailVerificationMailThunk({
+        url: "/users/verify-email",
+        payload: { email, verificationType: "otp" },
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-    try {
-      const resultAction = await dispatch(
-        sendEmailVerificationMailThunk({
-          url: "/users/verify-email",
-          payload: { email, verificationType: "otp" },
-          config: { signal: controller.signal },
-        })
-      );
-
-      if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
-        throw new Error(resultAction.payload);
-      }
-
-      // OTP-specific state updates
-      dispatch(
-        updateAuthSliceStateReducer({ key: "isOtpSelected", value: true })
-      );
-      dispatch(
-        updateAuthSliceStateReducer({
-          key: "emailVerificationError",
-          value: null,
-        })
-      );
-      dispatch(
-        updateAuthSliceStateReducer({ key: "isOtpExpired", value: false })
-      );
-
-      toast.success(resultAction.payload.message);
-    } catch (error) {
-      if (error.message === "post request cancelled") {
-        console.log("OTP request cancelled");
+    if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
+      const errorCode = resultAction.payload?.errorCode;
+      if (errorCode === "POST_REQUEST_CANCELLED") {
+        console.log("send OTP request cancelled");
       } else {
-        toast.error(error.message);
+        toast.error(resultAction.payload?.message || "OTP request failed");
       }
+
+      return;
     }
+
+    // OTP-specific state updates
+    dispatch(
+      updateAuthSliceStateReducer({ key: "isOtpSelected", value: true })
+    );
+    dispatch(
+      updateAuthSliceStateReducer({
+        key: "emailVerificationError",
+        value: null,
+      })
+    );
+    dispatch(
+      updateAuthSliceStateReducer({ key: "isOtpExpired", value: false })
+    );
+
+    toast.success(resultAction.payload.message);
   };
 
   const sendLinkVerificationMail = async () => {
     if (hasPendingOtpOrLink()) return;
 
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+    const resultAction = await dispatch(
+      sendEmailVerificationMailThunk({
+        url: "/users/verify-email",
+        payload: { email, verificationType: "link" },
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-    try {
-      const resultAction = await dispatch(
-        sendEmailVerificationMailThunk({
-          url: "/users/verify-email",
-          payload: { email, verificationType: "link" },
-          config: { signal: controller.signal },
-        })
-      );
-
-      if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
-        throw new Error(resultAction.payload);
-      }
-
-      toast.success(resultAction.payload.message);
-    } catch (error) {
-      if (error.message === "post request cancelled") {
-        console.log("Link request cancelled");
+    if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
+      const errorCode = resultAction.payload?.errorCode;
+      if (errorCode === "POST_REQUEST_CANCELLED") {
+        console.log("send link request cancelled");
       } else {
-        toast.error(error.message);
+        toast.error(resultAction.payload?.message || "Link request failed");
       }
+
+      return;
     }
+
+    toast.success(resultAction.payload.message);
   };
 
   return {
     sendOtpVerificationMail,
     sendLinkVerificationMail,
-    abortControllerRef,
   };
 }

@@ -20,13 +20,13 @@ const verifyAuthorization = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // let decodedToken;
-  // try {
-  //   decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  // } catch (err) {
-  //   throw new ApiError(400, "Invalid or expired access token");
-  // }
-  let decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch (err) {
+    throw err;
+  }
+  // let decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
   const user = await User.findById(decodedToken?._id);
 

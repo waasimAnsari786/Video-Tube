@@ -1,9 +1,9 @@
 // hooks/useEmailVerification.js
-import { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { emailVerificationThunk } from "../store/slices/authSlice";
+import { useAbortController } from "../index";
 
 /**
  * Custom hook to handle email verification (via link or OTP).
@@ -16,40 +16,36 @@ import { emailVerificationThunk } from "../store/slices/authSlice";
 export default function useEmailVerification() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const abortControllerRef = useRef(null);
+  const abortController = useAbortController();
 
   const verifyEmail = async ({ verificationType, payload }) => {
     if (!verificationType || !payload) return;
 
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+    const resultAction = await dispatch(
+      emailVerificationThunk({
+        url: `/users/verify-email/${verificationType}`,
+        payload,
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-    try {
-      const resultAction = await dispatch(
-        emailVerificationThunk({
-          url: `/users/verify-email/${verificationType}`,
-          payload,
-          config: { signal: controller.signal },
-        })
-      );
-
-      if (!emailVerificationThunk.fulfilled.match(resultAction)) {
-        throw new Error(resultAction.payload);
-      }
-
-      toast.success(resultAction.payload.message);
-
-      navigate("/");
-    } catch (error) {
-      if (error.message === "post request cancelled") {
+    if (!emailVerificationThunk.fulfilled.match(resultAction)) {
+      const errorCode = resultAction.payload?.errorCode;
+      if (errorCode === "POST_REQUEST_CANCELLED") {
         console.log(
           `${verificationType} verification request has been cancelled`
         );
       } else {
-        toast.error(error.message);
+        toast.error(resultAction.payload?.message || "Verification failed");
       }
+
+      return;
     }
+
+    toast.success(resultAction.payload.message);
+
+    navigate("/");
   };
 
-  return { verifyEmail, abortControllerRef };
+  return { verifyEmail };
 }

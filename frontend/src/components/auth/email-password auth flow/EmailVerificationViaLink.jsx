@@ -3,7 +3,7 @@ import { EmailVerificationFail, useEmailVerification } from "../../../index";
 import { useSelector } from "react-redux";
 
 export default function EmailVerificationViaLink({ token, email }) {
-  const { verifyEmail, abortControllerRef } = useEmailVerification();
+  const { verifyEmail } = useEmailVerification();
 
   const emailVerificationError = useSelector(
     (state) => state.auth.emailVerificationError
@@ -14,12 +14,6 @@ export default function EmailVerificationViaLink({ token, email }) {
       verificationType: "link",
       payload: { email, verificationToken: token },
     });
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, []);
 
   if (emailVerificationError)

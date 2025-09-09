@@ -4,11 +4,8 @@ import { Loading, useSendEmailVerificationMail } from "../../../index";
 import { useSelector } from "react-redux";
 
 export default function ResendVerification({ verificationType }) {
-  const {
-    sendLinkVerificationMail,
-    sendOtpVerificationMail,
-    abortControllerRef,
-  } = useSendEmailVerificationMail();
+  const { sendLinkVerificationMail, sendOtpVerificationMail } =
+    useSendEmailVerificationMail();
 
   const loading = useSelector((state) => state.auth.loading);
 
@@ -16,14 +13,6 @@ export default function ResendVerification({ verificationType }) {
     otp: { text: "Resend OTP", func: sendOtpVerificationMail },
     link: { text: "Resend Link", func: sendLinkVerificationMail },
   };
-
-  React.useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return (
     <>

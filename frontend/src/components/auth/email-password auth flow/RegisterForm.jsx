@@ -58,7 +58,7 @@ const RegisterForm = () => {
 
   return (
     <>
-      <Logo src="/images/logo.png" logoClass={"my-5"} />
+      <Logo logoClass={"my-5"} />
 
       <form
         onSubmit={handleSubmit(handleRegister, (formErrors) =>

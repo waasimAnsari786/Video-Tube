@@ -53,7 +53,7 @@ const LoginForm = () => {
 
   return (
     <>
-      <Logo src="/images/logo.png" logoClass={"mb-5"} />
+      <Logo logoClass={"mb-5"} />
 
       <form
         onSubmit={handleSubmit(handleLogin, (formErrors) =>

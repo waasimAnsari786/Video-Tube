@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export const useAbortController = () => {
+const useAbortController = () => {
   const abortController = useRef(new AbortController());
 
   useEffect(() => {
@@ -11,3 +11,5 @@ export const useAbortController = () => {
 
   return abortController;
 };
+
+export default useAbortController;

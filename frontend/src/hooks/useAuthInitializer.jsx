@@ -1,19 +1,26 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
   getCurrentUserThunk,
   refreshAccessTokenThunk,
 } from "../store/slices/authSlice";
 import { useTokenRefreshScheduler } from "../index";
+import { REFRESH_INTERVAL } from "../constant";
 
-export const useAuthInitializer = (abortController) => {
+const useAuthInitializer = (abortController) => {
   const dispatch = useDispatch();
   const { scheduleRefresh, stopRefresh } =
     useTokenRefreshScheduler(abortController);
 
+  const refreshTimeoutId = useRef(null);
+
+  const fullName = useSelector((state) => state.auth.fullName);
+  const gooName = useSelector((state) => state.auth.google.gooName);
+
   useEffect(() => {
     (async () => {
+      if (fullName || gooName) return;
       const userRes = await dispatch(
         getCurrentUserThunk({
           url: "/users/me",
@@ -48,9 +55,14 @@ export const useAuthInitializer = (abortController) => {
       }
 
       toast.success(userRes.payload?.message || "User fetched successfully");
-      scheduleRefresh();
+      refreshTimeoutId.current = setTimeout(scheduleRefresh, REFRESH_INTERVAL);
     })();
 
-    return () => stopRefresh();
+    return () => {
+      clearTimeout(refreshTimeoutId.current);
+      stopRefresh();
+    };
   }, []);
 };
+
+export default useAuthInitializer;

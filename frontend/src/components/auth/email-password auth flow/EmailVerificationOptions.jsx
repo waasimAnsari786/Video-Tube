@@ -1,23 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { useSendEmailVerificationMail, Button, Loading } from "../../../index";
 
 const EmailVerificationOptions = () => {
   const loading = useSelector((state) => state.auth.loading); // reading from auth slice
 
-  const {
-    sendLinkVerificationMail,
-    sendOtpVerificationMail,
-    abortControllerRef,
-  } = useSendEmailVerificationMail();
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
+  const { sendLinkVerificationMail, sendOtpVerificationMail } =
+    useSendEmailVerificationMail();
 
   return (
     <>

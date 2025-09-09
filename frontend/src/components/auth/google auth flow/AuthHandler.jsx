@@ -45,7 +45,7 @@ const AuthHandler = () => {
         </>
       ) : (
         <>
-          <Logo src="/images/logo.png" logoClass={"mb-5"} />
+          <Logo logoClass={"mb-5"} />
           <p className="text-lg font-medium">Signing into VSteam...</p>
         </>
       )}

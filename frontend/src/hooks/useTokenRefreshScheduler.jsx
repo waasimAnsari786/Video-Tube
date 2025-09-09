@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { refreshAccessTokenThunk } from "../store/slices/authSlice";
 import { REFRESH_INTERVAL } from "../constant";
 
-export const useTokenRefreshScheduler = (abortController) => {
+const useTokenRefreshScheduler = (abortController) => {
   const dispatch = useDispatch();
   const refreshTimeoutId = useRef(null);
 
@@ -35,3 +35,5 @@ export const useTokenRefreshScheduler = (abortController) => {
 
   return { scheduleRefresh, stopRefresh };
 };
+
+export default useTokenRefreshScheduler;

@@ -264,23 +264,19 @@ const verifyEmailByLink = asyncHandler(async (req, res) => {
   }
 
   // 2. Verify the token
-  // let decodedVerificationToken;
-  // try {
-  //   decodedVerificationToken = jwt.verify(
-  //     verificationToken,
-  //     process.env.VERIFICATION_TOKEN_SECRET
-  //   );
-  // } catch (err) {
-  //   throw new ApiError(
-  //     400,
-  //     "Verification token expired or invalid",
-  //     "AUTH_VERIFICATION_TOKEN_EXPIRED"
-  //   );
-  // }
-  let decodedVerificationToken = jwt.verify(
-    verificationToken,
-    process.env.VERIFICATION_TOKEN_SECRET
-  );
+  let decodedVerificationToken;
+  try {
+    decodedVerificationToken = jwt.verify(
+      verificationToken,
+      process.env.VERIFICATION_TOKEN_SECRET
+    );
+  } catch (err) {
+    throw err;
+  }
+  // let decodedVerificationToken = jwt.verify(
+  //   verificationToken,
+  //   process.env.VERIFICATION_TOKEN_SECRET
+  // );
 
   // 3. Validate token’s _id matches user._id
   if (String(user._id) !== decodedVerificationToken._id) {
