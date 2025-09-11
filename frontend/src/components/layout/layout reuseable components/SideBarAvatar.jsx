@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {
   Loading,
   PopUp,
   PopupContent,
   SidebarAvatarButton,
+  useAbortController,
   useLoading,
   useRoute,
 } from "../../../index";
@@ -15,33 +16,29 @@ import { FaSignOutAlt, FaUser, FaYoutube } from "react-icons/fa";
 export default function SideBarAvatar() {
   const userName = useSelector((state) => state.auth.userName);
   const authStatus = useSelector((state) => state.auth.authStatus);
-  const controllerRef = useRef(new AbortController());
+  const abortController = useAbortController();
   const { loading, setLoading } = useLoading();
 
   const { handleRoute } = useRoute();
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    try {
-      setLoading(true); // show loader
-      const result = await dispatch(
-        logoutThunk({
-          url: "/users/me/logout",
-          payload: {},
-          config: { signal: controllerRef.current.signal },
-        })
-      );
+    setLoading(true); // show loader
+    const result = await dispatch(
+      logoutThunk({
+        url: "/users/me/logout",
+        payload: {},
+        config: { signal: abortController.current.signal },
+      })
+    );
 
-      if (!logoutThunk.fulfilled.match(result)) {
-        throw new Error(result.payload);
-      }
-
-      toast.success(result.payload.message);
-    } catch (err) {
-      toast.error(err);
-    } finally {
-      setLoading(false); // hide loader
+    setLoading(false);
+    if (!logoutThunk.fulfilled.match(result)) {
+      toast.error(result.payload?.message);
+      return;
     }
+
+    toast.success(result.payload.message);
   };
 
   const sidebarAvatarPopupContent = [
@@ -51,12 +48,6 @@ export default function SideBarAvatar() {
     ),
     new PopupContent(<FaSignOutAlt />, "Logout", handleLogout),
   ];
-
-  useEffect(() => {
-    return () => {
-      controllerRef.current.abort();
-    };
-  }, []);
 
   return (
     authStatus && (
