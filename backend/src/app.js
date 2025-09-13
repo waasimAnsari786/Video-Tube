@@ -10,6 +10,7 @@ import likeRouter from "./routes/like.route.js";
 import playlistRouter from "./routes/playlist.route.js";
 import session from "express-session";
 import passport from "./passport/config.js";
+import cors from "cors";
 
 // create app from express
 const app = express();
@@ -22,6 +23,8 @@ app.use(urlencoded({ limit: "16kb", extended: true }));
 
 // configure cookie-parser for performing CRUD on user's cookies
 app.use(cookieParser());
+
+app.use(cors());
 
 // // session middleware
 app.use(
