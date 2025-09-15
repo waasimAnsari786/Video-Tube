@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { emailVerificationThunk } from "../store/slices/authSlice";
 import { useAbortController } from "../index";
+import { ERROR_CODES } from "../constant";
 
 /**
  * Custom hook to handle email verification (via link or OTP).
@@ -31,7 +32,7 @@ export default function useEmailVerification() {
 
     if (!emailVerificationThunk.fulfilled.match(resultAction)) {
       const errorCode = resultAction.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log(
           `${verificationType} verification request has been cancelled`
         );

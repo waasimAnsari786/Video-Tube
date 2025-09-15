@@ -6,7 +6,7 @@ import {
   refreshAccessTokenThunk,
 } from "../store/slices/authSlice";
 import { useTokenRefreshScheduler } from "../index";
-import { REFRESH_INTERVAL } from "../constant";
+import { ERROR_CODES, REFRESH_INTERVAL } from "../constant";
 
 const useAuthInitializer = (abortController) => {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const useAuthInitializer = (abortController) => {
       if (!getCurrentUserThunk.fulfilled.match(userRes)) {
         const errorCode = userRes.payload?.errorCode;
 
-        if (errorCode === "GET_REQUEST_CANCELLED") {
+        if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
           console.log("Get current user request cancelled");
           return;
         }

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { refreshAccessTokenThunk } from "../store/slices/authSlice";
-import { REFRESH_INTERVAL } from "../constant";
+import { ERROR_CODES, REFRESH_INTERVAL } from "../constant";
 
 const useTokenRefreshScheduler = (abortController) => {
   const dispatch = useDispatch();
@@ -18,7 +18,7 @@ const useTokenRefreshScheduler = (abortController) => {
 
     if (!refreshAccessTokenThunk.fulfilled.match(refreshed)) {
       const errorCode = refreshed.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log("Refresh access token request cancelled");
       }
 

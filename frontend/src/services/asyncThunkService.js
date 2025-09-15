@@ -1,106 +1,79 @@
-// 📦 AsyncThunk Utility Class:
-// Provides reusable async thunks for CRUD API requests using axiosInstance.
-// Each method (getThunk, postThunk, patchThunk, deleteThunk):
-//   - Wraps axios calls in a consistent try/catch pattern.
-//   - Handles request cancellation gracefully via AbortController signals.
-//   - Returns the server response data or a clear rejectWithValue message on failure.
-// This abstraction reduces boilerplate and ensures uniform error handling across Redux thunks.
+// 📦 AsyncThunk Utility Class
+// Provides factory methods to generate reusable async thunks for CRUD API requests.
+// Each thunk automatically:
+//   - Wraps axiosInstance calls with standardized error handling.
+//   - Supports request cancellation via AbortController.
+//   - Optionally applies retry logic when retryRequestOptions are passed at dispatch time.
+// This abstraction removes repetitive boilerplate in Redux slices and ensures a consistent,
+// flexible, and centralized API request flow across the application.
 
-import { axiosInstance } from "../index";
+import { axiosInstance, requestWithRetry } from "../index";
 
 class AsyncThunk {
   getThunk() {
-    return async ({ url, config = {} }, { rejectWithValue }) => {
+    return async (
+      { url, config = {}, retryRequestOptions = {} },
+      { rejectWithValue }
+    ) => {
       try {
-        const response = await axiosInstance.get(url, config);
+        const response = await requestWithRetry(
+          () => axiosInstance.get(url, config),
+          retryRequestOptions
+        );
         return response.data;
       } catch (err) {
-        if (config.signal.aborted) {
-          return rejectWithValue({
-            message: "get request cancelled",
-            errorCode: "GET_REQUEST_CANCELLED",
-          });
-        }
-
-        // Ensure consistent rejection structure
-        return rejectWithValue(
-          err.response?.data || {
-            message: "GET failed",
-            errorCode: "GET_ERROR",
-          }
-        );
+        return rejectWithValue(err);
       }
     };
   }
 
   postThunk() {
-    return async ({ url, payload, config = {} }, { rejectWithValue }) => {
+    return async (
+      { url, payload, config = {}, retryRequestOptions = {} },
+      { rejectWithValue }
+    ) => {
       try {
-        const response = await axiosInstance.post(url, payload, config);
+        const response = await requestWithRetry(
+          () => axiosInstance.post(url, payload, config),
+          retryRequestOptions
+        );
         return response.data;
       } catch (err) {
-        if (config.signal.aborted) {
-          return rejectWithValue({
-            message: "post request cancelled",
-            errorCode: "POST_REQUEST_CANCELLED",
-          });
-        }
-
-        // Ensure consistent rejection structure
-        return rejectWithValue(
-          err.response?.data || {
-            message: "POST failed",
-            errorCode: "POST_ERROR",
-          }
-        );
+        return rejectWithValue(err);
       }
     };
   }
 
   patchThunk() {
-    return async ({ url, payload, config = {} }, { rejectWithValue }) => {
+    return async (
+      { url, payload, config = {}, retryRequestOptions = {} },
+      { rejectWithValue }
+    ) => {
       try {
-        const response = await axiosInstance.patch(url, payload, config);
+        const response = await requestWithRetry(
+          () => axiosInstance.patch(url, payload, config),
+          retryRequestOptions
+        );
         return response.data;
       } catch (err) {
-        if (config.signal.aborted) {
-          return rejectWithValue({
-            message: "patch request cancelled",
-            errorCode: "PATCH_REQUEST_CANCELLED",
-          });
-        }
-
-        // Ensure consistent rejection structure
-        return rejectWithValue(
-          err.response?.data || {
-            message: "PATCH failed",
-            errorCode: "PATCH_ERROR",
-          }
-        );
+        return rejectWithValue(err);
       }
     };
   }
 
   deleteThunk() {
-    return async ({ url, config = {} }, { rejectWithValue }) => {
+    return async (
+      { url, config = {}, retryRequestOptions = {} },
+      { rejectWithValue }
+    ) => {
       try {
-        const response = await axiosInstance.delete(url, config);
+        const response = await requestWithRetry(
+          () => axiosInstance.delete(url, config),
+          retryRequestOptions
+        );
         return response.data;
       } catch (err) {
-        if (config.signal.aborted) {
-          return rejectWithValue({
-            message: "delete request cancelled",
-            errorCode: "DELETE_REQUEST_CANCELLED",
-          });
-        }
-
-        // Ensure consistent rejection structure
-        return rejectWithValue(
-          err.response?.data || {
-            message: "DELETE failed",
-            errorCode: "DELETE_ERROR",
-          }
-        );
+        return rejectWithValue(err);
       }
     };
   }

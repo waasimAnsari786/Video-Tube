@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { registerUserThunk } from "../../../store/slices/authSlice";
+import { ERROR_CODES } from "../../../constant";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const RegisterForm = () => {
       navigate("/verify-email");
     } else {
       const errorCode = result.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log("Register user request cancelled");
       } else {
         toast.error(result.payload?.message || "Registration failed");

@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginUserThunk } from "../../../store/slices/authSlice";
+import { ERROR_CODES } from "../../../constant";
 
 const LoginForm = () => {
   const { register, handleSubmit } = useForm({
@@ -43,7 +44,7 @@ const LoginForm = () => {
       navigate("/");
     } else {
       const errorCode = result.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log("Login request cancelled");
       } else {
         toast.error(result.payload?.message || "Login failed");

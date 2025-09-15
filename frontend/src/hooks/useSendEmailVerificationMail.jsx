@@ -17,6 +17,7 @@ import {
   updateAuthSliceStateReducer,
 } from "../store/slices/authSlice";
 import { useAbortController } from "../index";
+import { ERROR_CODES } from "../constant";
 
 export default function useSendEmailVerificationMail() {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ export default function useSendEmailVerificationMail() {
 
     if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
       const errorCode = resultAction.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log("send OTP request cancelled");
       } else {
         toast.error(resultAction.payload?.message || "OTP request failed");
@@ -99,7 +100,7 @@ export default function useSendEmailVerificationMail() {
 
     if (!sendEmailVerificationMailThunk.fulfilled.match(resultAction)) {
       const errorCode = resultAction.payload?.errorCode;
-      if (errorCode === "POST_REQUEST_CANCELLED") {
+      if (errorCode === ERROR_CODES.REQUEST_CANCELLED_ERROR_CODE) {
         console.log("send link request cancelled");
       } else {
         toast.error(resultAction.payload?.message || "Link request failed");
